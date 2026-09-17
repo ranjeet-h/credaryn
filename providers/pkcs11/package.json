@@ -1,0 +1,16 @@
+{
+  "name": "@credaryn/pkcs11",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "example:issue": "CREDARYN_PROVIDER_MOCK=1 tsx ../../examples/pkcs11/src/issue.ts",
+    "test:softhsm": "vitest test/pkcs11-soft-hsm.test.ts --run"
+  },
+  "exports": {
+    ".": "./src/pkcs11-signer.ts"
+  },
+  "dependencies": {
+    "@credaryn/core": "workspace:*"
+  }
+}

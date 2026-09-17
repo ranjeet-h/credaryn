@@ -1,0 +1,15 @@
+{
+  "name": "@credaryn/provider-azure-key-vault",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "example:issue": "tsx ../../examples/azure-key-vault/src/issue.ts"
+  },
+  "exports": {
+    ".": "./src/azure-key-vault-signer.ts"
+  },
+  "dependencies": {
+    "@credaryn/core": "workspace:*"
+  }
+}

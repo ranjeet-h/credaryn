@@ -1,0 +1,16 @@
+{
+  "name": "@credaryn/provider-aws-kms",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "example:issue": "tsx ../../examples/aws-kms/src/issue.ts"
+  },
+  "exports": {
+    ".": "./src/aws-kms-signer.ts",
+    "./der-to-cose": "./src/der-to-cose.ts"
+  },
+  "dependencies": {
+    "@credaryn/core": "workspace:*"
+  }
+}

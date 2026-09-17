@@ -194,6 +194,30 @@ importers:
         specifier: workspace:*
         version: link:../../packages/verifier
 
+  examples/aws-kms:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@credaryn/paper':
+        specifier: workspace:*
+        version: link:../../packages/paper
+      '@credaryn/provider-aws-kms':
+        specifier: workspace:*
+        version: link:../../providers/aws-kms
+
+  examples/azure-key-vault:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@credaryn/paper':
+        specifier: workspace:*
+        version: link:../../packages/paper
+      '@credaryn/provider-azure-key-vault':
+        specifier: workspace:*
+        version: link:../../providers/azure-key-vault
+
   examples/browser-print:
     dependencies:
       '@credaryn/core':
@@ -215,6 +239,18 @@ importers:
         specifier: 0.25.12
         version: 0.25.12
 
+  examples/gcp-kms:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@credaryn/paper':
+        specifier: workspace:*
+        version: link:../../packages/paper
+      '@credaryn/provider-gcp-kms':
+        specifier: workspace:*
+        version: link:../../providers/gcp-kms
+
   examples/invoice-puppeteer:
     dependencies:
       '@credaryn/adapter-pades-dss':
@@ -235,6 +271,18 @@ importers:
       puppeteer:
         specifier: 24.26.1
         version: 24.26.1(typescript@7.0.2)
+
+  examples/pkcs11:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@credaryn/paper':
+        specifier: workspace:*
+        version: link:../../packages/paper
+      '@credaryn/pkcs11':
+        specifier: workspace:*
+        version: link:../../providers/pkcs11
 
   packages/core: {}
 
@@ -307,11 +355,44 @@ importers:
         specifier: workspace:*
         version: link:../core
 
+  providers/aws-kms:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+
+  providers/azure-key-vault:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+
+  providers/gcp-kms:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+
   providers/local:
     dependencies:
       '@credaryn/core':
         specifier: workspace:*
         version: link:../../packages/core
+
+  providers/pkcs11:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+
+  providers/shared:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@credaryn/paper':
+        specifier: workspace:*
+        version: link:../../packages/paper
 
 packages:
 

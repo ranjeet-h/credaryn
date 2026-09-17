@@ -1,4 +1,5 @@
 export * from "./document.js";
+export * from "./key-lifecycle.js";
 export * from "./policy.js";
 export * from "./result.js";
 export * from "./signer.js";

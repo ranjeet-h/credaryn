@@ -1,0 +1,13 @@
+{
+  "name": "@credaryn/providers",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test:shared-vectors": "vitest run ../aws-kms/test ../gcp-kms/test ../azure-key-vault/test ../pkcs11/test --run"
+  },
+  "dependencies": {
+    "@credaryn/core": "workspace:*",
+    "@credaryn/paper": "workspace:*"
+  }
+}

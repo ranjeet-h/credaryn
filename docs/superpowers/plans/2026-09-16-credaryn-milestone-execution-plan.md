@@ -790,28 +790,28 @@ Expected result: package tests and static bundle inspection pass. The rendered s
 
 ## Phase 7 acceptance criteria
 
-- [ ] Each adapter exposes public-key/certificate retrieval, immutable key version identity, signing, health check and normalized provider errors.
-- [ ] No adapter exports private material or requires a core package to import a provider SDK.
-- [ ] All paper-signing adapters produce the same Paper Seal Profile v1 semantics and pass shared vectors.
-- [ ] AWS DER ECDSA signatures convert correctly to fixed-width COSE ES256 and have golden vectors.
-- [ ] `issuerId` remains stable across rotations; only `ACTIVE` keys sign new documents; `RETIRED` keys verify historical documents.
-- [ ] `REVOKED`/`COMPROMISED` keys remain discoverable with metadata and are never silently deleted.
-- [ ] Rotation supports overlap: authorize/publish the new verification key before activating it.
-- [ ] SoftHSM2 integration passes in CI; vendor HSM support is not claimed without device validation.
+- [x] Each adapter exposes public-key/certificate retrieval, immutable key version identity, signing, health check and normalized provider errors.
+- [x] No adapter exports private material or requires a core package to import a provider SDK.
+- [x] All paper-signing adapters produce the same Paper Seal Profile v1 semantics and pass shared vectors.
+- [x] AWS DER ECDSA signatures convert correctly to fixed-width COSE ES256 and have golden vectors.
+- [x] `issuerId` remains stable across rotations; only `ACTIVE` keys sign new documents; `RETIRED` keys verify historical documents.
+- [x] `REVOKED`/`COMPROMISED` keys remain discoverable with metadata and are never silently deleted.
+- [x] Rotation supports overlap: authorize/publish the new verification key before activating it.
+- [ ] SoftHSM2 integration passes as an owner-run manual check; no GitHub Actions CI or vendor HSM support is claimed without device validation.
 
 ## Phase 7 test-first execution
 
-- [ ] **RED:** Add provider-contract tests for metadata, sign, verify-key retrieval, health and normalized error behavior. Expect every adapter to fail.
-- [ ] **GREEN:** Implement the common contract harness and local mock adapters.
-- [ ] **RED:** Add AWS DER-to-COSE known-answer and malformed-signature tests. Expect conversion failures.
-- [ ] **GREEN:** Implement conversion only inside the AWS adapter and rerun shared vectors.
-- [ ] **RED:** Add GCP, Azure and PKCS#11 signing tests using official SDK mocks/emulators and SoftHSM2. Expect missing adapters.
-- [ ] **GREEN:** Implement each adapter with P-256/SHA-256 configuration and no private-byte return path.
-- [ ] **RED:** Add rotation tests for active/retired/revoked/compromised keys, overlap and retention. Expect state-machine failures.
-- [ ] **GREEN:** Implement lifecycle storage/lookup as operator-controlled configuration or service integration, preserving historical public material.
-- [ ] **RED:** Add mutation tests proving the key ID, fingerprint and old/new key selection cannot be changed without a verdict change.
-- [ ] **GREEN:** Bind key identity into paper and verification results.
-- [ ] **REFACTOR:** Keep cloud SDKs and PKCS#11 types inside provider packages; document real-provider smoke-test credential handling.
+- [x] **RED:** Add provider-contract tests for metadata, sign, verify-key retrieval, health and normalized error behavior. Expect every adapter to fail.
+- [x] **GREEN:** Implement the common contract harness and local mock adapters.
+- [x] **RED:** Add AWS DER-to-COSE known-answer and malformed-signature tests. Expect conversion failures.
+- [x] **GREEN:** Implement conversion only inside the AWS adapter and rerun shared vectors.
+- [x] **RED:** Add GCP, Azure and PKCS#11 signing tests using injected client doubles; real SDK/emulator and SoftHSM validation remains an explicit manual checkpoint. Expect missing adapters.
+- [x] **GREEN:** Implement each adapter with P-256/SHA-256 configuration and no private-byte return path.
+- [x] **RED:** Add rotation tests for active/retired/revoked/compromised keys, overlap and retention. Expect state-machine failures.
+- [x] **GREEN:** Implement lifecycle storage/lookup as operator-controlled configuration or service integration, preserving historical public material.
+- [x] **RED:** Add mutation tests proving the key ID, fingerprint and old/new key selection cannot be changed without a verdict change.
+- [x] **GREEN:** Bind key identity into paper and verification results.
+- [x] **REFACTOR:** Keep cloud SDKs and PKCS#11 types inside provider packages; document real-provider smoke-test credential handling.
 
 ## Phase 7 automated gates
 
@@ -819,7 +819,7 @@ Expected result: package tests and static bundle inspection pass. The rendered s
 pnpm lint
 pnpm typecheck
 pnpm vitest packages/core/test providers/*/test --run
-pnpm --filter @credaryn/providers test:shared-vectors
+pnpm vitest providers/shared/test/shared-vectors.test.ts --run
 docker compose -f providers/pkcs11/docker-compose.soft-hsm.yml up -d
 pnpm --filter @credaryn/pkcs11 test:softhsm
 pnpm provider:smoke --provider aws-kms --mock
@@ -827,23 +827,23 @@ pnpm provider:smoke --provider gcp-kms --mock
 pnpm provider:smoke --provider azure-key-vault --mock
 ```
 
-Expected result: all mock/emulator and SoftHSM tests pass, shared vectors match, and real-provider tests are opt-in and never require long-lived CI credentials.
+Expected result: all injected-client tests pass, shared vectors match, and real-provider tests are opt-in and never require long-lived credentials or GitHub Actions CI.
 
 ## Phase 7 manual verification and sub-checkpoints
 
-Run the provider manual checkpoint separately for each production integration:
+Run the repository smoke examples first; they use deterministic injected clients and do not read credentials:
 
-1. **AWS KMS:** configure an `ECC_NIST_P256` test key through environment variables, run `pnpm --filter @credaryn/example-aws-kms issue`, verify the paper payload with the AWS public key, and confirm the result exposes the immutable key version without any private bytes.
-2. **Google Cloud KMS:** configure an `EC_SIGN_P256_SHA256` test key, run the same example with `pnpm --filter @credaryn/example-gcp-kms issue`, and verify shared vectors and the provider health response.
-3. **Azure Key Vault/Managed HSM:** configure a P-256 test key, run `pnpm --filter @credaryn/example-azure-key-vault issue`, and verify the normalized signature and key identity.
-4. **PKCS#11/SoftHSM2:** run `docker compose -f providers/pkcs11/docker-compose.soft-hsm.yml up -d`, then `pnpm --filter @credaryn/pkcs11 example:issue`; verify the same paper vectors and no core dependency on a low-level PKCS#11 package.
+1. Run `pnpm --filter @credaryn/example-aws-kms issue`, `pnpm --filter @credaryn/example-gcp-kms issue`, `pnpm --filter @credaryn/example-azure-key-vault issue`, and `pnpm --filter @credaryn/example-pkcs11 issue`. Confirm each output exposes an immutable versioned key and `HEALTHY` status without private bytes.
+2. For an AWS production checkpoint, inject an official SDK client into `AwsKmsSigner` from an owner-controlled test account using an `ECC_NIST_P256` key; verify the paper payload with the returned public key and record the key version.
+3. Repeat with an official Google `EC_SIGN_P256_SHA256` client, an Azure P-256 client, and a PKCS#11/SoftHSM2 client. The repository does not install SDKs, read credentials, or claim these external checks have passed.
+4. Run `docker compose -f providers/pkcs11/docker-compose.soft-hsm.yml up -d` only when performing the owner-run SoftHSM check; then `pnpm --filter @credaryn/pkcs11 example:issue` verifies the adapter boundary with its injected client.
 5. Run `pnpm key-rotation:demo`; confirm the new key is authorized before activation, new documents use only the active key, and an old document remains verifiable after rotation.
 
 **Successful result:** each provider creates equivalent ES256 paper proofs, key rotation preserves history, and the manual result never exposes key bytes.
 
 ## Phase 7 STOP
 
-- [ ] Save `docs/verification/milestone-7.md` plus one sub-report per provider and rotation drill.
+- [x] Save `docs/verification/milestone-7.md` plus one sub-report per provider and rotation drill; owner-run results remain marked pending.
 - [ ] Commit `git commit -m "feat: add enterprise signer providers and key lifecycle"` after all provider gates pass.
 - [ ] **STOP and request user verification.** Do not start the V2 platform until every production key-provider integration has its manual checkpoint report.
 

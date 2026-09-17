@@ -1,0 +1,17 @@
+services:
+  softhsm:
+    image: docker.io/softhsm/softhsm2:2.6.1
+    container_name: credaryn-softhsm
+    environment:
+      SOFTHSM2_CONF: /etc/softhsm/softhsm2.conf
+    volumes:
+      - softhsm-tokens:/var/lib/softhsm/tokens
+      - ./softhsm2.conf:/etc/softhsm/softhsm2.conf:ro
+    healthcheck:
+      test: ["CMD", "softhsm2-util", "--show-slots"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  softhsm-tokens:

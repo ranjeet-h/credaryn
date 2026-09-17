@@ -1,0 +1,14 @@
+{
+  "name": "@credaryn/example-aws-kms",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "issue": "CREDARYN_PROVIDER_MOCK=1 tsx src/issue.ts"
+  },
+  "dependencies": {
+    "@credaryn/core": "workspace:*",
+    "@credaryn/paper": "workspace:*",
+    "@credaryn/provider-aws-kms": "workspace:*"
+  }
+}

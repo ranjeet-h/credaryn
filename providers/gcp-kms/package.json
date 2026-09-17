@@ -1,0 +1,15 @@
+{
+  "name": "@credaryn/provider-gcp-kms",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "example:issue": "tsx ../../examples/gcp-kms/src/issue.ts"
+  },
+  "exports": {
+    ".": "./src/gcp-kms-signer.ts"
+  },
+  "dependencies": {
+    "@credaryn/core": "workspace:*"
+  }
+}

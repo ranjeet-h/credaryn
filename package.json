@@ -20,7 +20,9 @@
     "bundle:inspect": "node scripts/check-browser-bundle.mjs",
     "demo:build": "pnpm --filter @credaryn/example-invoice-puppeteer generate",
     "demo:start": "pnpm --filter @credaryn/playground start",
-    "docs:check": "vitest run apps/playground/test/documentation.test.ts --run"
+    "docs:check": "vitest run apps/playground/test/documentation.test.ts --run",
+    "provider:smoke": "tsx scripts/provider-smoke.ts",
+    "key-rotation:demo": "tsx scripts/key-rotation-demo.ts"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "5.0.1",
