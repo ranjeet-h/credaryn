@@ -9,6 +9,7 @@ RUN pnpm install --frozen-lockfile
 
 ENV HOST=0.0.0.0
 ENV PORT=4173
+USER node
 EXPOSE 4173
 
 CMD ["pnpm", "--filter", "@credaryn/verifier-web", "start"]

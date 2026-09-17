@@ -11,6 +11,7 @@
     "@credaryn/adapter-pades-dss": "workspace:*",
     "@credaryn/core": "workspace:*",
     "@credaryn/node": "workspace:*",
+    "@credaryn/observability": "workspace:*",
     "@credaryn/provider-local": "workspace:*",
     "@credaryn/verifier": "workspace:*"
   }

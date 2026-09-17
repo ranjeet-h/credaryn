@@ -1,0 +1,12 @@
+{
+  "name": "@credaryn/admin",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@credaryn/observability": "workspace:*"
+  }
+}

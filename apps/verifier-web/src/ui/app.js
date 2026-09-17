@@ -11,6 +11,10 @@ const signedClaims = document.querySelector("#signed-claims");
 const lifecycleStatus = document.querySelector("#lifecycle-status");
 const securityMode = document.querySelector("#security-mode");
 
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js").catch(() => undefined);
+}
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   submit.disabled = true;

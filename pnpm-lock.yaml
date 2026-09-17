@@ -140,6 +140,12 @@ importers:
         specifier: workspace:*
         version: link:../../packages/pdf
 
+  apps/admin:
+    dependencies:
+      '@credaryn/observability':
+        specifier: workspace:*
+        version: link:../../services/observability
+
   apps/playground:
     dependencies:
       '@credaryn/adapter-pades-dss':
@@ -166,6 +172,9 @@ importers:
       '@credaryn/node':
         specifier: workspace:*
         version: link:../../packages/node
+      '@credaryn/observability':
+        specifier: workspace:*
+        version: link:../../services/observability
       '@credaryn/provider-local':
         specifier: workspace:*
         version: link:../../providers/local
@@ -355,6 +364,12 @@ importers:
         specifier: workspace:*
         version: link:../core
 
+  packages/widget:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../core
+
   providers/aws-kms:
     dependencies:
       '@credaryn/core':
@@ -393,6 +408,14 @@ importers:
       '@credaryn/paper':
         specifier: workspace:*
         version: link:../../packages/paper
+
+  services/observability: {}
+
+  services/status:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
 
 packages:
 

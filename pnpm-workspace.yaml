@@ -5,6 +5,7 @@ packages:
   - apps/*
   - cli/*
   - examples/*
+  - services/*
 allowBuilds:
   cbor-extract: true
   esbuild: true

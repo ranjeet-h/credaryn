@@ -1,0 +1,40 @@
+openapi: 3.1.0
+info:
+  title: Credaryn verifier API
+  version: v1
+paths:
+  /v1/health:
+    get:
+      responses:
+        '200':
+          description: Readiness metadata
+  /v1/version:
+    get:
+      responses:
+        '200':
+          description: Build and compatibility metadata
+  /v1/verify:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/pdf: {}
+          image/png: {}
+          text/vnd.credaryn.crd1: {}
+      responses:
+        '200':
+          description: Normalized VerificationResult
+        '413':
+          description: Input exceeds the bounded limit
+        '415':
+          description: Unsupported or ambiguous content type
+  /v1/verify/pdf:
+    post:
+      responses:
+        '200':
+          description: Normalized PDF VerificationResult
+  /v1/verify/paper:
+    post:
+      responses:
+        '200':
+          description: Normalized Paper Seal VerificationResult

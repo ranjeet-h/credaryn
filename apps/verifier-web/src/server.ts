@@ -15,6 +15,7 @@ import {
 } from "@credaryn/verifier";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { createCorrelationId } from "@credaryn/observability";
 
 export const MAX_WEB_REQUEST_BYTES = MAX_PDF_BYTES;
 export const MAX_WEB_REQUEST_DURATION_MS = 30_000;
@@ -23,6 +24,9 @@ export interface VerifierWebOptions {
   verifier: Verifier;
   uiDirectory?: string;
   requestTimeoutMs?: number;
+  version?: string;
+  allowedOrigins?: readonly string[];
+  rateLimit?: { limit: number; windowMs: number };
 }
 
 export interface StartVerifierWebOptions {
@@ -31,13 +35,20 @@ export interface StartVerifierWebOptions {
   port?: number;
   uiDirectory?: string;
   requestTimeoutMs?: number;
+  version?: string;
 }
 
 export function createVerifierServer(options: VerifierWebOptions): Server {
   const uiDirectory = options.uiDirectory ?? fileURLToPath(new URL("./ui/", import.meta.url));
   const requestTimeoutMs = options.requestTimeoutMs ?? MAX_WEB_REQUEST_DURATION_MS;
+  const version = options.version ?? process.env.CREDARYN_BUILD_VERSION ?? "development";
+  const allowedOrigins = options.allowedOrigins ?? configuredOrigins();
+  const rateLimit = options.rateLimit ?? { limit: 120, windowMs: 60_000 };
+  const rateBuckets = new Map<string, { startedAt: number; count: number }>();
   return createServer((request, response) => {
-    void handleRequest(request, response, options.verifier, uiDirectory, requestTimeoutMs);
+    const correlationId = createCorrelationId(headerValue(request.headers["x-correlation-id"]));
+    response.setHeader("x-correlation-id", correlationId);
+    void handleRequest(request, response, options.verifier, uiDirectory, requestTimeoutMs, version, allowedOrigins, rateLimit, rateBuckets);
   });
 }
 
@@ -60,16 +71,37 @@ async function handleRequest(
   verifier: Verifier,
   uiDirectory: string,
   requestTimeoutMs: number,
+  version: string,
+  allowedOrigins: readonly string[],
+  rateLimit: { limit: number; windowMs: number },
+  rateBuckets: Map<string, { startedAt: number; count: number }>,
 ): Promise<void> {
   try {
     setSecurityHeaders(response);
     const method = request.method ?? "GET";
     const path = new URL(request.url ?? "/", "http://localhost").pathname;
+    applyCors(request, response, allowedOrigins);
+    if (method === "OPTIONS" && path.startsWith("/v1/")) {
+      response.statusCode = 204;
+      response.end();
+      return;
+    }
+    if (path.startsWith("/v1/") && !withinRateLimit(request, rateLimit, rateBuckets)) {
+      throw new WebError(429, "RATE_LIMITED", "Request rate limit exceeded");
+    }
     if (method === "GET" && path === "/health") {
       respondJson(response, 200, { status: "ready", service: "credaryn-verifier" });
       return;
     }
-    if (method === "GET" && (path === "/" || path === "/app.js" || path === "/style.css")) {
+    if (method === "GET" && path === "/v1/health") {
+      respondJson(response, 200, { status: "ready", service: "credaryn-verifier", apiVersion: "v1" });
+      return;
+    }
+    if (method === "GET" && path === "/v1/version") {
+      respondJson(response, 200, { apiVersion: "v1", build: version, securityMode: "PAPER_CLAIMS_ONLY" });
+      return;
+    }
+    if (method === "GET" && (path === "/" || path === "/app.js" || path === "/style.css" || path === "/manifest.webmanifest" || path === "/service-worker.js")) {
       const fileName = path === "/" ? "index.html" : path.slice(1);
       await respondStatic(response, uiDirectory, fileName);
       return;
@@ -176,7 +208,9 @@ async function respondStatic(response: ServerResponse, uiDirectory: string, file
     const body = await readFile(join(uiDirectory, fileName));
     const contentType = fileName.endsWith(".js")
       ? "text/javascript; charset=utf-8"
-      : fileName.endsWith(".css") ? "text/css; charset=utf-8" : "text/html; charset=utf-8";
+      : fileName.endsWith(".css") ? "text/css; charset=utf-8"
+        : fileName.endsWith(".webmanifest") ? "application/manifest+json; charset=utf-8"
+          : "text/html; charset=utf-8";
     response.setHeader("content-type", contentType);
     response.end(body);
   } catch {
@@ -215,6 +249,41 @@ function setSecurityHeaders(response: ServerResponse): void {
   response.setHeader("cache-control", "no-store");
   response.setHeader("x-content-type-options", "nosniff");
   response.setHeader("content-security-policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'");
+}
+
+function applyCors(request: IncomingMessage, response: ServerResponse, allowedOrigins: readonly string[]): void {
+  const origin = headerValue(request.headers.origin);
+  if (origin === undefined) return;
+  if (!allowedOrigins.includes(origin)) throw new WebError(403, "CORS_ORIGIN_DENIED", "Origin is not allowed");
+  response.setHeader("access-control-allow-origin", origin);
+  response.setHeader("access-control-allow-methods", "GET,POST,OPTIONS");
+  response.setHeader("access-control-allow-headers", "content-type,x-correlation-id");
+  response.setHeader("vary", "origin");
+}
+
+function withinRateLimit(
+  request: IncomingMessage,
+  configuration: { limit: number; windowMs: number },
+  buckets: Map<string, { startedAt: number; count: number }>,
+): boolean {
+  const key = request.socket.remoteAddress ?? "unknown";
+  const now = Date.now();
+  const existing = buckets.get(key);
+  if (existing === undefined || now - existing.startedAt >= configuration.windowMs) {
+    buckets.set(key, { startedAt: now, count: 1 });
+    return true;
+  }
+  existing.count += 1;
+  return existing.count <= configuration.limit;
+}
+
+function configuredOrigins(): readonly string[] {
+  const value = process.env.CREDARYN_ALLOWED_ORIGINS;
+  return value === undefined ? [] : value.split(",").map((origin) => origin.trim()).filter((origin) => origin !== "");
+}
+
+function headerValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
 }
 
 function respondJson(response: ServerResponse, status: number, body: unknown): void {

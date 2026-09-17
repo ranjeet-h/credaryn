@@ -1,0 +1,12 @@
+{
+  "name": "@credaryn/status",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/status-service.ts"
+  },
+  "dependencies": {
+    "@credaryn/core": "workspace:*"
+  }
+}

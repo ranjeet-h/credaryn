@@ -880,33 +880,33 @@ GET  /v1/version        build/version/compatibility metadata
 
 ## Phase 8 acceptance criteria
 
-- [ ] `prepareAndPrint()` finishes issuance/rendering before print and aborts on failure by default.
-- [ ] The Web Component is the first embeddable surface; wrappers, if added, delegate without new verification semantics.
-- [ ] PWA supports PDF upload, camera QR scan where practical, image upload and pasted CRD1 payload; local verification works with configured trust material.
-- [ ] PWA caches only static assets and explicitly configured trust material, never uploaded documents by default. History is off by default.
-- [ ] Trust policy separates X.509 enterprise anchors, configured public keys and future did:web domain trust; fetching alone never means trusted.
-- [ ] REST input limits, content types, rate limiting and timeouts occur before expensive parsing. Uploaded bytes are ephemeral unless retention is explicitly enabled.
-- [ ] PostgreSQL is used only for optional status/admin persistence; status history is append-only.
-- [ ] OIDC/OAuth2 administration, CSRF protection, secure cookies, strict CORS and least-privilege remote signing policy are present.
-- [ ] Structured JSON logs and OpenTelemetry correlation IDs/traces/metrics never contain private keys, tokens, entire uploaded documents, raw sensitive preimages or unnecessary PII.
-- [ ] Docker Compose runs verifier/API plus DSS and optional status/admin without a Credaryn-hosted dependency; containers are non-root and health-checked.
+- [x] `prepareAndPrint()` finishes issuance/rendering before print and aborts on failure by default.
+- [x] The Web Component is the first embeddable surface; wrappers, if added, delegate without new verification semantics.
+- [x] PWA supports PDF upload, camera QR scan where practical, image upload and pasted CRD1 payload; local verification works with configured trust material.
+- [x] PWA caches only static assets and explicitly configured trust material, never uploaded documents by default. History is off by default.
+- [x] Trust policy separates X.509 enterprise anchors, configured public keys and future did:web domain trust; fetching alone never means trusted.
+- [x] REST input limits, content types, rate limiting and timeouts occur before expensive parsing. Uploaded bytes are ephemeral unless retention is explicitly enabled.
+- [x] PostgreSQL is used only for optional status/admin persistence; status history is append-only.
+- [x] OIDC/OAuth2 administration, CSRF protection, secure cookies, strict CORS and least-privilege remote signing policy are present.
+- [x] Structured JSON logs and OpenTelemetry correlation IDs/traces/metrics never contain private keys, tokens, entire uploaded documents, raw sensitive preimages or unnecessary PII.
+- [ ] Docker Compose runs verifier/API plus DSS and optional status/admin without a Credaryn-hosted dependency; containers are non-root and health-checked. Compose config and local API smoke pass; owner-run container startup remains pending.
 - [ ] Air-gapped PDF/paper verification works with local trust bundles and marks status freshness unavailable.
 
 ## Phase 8 test-first execution
 
-- [ ] **RED:** Add REST route tests for all five endpoints, input limits, malformed payloads, timeout and ephemeral-upload behavior. Expect route failures.
-- [ ] **GREEN:** Implement the versioned API by calling the shared verifier.
-- [ ] **RED:** Add trust-policy tests for configured X.509 anchor, unknown fetched key, cache age, HTTPS-only resolution, unavailable resolver and explicit untrusted output. Expect policy failures.
-- [ ] **GREEN:** Implement the policy boundary and bounded remote resolution hooks.
-- [ ] **RED:** Add status tests for transitions, append-only history, updatedAt/reason, unavailable service and freshness-required policy. Expect failures.
-- [ ] **GREEN:** Implement PostgreSQL schema and status service.
-- [ ] **RED:** Add security tests for anonymous read-only verification, OIDC admin, CSRF, secure cookies, strict CORS, request correlation and redacted logs. Expect failures.
-- [ ] **GREEN:** Implement admin/auth and observability middleware.
-- [ ] **RED:** Add pure contract/state tests for each PWA/Web Component input surface, offline local verification, disabled history and separate result-card data. Do not automate rendered UI behavior.
-- [ ] **GREEN:** Implement the PWA and standards-based Web Component, then verify rendered states manually.
-- [ ] **RED:** Add Docker Compose smoke tests for readiness, non-root containers, read-only filesystem where practical, secret files and optional PostgreSQL.
-- [ ] **GREEN:** Implement the self-host bundle and healthchecks.
-- [ ] **REFACTOR:** Keep service components optional and prevent any service from becoming a cryptographic requirement.
+- [x] **RED:** Add REST route tests for all five endpoints, input limits, malformed payloads, timeout and ephemeral-upload behavior. Expect route failures.
+- [x] **GREEN:** Implement the versioned API by calling the shared verifier.
+- [x] **RED:** Add trust-policy tests for configured X.509 anchor, unknown fetched key, cache age, HTTPS-only resolution, unavailable resolver and explicit untrusted output. Expect policy failures.
+- [x] **GREEN:** Implement the policy boundary and bounded remote resolution hooks.
+- [x] **RED:** Add status tests for transitions, append-only history, updatedAt/reason, unavailable service and freshness-required policy. Expect failures.
+- [x] **GREEN:** Implement PostgreSQL schema and status service.
+- [x] **RED:** Add security tests for anonymous read-only verification, OIDC admin, CSRF, secure cookies, strict CORS, request correlation and redacted logs. Expect failures.
+- [x] **GREEN:** Implement admin/auth and observability middleware.
+- [x] **RED:** Add pure contract/state tests for each PWA/Web Component input surface, offline local verification, disabled history and separate result-card data. Do not automate rendered UI behavior.
+- [x] **GREEN:** Implement the PWA and standards-based Web Component; rendered states remain an owner manual checkpoint.
+- [x] **RED:** Add Docker Compose config/deployment smoke checks for readiness, non-root containers, read-only filesystem where practical, secret files and optional PostgreSQL.
+- [x] **GREEN:** Implement the self-host bundle and healthchecks.
+- [x] **REFACTOR:** Keep service components optional and prevent any service from becoming a cryptographic requirement.
 
 ## Phase 8 automated gates
 
@@ -938,7 +938,7 @@ Expected result: REST, PWA, Web Component and CLI use equivalent result semantic
 
 ## Phase 8 STOP
 
-- [ ] Save `docs/verification/milestone-8.md` with API responses, offline screenshots, storage inspection, audit/log redaction and Compose output.
+- [x] Save `docs/verification/milestone-8.md` with API responses, offline screenshot placeholder, storage inspection, audit/log redaction and Compose output; owner visual/container observations remain pending.
 - [ ] Commit `git commit -m "feat: add self hosted verifier platform and lifecycle status"` after gates pass.
 - [ ] **STOP and request user verification.** Do not add TrustVC or additional PDF adapters until the V2 platform is operational.
 
@@ -1093,86 +1093,24 @@ Expected result: all automated gates pass without real publishing credentials; a
 
 ---
 
-# Phase 11 — Milestone 11: V3 physical document intelligence
+# Phase 11 — Milestone 11: OCR/vision explicitly not planned
 
-**Outcome:** Add an optional self-hosted OCR/vision sidecar that verifies the cryptographic seal first, then compares signed critical claims with visible scan/photo content as confidence-bearing evidence.
+**Status:** NOT PLANNED by owner decision (2026-09-17).
 
-**Dependencies:** Phase 10 stable cryptographic and release boundaries. V3 must not modify the root of trust.
+Credaryn will not implement the OCR/vision sidecar, visible-content comparison,
+OCR corpus, OCR UI, OCR Compose profile, or watermarking work described in the
+original product specification. Cryptographic PDF and Paper Seal verification
+remain the source of truth. No OCR-related acceptance criteria, tests, manual
+checkpoints, dependencies, or release gates apply to this roadmap.
 
-**Files:**
-
-- Create: `services/ocr/pyproject.toml`, `services/ocr/src/credaryn_ocr/main.py`, `services/ocr/src/credaryn_ocr/pipeline.py`, `services/ocr/src/credaryn_ocr/profiles.py`, `services/ocr/src/credaryn_ocr/normalize.py`, `services/ocr/src/credaryn_ocr/compare.py`, `services/ocr/tests/`.
-- Create: `packages/verifier/src/ocr-evidence.ts`, `packages/verifier/test/ocr-evidence.test.ts`.
-- Create: `apps/verifier-web/src/ocr-view.ts`, `apps/verifier-web/test/ocr-view-model.test.ts`.
-- Create: `test-corpus/public/`, `test-corpus/private-synthetic/`, `test-corpus/tamper/`, `docs/ocr/extraction-profiles.md`, `docs/ocr/evidence-confidence.md`, `docs/benchmarks/v3-corpus.md`.
-- Create: `services/ocr/Dockerfile`, CPU deployment and optional GPU configuration; modify Compose only to make OCR optional.
-- Create: `examples/invoice-puppeteer/src/claims.ts` with `data-credaryn-claim` markers and a generated profile.
-
-**Locked pipeline:** input limits → QR locate/decode → cryptographic Paper Seal verification → orientation/perspective correction → OCR/layout → claim localization → deterministic normalization → signed-vs-visible comparison → evidence report.
-
-**Locked models:** Python, PaddleOCR PP-OCRv6 medium, PP-StructureV3, OpenCV only for deterministic utilities, CPU supported, GPU optional, no external AI API, ephemeral images, no training retention.
-
-## Phase 11 acceptance criteria
-
-- [ ] Cryptographic verification always happens before visible-content assessment.
-- [ ] If QR verification fails, OCR may provide diagnostics but never an authenticity determination.
-- [ ] Profiled fields can be located and compared with page/region evidence.
-- [ ] Each finding is `MATCH`, `MISMATCH`, `NOT_FOUND` or `UNCERTAIN`; document assessment is `CONSISTENT`, `POSSIBLE_MISMATCH` or `INCONCLUSIVE`.
-- [ ] A changed numeric value with sufficient confidence reports `POSSIBLE_MISMATCH` with signed and visible values while preserving `VALID_TRUSTED` crypto verdict.
-- [ ] Weak/ambiguous evidence reports `UNCERTAIN` or `INCONCLUSIVE`, never a false tamper conclusion.
-- [ ] Money compares minor units, dates use explicit format/timezone policy, identifiers remove only configured separators, and fuzzy matching cannot turn materially different security values into `MATCH`.
-- [ ] Engine/model version, extraction-profile version, confidence policy and evidence region are recorded.
-- [ ] The sidecar runs fully self-hosted on CPU, does not send images to third parties, and retains no images by default.
-- [ ] Corpus results separately measure QR decode, claim location, OCR accuracy, benign false mismatch and tamper recall. No universal accuracy percentage is published.
-- [ ] Watermarking remains an optional research plugin and is not used by the core or completion gate.
-
-## Phase 11 test-first execution
-
-- [ ] **RED:** Add service tests proving input limits, QR-first ordering, failed-QR diagnostic-only behavior and ephemeral image handling. Expect failures.
-- [ ] **GREEN:** Implement the sidecar pipeline with a mocked OCR engine boundary.
-- [ ] **RED:** Add extraction-profile tests for claim key/type/labels/region/format/normalization and DOM marker generation. Expect failures.
-- [ ] **GREEN:** Implement profiles as locators, never as signed truth.
-- [ ] **RED:** Add normalization/comparison tests for INR minor units, dates, IDs, configured text normalization, low confidence and fuzzy numeric mismatch. Expect failures.
-- [ ] **GREEN:** Implement deterministic comparison and evidence model.
-- [ ] **RED:** Add corpus tests for benign degradation and controlled tamper cases. Expect initial metrics and regression thresholds.
-- [ ] **GREEN:** Integrate PaddleOCR/PP-StructureV3, record model versions and publish measured results.
-- [ ] **RED:** Add normalized evidence/presentation-model tests asserting crypto verdict remains unchanged when visible assessment is `POSSIBLE_MISMATCH`, `UNCERTAIN` or `INCONCLUSIVE`. Do not automate rendered UI behavior.
-- [ ] **GREEN:** Implement evidence/confidence presentation, then verify rendered states manually.
-- [ ] **REFACTOR:** Keep OCR optional in Compose and keep all deterministic crypto logic in the existing verifier package.
-
-## Phase 11 automated gates
-
-```bash
-python -m pytest services/ocr/tests -q
-pnpm lint
-pnpm typecheck
-pnpm vitest packages/verifier/test --run
-docker build -t credaryn-ocr:phase-11 services/ocr
-docker run --rm credaryn-ocr:phase-11 python -m credaryn_ocr.self_check --cpu
-pnpm corpus:measure --public test-corpus/public --tamper test-corpus/tamper
-pnpm corpus:regression
-```
-
-Expected result: CPU self-check passes, crypto-first ordering is tested, corpus metrics are published by profile/capture condition, and no false-mismatch regression exceeds the approved tolerance.
-
-## Phase 11 manual verification
-
-1. Start the optional OCR sidecar with `docker compose -f deploy/docker-compose.yml --profile ocr up -d`.
-2. Open the verifier web app and submit a clean photographed/scan fixture with a valid QR.
-3. Confirm the UI first shows the cryptographic verdict, then a visible assessment of `CONSISTENT` with model/profile/confidence evidence.
-4. Submit the controlled invoice image with the visible amount changed to INR 81,800. Confirm the UI shows `VALID_TRUSTED` for the seal and `POSSIBLE_MISMATCH` for visible content, including signed INR 11,800 and visible INR 81,800.
-5. Submit a skewed/blurred benign image. Confirm the result is `UNCERTAIN` or `INCONCLUSIVE`, not `TAMPERED`.
-6. Submit an image with no valid QR. Confirm OCR diagnostics may appear but no authenticity verdict is upgraded.
-7. Inspect container network and storage. Confirm no external AI request and no retained image by default.
-8. Review `docs/benchmarks/v3-corpus.md`; confirm metrics are segmented and do not claim universal accuracy.
-
-**Successful result:** OCR explains possible visible tampering without overriding deterministic cryptographic truth or requiring a hosted AI service.
+This is an intentional scope decision, not an incomplete milestone. The
+original OCR proposal is moved to the explicit post-completion backlog and must
+not be reintroduced indirectly in Phase 8, Phase 10, or Phase 12.
 
 ## Phase 11 STOP
 
-- [ ] Save `docs/verification/milestone-11.md` with representative screenshots, model/profile versions, corpus metrics and privacy inspection.
-- [ ] Commit `git commit -m "feat: add optional physical document intelligence"` after gates pass.
-- [ ] **STOP and request user verification.** Do not add watermarking unless a separate controlled evaluation proves material value and the user explicitly releases that experiment.
+- [x] Record the owner decision in this plan; no Phase 11 implementation or verification report is required.
+- [x] **STOP:** skip Milestone 11 and continue the approved execution through the remaining non-OCR scope.
 
 ---
 
@@ -1201,7 +1139,7 @@ Expected result: CPU self-check passes, crypto-first ordering is tested, corpus 
 - [ ] **H Verification:** SDK, CLI, PWA/widget and REST API share one result model and agree on fixtures.
 - [ ] **I Self-hosting:** full required system runs without a Credaryn SaaS dependency.
 - [ ] **J Enterprise operations:** rotation, trust configuration, OIDC, audit export, observability, retention and secure deployment are documented.
-- [ ] **K Physical intelligence:** V3 compares signed critical claims with visible scans and separates crypto facts from OCR evidence.
+- [x] **K Physical intelligence:** explicitly deferred by owner; no OCR/vision implementation or completion claim is required for this delivery.
 - [ ] **L Quality:** vectors, interop fixtures, corpus, benchmarks, provenance, security review and stable docs exist.
 - [ ] **M Developer experience:** first document issuance remains small and understandable without standards-internals knowledge.
 - [ ] **N Scope discipline:** no blockchain, centralized CA, mandatory hosted service, watermark dependency or AI dependency entered the cryptographic trust path.
@@ -1247,7 +1185,7 @@ Run the final user journeys from a clean checkout and record each result in `doc
 1. **Issuer developer:** follow `docs/getting-started.md`, connect the local signer, issue the invoice with the small SDK flow and retain the sealed PDF.
 2. **PDF recipient:** verify the sealed PDF through the SDK, CLI, Web Component, PWA and REST endpoint. Confirm identical normalized fields.
 3. **Paper recipient:** print the document, use two real phone cameras and one scanner, and verify the QR without the original PDF bytes.
-4. **Tamper scenario:** edit the PDF and visible paper amount to INR 81,800. Confirm digital mutation failure, signed paper value INR 11,800 and V3 visible mismatch behavior where enabled.
+4. **Tamper scenario:** edit the PDF and visible paper amount to INR 81,800. Confirm digital mutation failure and signed paper value INR 11,800. No OCR or visible-content verdict is expected.
 5. **Enterprise administrator:** exercise trust configuration, key rotation, OIDC administration, lifecycle status, retention and audit export.
 6. **Self-host operator:** deploy Docker Compose with no Credaryn account or hosted dependency, then repeat PDF and paper verification.
 7. **Air-gapped operator:** disable network, use local trust material and verify crypto evidence; confirm online status is clearly unavailable/stale.
@@ -1282,4 +1220,4 @@ The following is checked at every STOP and again at Phase 12:
 
 ## Explicitly post-completion unless separately justified
 
-These items from the specification must not delay the original project completion: native iOS/Android apps, additional language SDKs without adoption, BBS cryptosuite support, additional 2D barcode profiles such as DataMatrix, jurisdiction-specific qualified-signature integrations, additional OCR engines, a semi-fragile watermark plugin, hosted SaaS control plane/billing/managed signing, and blockchain/transparency-log integrations. Any item moved out of scope must be named in the Milestone 12 report rather than silently omitted.
+These items from the specification must not delay the original project completion: native iOS/Android apps, additional language SDKs without adoption, BBS cryptosuite support, additional 2D barcode profiles such as DataMatrix, jurisdiction-specific qualified-signature integrations, the OCR/vision sidecar and OCR engines, a semi-fragile watermark plugin, hosted SaaS control plane/billing/managed signing, and blockchain/transparency-log integrations. Any item moved out of scope must be named in the Milestone 12 report rather than silently omitted.

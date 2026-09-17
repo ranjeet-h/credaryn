@@ -1,0 +1,71 @@
+services:
+  dss:
+    build:
+      context: ..
+      dockerfile: adapters/pades-dss/Dockerfile
+      args:
+        DSS_VERSION: "6.5"
+    environment:
+      DSS_VERSION: "6.5"
+      DSS_ISSUER_ID: "acme-retail"
+      DSS_KEY_ID: "dss-demo-key"
+      DSS_KEY_ALIAS: "credaryn-demo"
+      DSS_KEYSTORE_PASSWORD: "[REDACTED:password]"
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/health | grep -q '\"status\":\"ready\"'"]
+      interval: 10s
+      timeout: 3s
+      start_period: 20s
+      retries: 5
+
+  verifier:
+    build:
+      context: ..
+      dockerfile: apps/verifier-web/Dockerfile
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "4173"
+      DSS_URL: "http://dss:8080"
+      CREDARYN_BUILD_VERSION: "local-compose"
+      CREDARYN_ALLOWED_ORIGINS: "http://localhost:8080"
+    depends_on:
+      dss:
+        condition: service_healthy
+    ports:
+      - "8080:4173"
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:4173/v1/health').then(r => { if (!r.ok) process.exit(1) })\""]
+      interval: 10s
+      timeout: 3s
+      start_period: 10s
+      retries: 5
+
+  status-db:
+    image: postgres:16-alpine
+    profiles: [status]
+    environment:
+      POSTGRES_DB: credaryn
+      POSTGRES_USER: credaryn
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    volumes:
+      - status-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U credaryn -d credaryn"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  status-db:
+
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password
