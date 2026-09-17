@@ -29,8 +29,8 @@ The generated fixture reported artifact digest:
 
 ## Manual check
 
-**Pending user verification.** Start the DSS sidecar and playground, then use a
-real browser at `http://localhost:3000` (or another available local port):
+**Owner-approved on 2026-09-17.** The owner reviewed the running playground in
+a real browser and supplied [`milestone-5-browser-review.png`](./milestone-5-browser-review.png).
 
 1. Click **Generate and seal invoice** and confirm `INV-2026-82919` and INR
    11,800.00.
@@ -45,6 +45,12 @@ real browser at `http://localhost:3000` (or another available local port):
 Record screenshots, browser/OS/PDF viewer and observed results here after the
 checkpoint. This step is intentionally manual and is not replaced by the
 automated API smoke checks above.
+
+Observed in the supplied screenshot: Paper Seal shows `VALID_TRUSTED · INR
+11,800.00` with `PAPER_CLAIMS_ONLY`; the digital artifact card shows `INVALID`
+and artifact integrity `INVALID`. The owner noted that the tampered state does
+not yet expose every desired invalid-data detail, but explicitly accepted that
+limitation for now and released the next milestone.
 
 ## Security and scope check
 
@@ -62,6 +68,7 @@ automated API smoke checks above.
 
 ## STOP decision
 
-Milestone 5 implementation and automated gates are complete. The manual browser
-checkpoint is still open. Do not release Milestone 6 until the user inspects
-the demo and explicitly approves continuation.
+Milestone 5 implementation, automated gates and manual browser review are
+complete. The owner explicitly released Milestone 6. The accepted tamper-state
+display limitation remains documented above and is not being expanded in this
+milestone.

@@ -22,7 +22,7 @@ These requirements are copied from the locked implementation baseline and apply 
 - UI verification: manual only in a real browser and on real devices; do not use Playwright, browser automation, or another automated UI-testing runner.
 - Property-based tests: fast-check for descriptor validation, deterministic encoding and parser invariants.
 - Versioning/release management: Changesets with semantic versioning.
-- CI: GitHub Actions on Node 24, with locked dependency installation.
+- CI: none. Verification and release gates run locally with Node 24 and locked dependencies; do not add GitHub Actions workflows.
 - Dependency updates: Renovate weekly; security updates may bypass the weekly window.
 - V1 PDF generation uses Puppeteer only as a server-side document renderer; it is not used to test UI changes. PDFKit, Playwright PDF generation and pdf-lib adapters are V2 work and likewise require manual verification for any user-facing UI.
 - V1 PDF signatures target PAdES Baseline B-B through the Dockerized DSS 6.5 reference adapter. PAdES Baseline B-T is available only when an RFC 3161 TSA is configured.
@@ -126,7 +126,7 @@ credaryn/
 │   ├── threat-model/
 │   ├── compatibility/
 │   └── verification/
-└── .github/workflows/
+└── scripts/
 ```
 
 `@credaryn/core` must not import DSS, Java, Puppeteer, TrustVC, cloud SDKs, browser globals, OCR libraries or database clients. Provider and standards-specific packages depend inward on core contracts. All user-facing surfaces consume the shared verifier rather than reimplementing signature or trust logic.
@@ -142,7 +142,7 @@ credaryn/
 **Files:**
 
 - Create: `package.json`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `tsconfig.base.json`, `vitest.config.ts`, `.gitignore`, `.editorconfig`, `LICENSE`, `NOTICE`.
-- Create: `.github/workflows/ci.yml`, `renovate.json`, `.changeset/README.md`.
+- Create: `renovate.json`, `.changeset/README.md`.
 - Create: `packages/core/package.json`, `packages/core/src/document.ts`, `packages/core/src/signer.ts`, `packages/core/src/trust.ts`, `packages/core/src/result.ts`, `packages/core/src/index.ts`.
 - Create: `packages/pdf/src/engine.ts` and `packages/paper/src/profile.ts` as contract-only files.
 - Create: `adapters/pades-dss/docker-compose.yml`, `adapters/pades-dss/README.md`, `adapters/pades-dss/healthcheck.sh`.
@@ -677,9 +677,9 @@ Expected result: the demo build is deterministic, documentation commands refer t
 
 ## Phase 5 STOP
 
-- [ ] Save `docs/verification/milestone-5.md` with the demo URL, screenshots, generated hashes and reproduction notes.
-- [ ] Commit `git commit -m "feat: add launch quality invoice demo"` after the manual gate is released.
-- [ ] **STOP and request user verification.** This is the public-demo build/kill Checkpoint B. Continue only if the problem and reproduction are immediately understandable.
+- [x] Save `docs/verification/milestone-5.md` with the demo URL, screenshots, generated hashes and reproduction notes.
+- [x] Commit `git commit -m "feat: add launch quality invoice demo"` after the manual gate is released.
+- [x] **STOP and request user verification.** This is the public-demo build/kill Checkpoint B. Continue only if the problem and reproduction are immediately understandable.
 
 ---
 
@@ -1024,7 +1024,7 @@ Expected result: all promised interop and adapter fixtures pass, and every resul
 
 - Create/update: `docs/threat-model/credaryn-v1-v2.md`, `docs/threat-model/assumptions.md`, `docs/security/incident-response.md`, `SECURITY.md`.
 - Create: `packages/*/test/fuzz/*.test.ts`, `packages/*/test/mutation/`, `test-vectors/adversarial/`, `scripts/fuzz.ts`, `scripts/mutation.ts`.
-- Create: `.github/workflows/security.yml`, `.github/workflows/release.yml`, `sbom/README.md`, `.github/dependabot.yml` or Renovate-equivalent configuration.
+- Create: `sbom/README.md`, `renovate.json` updates or equivalent local dependency-update configuration.
 - Create: `docs/compatibility/node-browsers-generators.md`, `docs/benchmarks/v1.md`, `docs/release/versioning.md`, `.changeset/*.md`.
 - Modify: all parser boundaries and release configuration required by review findings.
 
@@ -1048,8 +1048,8 @@ Expected result: all promised interop and adapter fixtures pass, and every resul
 - [ ] **GREEN:** Harden parsers and verify fail-closed behavior.
 - [ ] **RED:** Add an independent-validator fixture test for every claimed PAdES level and a reproducibility test for every paper vector.
 - [ ] **GREEN:** Integrate the independent validator and correct conformance mismatches.
-- [ ] **RED:** Add release workflow tests for locked install, license, SBOM, provenance, signed tags and absence of long-lived credentials.
-- [ ] **GREEN:** Implement the GitHub Actions release/security workflows.
+- [ ] **RED:** Add local release-script tests for locked install, license, SBOM, provenance, signed tags and absence of long-lived credentials.
+- [ ] **GREEN:** Implement local release/security scripts; do not add GitHub Actions workflows.
 - [ ] **REFACTOR:** Remove temporary debug output, test secrets, unsupported claims and stale documentation.
 
 ## Phase 10 automated gates
