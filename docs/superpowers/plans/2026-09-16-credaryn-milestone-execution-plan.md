@@ -485,27 +485,27 @@ Expected result: paper encode → render → decode → verify passes across rep
 
 ## Phase 3 acceptance criteria
 
-- [ ] The reference example remains roughly ten lines of Credaryn application code after infrastructure setup.
-- [ ] Paper-seal placement occurs before final PAdES signing.
-- [ ] Every production-capable V1 PDF fixture validates through DSS 6.5 at PAdES Baseline B-B.
-- [ ] The original PDF verifies with valid artifact integrity and signed claims.
-- [ ] Any post-signing PDF byte mutation fails digital-integrity validation.
-- [ ] The implementation does not claim qualified electronic-signature status from PAdES alone.
-- [ ] B-T is not advertised or attempted unless an RFC 3161 TSA is explicitly configured.
+- [x] The reference example remains roughly ten lines of Credaryn application code after infrastructure setup.
+- [x] Paper-seal placement occurs before final PAdES signing.
+- [x] Every production-capable V1 PDF fixture validates through DSS 6.5 at PAdES Baseline B-B.
+- [x] The original PDF verifies with valid artifact integrity and signed claims.
+- [x] Any post-signing PDF byte mutation fails digital-integrity validation.
+- [x] The implementation does not claim qualified electronic-signature status from PAdES alone.
+- [x] B-T is not advertised or attempted unless an RFC 3161 TSA is explicitly configured.
 
 ## Phase 3 test-first execution
 
-- [ ] **RED:** Add a pipeline-order test that records PDF generation, seal placement and PAdES signing calls and asserts that order. Expect the pipeline to be absent.
-- [ ] **GREEN:** Implement the byte pipeline and artifact-digest generation.
-- [ ] **RED:** Add DSS integration tests for normalized B-B signing and validation, including a fixture with the paper seal present.
-- [ ] **GREEN:** Implement the isolated DSS engine adapter and normalized result mapper.
-- [ ] **RED:** Add mutation tests for a changed post-signing byte, PDF metadata/content change and copied seal on a different document. Expect verification failures.
-- [ ] **GREEN:** Implement PDF verification and bind document identity/claims to the signed representation.
-- [ ] **RED:** Add a negative test proving no code path labels a PAdES result as a qualified electronic signature without certificate/trust-policy evidence.
-- [ ] **GREEN:** Add explicit legal/security wording and result fields.
-- [ ] **RED:** Add the Puppeteer invoice fixture test and ten-line usage assertion from the example README.
-- [ ] **GREEN:** Implement the example and commit stable PDF vectors.
-- [ ] **REFACTOR:** Ensure DSS/Java names stop at `adapters/pades-dss` and all shared packages depend on normalized interfaces only.
+- [x] **RED:** Add a pipeline-order test that records PDF generation, seal placement and PAdES signing calls and asserts that order. Expect the pipeline to be absent.
+- [x] **GREEN:** Implement the byte pipeline and artifact-digest generation.
+- [x] **RED:** Add DSS integration tests for normalized B-B signing and validation, including a fixture with the paper seal present.
+- [x] **GREEN:** Implement the isolated DSS engine adapter and normalized result mapper.
+- [x] **RED:** Add mutation tests for a changed post-signing byte, PDF metadata/content change and copied seal on a different document. Expect verification failures.
+- [x] **GREEN:** Implement PDF verification and bind document identity/claims to the signed representation.
+- [x] **RED:** Add a negative test proving no code path labels a PAdES result as a qualified electronic signature without certificate/trust-policy evidence.
+- [x] **GREEN:** Add explicit legal/security wording and result fields.
+- [x] **RED:** Add the Puppeteer invoice fixture test and ten-line usage assertion from the example README.
+- [x] **GREEN:** Implement the example and commit stable PDF vectors.
+- [x] **REFACTOR:** Ensure DSS/Java names stop at `adapters/pades-dss` and all shared packages depend on normalized interfaces only.
 
 ## Phase 3 automated gates
 
@@ -534,9 +534,9 @@ Expected result: DSS validates the generated PDF as PAdES B-B; the mutated vecto
 
 ## Phase 3 STOP
 
-- [ ] Save `docs/verification/milestone-3.md` with DSS output, original/mutated hashes and viewer observations.
-- [ ] Commit `git commit -m "feat: add controlled puppeteer pades pdf flow"` after gates pass.
-- [ ] **STOP and request user verification.** This is a mandatory manual checkpoint for the PAdES PDF proof.
+- [x] Save `docs/verification/milestone-3.md` with DSS output, original/mutated hashes and viewer observations.
+- [x] Commit `git commit -m "feat: add controlled puppeteer pades pdf flow"` after gates pass.
+- [x] **STOP and request user verification.** This is a mandatory manual checkpoint for the PAdES PDF proof.
 
 ---
 

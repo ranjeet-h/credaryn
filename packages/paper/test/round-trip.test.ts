@@ -107,4 +107,18 @@ describe("Paper Seal Profile v1 round trips", () => {
       securityMode: "PAPER_CLAIMS_ONLY",
     });
   });
+
+  it("rejects a valid seal copied onto a different document identity", async () => {
+    const { signer, keyInfo } = createSigner();
+    const encoded = await encodePaperSeal(descriptors.small!, signer);
+    const result = await verifyPaperSeal(encoded.transport, {
+      expectedDescriptor: { ...descriptors.small!, documentId: "INV-2026-82920" },
+      trustStore: {
+        resolve: async () => keyInfo,
+      },
+    });
+
+    expect(result).toMatchObject({ verdict: "INVALID" });
+    expect(result.evidence).toContainEqual(expect.objectContaining({ code: "PAPER_DOCUMENT_MISMATCH" }));
+  });
 });

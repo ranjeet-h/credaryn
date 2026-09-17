@@ -7,7 +7,7 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn -q -DskipTests -Ddss.version=${DSS_VERSION} package
 
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:17-jdk
 ARG DSS_VERSION
 ENV DSS_VERSION=${DSS_VERSION}
 RUN apt-get update \
@@ -16,8 +16,9 @@ RUN apt-get update \
 WORKDIR /opt/credaryn
 COPY --from=build /build/target/dss-boundary-adapter-0.0.0.jar ./dss-boundary-adapter.jar
 COPY healthcheck.sh /usr/local/bin/credaryn-dss-healthcheck
-RUN chmod +x /usr/local/bin/credaryn-dss-healthcheck
+COPY entrypoint.sh /usr/local/bin/credaryn-dss-entrypoint
+RUN chmod +x /usr/local/bin/credaryn-dss-healthcheck /usr/local/bin/credaryn-dss-entrypoint
 USER 10001:10001
 EXPOSE 8080
 HEALTHCHECK --interval=10s --timeout=3s --start-period=20s --retries=5 CMD ["/usr/local/bin/credaryn-dss-healthcheck"]
-ENTRYPOINT ["java", "-jar", "/opt/credaryn/dss-boundary-adapter.jar"]
+ENTRYPOINT ["/usr/local/bin/credaryn-dss-entrypoint"]

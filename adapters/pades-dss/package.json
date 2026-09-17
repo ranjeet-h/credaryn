@@ -1,13 +1,13 @@
 {
-  "name": "@credaryn/pdf",
+  "name": "@credaryn/adapter-pades-dss",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/dss-engine.ts"
   },
   "dependencies": {
     "@credaryn/core": "workspace:*",
-    "@credaryn/paper": "workspace:*"
+    "@credaryn/pdf": "workspace:*"
   }
 }

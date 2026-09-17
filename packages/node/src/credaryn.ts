@@ -29,7 +29,7 @@ export interface CredarynConfig {
   environment?: DescriptorEnvironment;
 }
 
-const PAPER_PLACEMENT_NOT_IMPLEMENTED = "Paper Seal placement inside a PDF is not implemented until Milestone 3";
+const PAPER_PLACEMENT_REQUIRES_CONTROLLED_PIPELINE = "Paper Seal placement inside a PDF requires a controlled PDF pipeline with an explicit renderer and placement step";
 
 export class Credaryn {
   private readonly pdfEngine: PdfSignatureEngine;
@@ -50,7 +50,7 @@ export class Credaryn {
     options: SealPdfOptions = {},
   ): Promise<Uint8Array> {
     assertValidDescriptor(descriptor, { environment: this.environment });
-    if (options.includePaperSeal === true) throw new Error(PAPER_PLACEMENT_NOT_IMPLEMENTED);
+    if (options.includePaperSeal === true) throw new Error(PAPER_PLACEMENT_REQUIRES_CONTROLLED_PIPELINE);
 
     const artifactDigest = createHash("sha256").update(pdfBytes).digest("hex");
     return this.pdfEngine.sign(pdfBytes, {

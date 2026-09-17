@@ -1,11 +1,13 @@
 # DSS 6.5 adapter boundary
 
-This Phase 0 container builds against the official European Commission DSS Maven artifact `eu.europa.ec.joinup.sd-dss:dss-pades:6.5`. It proves the isolated deployment boundary and classpath version before the signing implementation is added in Milestone 3.
+This container builds against the official European Commission DSS Maven artifacts at version `6.5` and exposes the isolated PAdES signing/validation boundary. Its default key is generated ephemerally in `/tmp` for local demonstrations only; production deployments must mount a controlled keystore and secret rather than use the demo defaults.
 
-The container intentionally exposes only normalized byte-oriented probe endpoints in this phase:
+The container exposes only normalized byte-oriented endpoints:
 
 - `GET /health` confirms the DSS 6.5 PAdES class is available.
 - `POST /v1/probe` accepts a normalized JSON probe containing `operation`, `pdfBase64` and `signatureRequest`, and returns normalized metadata without exposing DSS or Java types to Node packages.
+- `POST /v1/sign` accepts a bounded PDF, an artifact digest and public signer identity, then returns a PAdES Baseline B-B PDF.
+- `POST /v1/verify` validates the PDF signature and reports cryptographic validity and artifact integrity.
 
 Start it from the repository root:
 
@@ -17,4 +19,6 @@ curl -fsS -X POST http://127.0.0.1:8080/v1/probe \
   -d '{"operation":"sign","pdfBase64":"JVBERi0xLjQ=","signatureRequest":{"level":"B-B","artifactDigest":"sha256:fixture"}}'
 ```
 
-The probe is not a PAdES signing implementation. `adapters/pades-dss/src/main/java/com/credaryn/dss/DssBoundaryApplication.java` is replaced/extended by the normalized `PdfSignatureEngine` implementation in Phase 3, while the DSS dependency remains isolated in this adapter.
+The default demo key is not a production trust anchor. `DSS_KEYSTORE_PATH`,
+`DSS_KEYSTORE_PASSWORD`, `DSS_KEY_ALIAS`, `DSS_ISSUER_ID` and `DSS_KEY_ID`
+configure a mounted signing credential and immutable application identity.

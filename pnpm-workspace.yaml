@@ -8,3 +8,4 @@ packages:
 allowBuilds:
   cbor-extract: true
   esbuild: true
+  puppeteer: true

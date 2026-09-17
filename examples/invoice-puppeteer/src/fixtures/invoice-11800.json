@@ -1,0 +1,36 @@
+{
+  "descriptor": {
+    "issuerId": "acme-retail",
+    "documentId": "INV-2026-82919",
+    "documentType": "invoice",
+    "issuedAt": "2026-01-01T00:00:00Z",
+    "claims": {
+      "currency": "INR",
+      "invoiceNumber": "INV-2026-82919",
+      "totalMinor": 1180000,
+      "paid": false
+    }
+  },
+  "seller": {
+    "name": "Acme Retail Pvt. Ltd.",
+    "address": "14 Residency Road, Bengaluru 560025"
+  },
+  "buyer": {
+    "name": "Credaryn Demo Customer",
+    "address": "1 Verification Lane, Bengaluru 560001"
+  },
+  "lineItems": [
+    {
+      "description": "Enterprise verification subscription",
+      "quantity": 1,
+      "unitPriceMinor": 1000000,
+      "totalMinor": 1000000
+    },
+    {
+      "description": "Paper Seal Profile setup",
+      "quantity": 1,
+      "unitPriceMinor": 180000,
+      "totalMinor": 180000
+    }
+  ]
+}

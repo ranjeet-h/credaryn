@@ -6,6 +6,10 @@ services:
         DSS_VERSION: "6.5"
     environment:
       DSS_VERSION: "6.5"
+      DSS_ISSUER_ID: "acme-retail"
+      DSS_KEY_ID: "dss-demo-key"
+      DSS_KEY_ALIAS: "credaryn-demo"
+      DSS_KEYSTORE_PASSWORD: "changeit"
     ports:
       - "8080:8080"
     read_only: true

@@ -1,0 +1,19 @@
+{
+  "name": "@credaryn/example-invoice-puppeteer",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "generate": "tsx src/seal.ts generate",
+    "mutate": "tsx src/seal.ts mutate",
+    "verify:fixtures": "tsx src/seal.ts verify-fixtures"
+  },
+  "dependencies": {
+    "@credaryn/adapter-pades-dss": "workspace:*",
+    "@credaryn/core": "workspace:*",
+    "@credaryn/paper": "workspace:*",
+    "@credaryn/pdf": "workspace:*",
+    "@credaryn/provider-local": "workspace:*",
+    "puppeteer": "24.26.1"
+  }
+}
