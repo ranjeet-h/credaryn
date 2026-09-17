@@ -407,33 +407,33 @@ Expected result: tests pass, core/paper/verifier coverage infrastructure is acti
 
 ## Phase 2 acceptance criteria
 
-- [ ] Encoding always emits `CRD1:` followed by RFC 9285 Base45 bytes.
-- [ ] Equivalent descriptors produce byte-identical deterministic CBOR and transport text.
-- [ ] The COSE object uses COSE_Sign1 and ES256 only; unknown critical fields or algorithms fail closed.
-- [ ] Payloads over 1200 bytes before Base45 fail with an actionable size error and never drop claims.
-- [ ] QR rendering uses error correction M and decoding accepts generated QR images at representative sizes.
-- [ ] Offline verification works with a configured enterprise/demo trust store and does not require a network call.
-- [ ] The same cryptographically valid payload returns `VALID_TRUSTED` or `VALID_UNTRUSTED` based only on trust configuration.
-- [ ] Changed documentId, issuerId, claim value, COSE byte, key identifier or certificate fingerprint returns `INVALID` or `UNVERIFIABLE` as appropriate.
-- [ ] Golden vectors are independently reproducible from the published field map.
+- [x] Encoding always emits `CRD1:` followed by RFC 9285 Base45 bytes.
+- [x] Equivalent descriptors produce byte-identical deterministic CBOR and transport text.
+- [x] The COSE object uses COSE_Sign1 and ES256 only; unknown critical fields or algorithms fail closed.
+- [x] Payloads over 1200 bytes before Base45 fail with an actionable size error and never drop claims.
+- [x] QR rendering uses error correction M and decoding accepts generated QR images at representative sizes.
+- [x] Offline verification works with a configured enterprise/demo trust store and does not require a network call.
+- [x] The same cryptographically valid payload returns `VALID_TRUSTED` or `VALID_UNTRUSTED` based only on trust configuration.
+- [x] Changed documentId, issuerId, claim value, COSE byte, key identifier or certificate fingerprint returns `INVALID` or `UNVERIFIABLE` as appropriate.
+- [x] Golden vectors are independently reproducible from the published field map.
 
 ## Phase 2 test-first execution
 
-- [ ] **RED:** Add Base45 RFC 9285 known-answer tests and malformed-input tests. Expect missing implementation failures.
-- [ ] **GREEN:** Implement bounded Base45 encode/decode and reject invalid characters, odd lengths and oversized input.
-- [ ] **RED:** Add deterministic CBOR tests for map ordering, integer handling, string/boolean values, unsupported structures and exact binary fixture output.
-- [ ] **GREEN:** Implement deterministic CBOR serialization with explicit allowed-value checks; rerun vectors.
-- [ ] **RED:** Add COSE_Sign1 tests for ES256 signing/verification and rejection of unsupported algorithms or unknown critical fields.
-- [ ] **GREEN:** Implement COSE creation and verification through `SignerProvider`; convert only the representation required by the selected COSE library.
-- [ ] **RED:** Add profile tests for required/optional fields, 1200-byte limit, CRD1 prefix and no-PII/full-document inclusion.
-- [ ] **GREEN:** Implement profile encode/decode and fail-closed size enforcement.
-- [ ] **RED:** Add round-trip tests: encode → render → decode → verify across small, medium and near-limit payloads and multiple QR sizes.
-- [ ] **GREEN:** Implement QR rendering/decoding with error correction M and bounded image input.
-- [ ] **RED:** Add trust-verdict tests with trusted, unknown, wrong-key, changed-claim and malformed payload fixtures.
-- [ ] **GREEN:** Implement offline trust resolution and normalized paper results.
-- [ ] **RED:** Add fast-check properties for encode/decode determinism, allowed claim values and parser rejection of structural mutations.
-- [ ] **GREEN:** Run the property suite and record fixed seeds for CI.
-- [ ] **REFACTOR:** Publish all vector hashes and make the vector generator a reproducible script rather than a test-only helper.
+- [x] **RED:** Add Base45 RFC 9285 known-answer tests and malformed-input tests. Expect missing implementation failures.
+- [x] **GREEN:** Implement bounded Base45 encode/decode and reject invalid characters, odd lengths and oversized input.
+- [x] **RED:** Add deterministic CBOR tests for map ordering, integer handling, string/boolean values, unsupported structures and exact binary fixture output.
+- [x] **GREEN:** Implement deterministic CBOR serialization with explicit allowed-value checks; rerun vectors.
+- [x] **RED:** Add COSE_Sign1 tests for ES256 signing/verification and rejection of unsupported algorithms or unknown critical fields.
+- [x] **GREEN:** Implement COSE creation and verification through `SignerProvider`; convert only the representation required by the selected COSE library.
+- [x] **RED:** Add profile tests for required/optional fields, 1200-byte limit, CRD1 prefix and no-PII/full-document inclusion.
+- [x] **GREEN:** Implement profile encode/decode and fail-closed size enforcement.
+- [x] **RED:** Add round-trip tests: encode → render → decode → verify across small, medium and near-limit payloads and multiple QR sizes.
+- [x] **GREEN:** Implement QR rendering/decoding with error correction M and bounded image input.
+- [x] **RED:** Add trust-verdict tests with trusted, unknown, wrong-key, changed-claim and malformed payload fixtures.
+- [x] **GREEN:** Implement offline trust resolution and normalized paper results.
+- [x] **RED:** Add fast-check properties for encode/decode determinism, allowed claim values and parser rejection of structural mutations.
+- [x] **GREEN:** Run the property suite and record fixed seeds for CI.
+- [x] **REFACTOR:** Publish all vector hashes and make the vector generator a reproducible script rather than a test-only helper.
 
 ## Phase 2 automated gates
 
@@ -461,9 +461,9 @@ Expected result: paper encode → render → decode → verify passes across rep
 
 ## Phase 2 STOP
 
-- [ ] Save `docs/verification/milestone-2.md` with vector hashes, QR screenshots and trusted/untrusted/invalid observations.
-- [ ] Commit `git commit -m "feat: implement paper seal profile v1"` after gates pass.
-- [ ] **STOP and request user verification.** This is a mandatory manual checkpoint for the Paper Seal Profile proof.
+- [x] Save `docs/verification/milestone-2.md` with vector hashes, QR screenshots and trusted/untrusted/invalid observations.
+- [x] Commit `git commit -m "feat: implement paper seal profile v1"` after gates pass.
+- [x] **STOP and request user verification.** This is a mandatory manual checkpoint for the Paper Seal Profile proof.
 
 ---
 

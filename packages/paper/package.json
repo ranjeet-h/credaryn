@@ -4,13 +4,23 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "spike": "tsx src/spike-runner.ts"
+    "spike": "tsx src/spike-runner.ts",
+    "vectors:generate": "tsx scripts/generate-vectors.ts",
+    "vectors:check": "tsx scripts/check-vectors.ts",
+    "demo:encode": "tsx scripts/demo-encode.ts",
+    "demo:verify": "tsx scripts/demo-verify.ts"
   },
   "exports": {
     ".": "./src/index.ts"
   },
   "dependencies": {
     "@credaryn/core": "workspace:*",
-    "cbor-x": "1.6.6"
+    "@credaryn/provider-local": "workspace:*",
+    "@types/pngjs": "6.0.4",
+    "@types/qrcode": "1.5.5",
+    "@zxing/library": "0.21.3",
+    "cbor-x": "1.6.6",
+    "pngjs": "7.0.0",
+    "qrcode": "1.5.4"
   }
 }

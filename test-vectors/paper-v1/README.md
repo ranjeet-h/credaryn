@@ -1,22 +1,51 @@
-# Paper Seal Profile v1 Phase 0 vector
+# Paper Seal Profile v1 golden vectors
 
-This vector records the deterministic unsigned payload produced by the Phase 0 standards spike for `descriptor.json`.
+These files are reproducible Milestone 2 vectors for the fixed descriptor in
+`descriptor.json`. The fixture signer contains only a public key and a fixed
+known-answer signature; no private key is stored in this repository.
 
 | Field | Value |
 | --- | --- |
 | Profile version | `1` |
 | Transport prefix | `CRD1:` |
-| Encoding probe | deterministic CBOR payload inside COSE_Sign1 |
+| Carrier | QR Code, error correction `M` |
+| Signed container | COSE_Sign1 |
 | Signature algorithm | ES256 / P-256 / SHA-256 |
-| Key ID | `phase-0-ephemeral` |
-| Payload SHA-256 | `98b86f31a820dc17431b531dabfc68232ca61dca9fe4795579c01b4158665d60` |
+| Key ID | `phase-2-vector` |
+| Maximum COSE object | `1200` bytes before Base45 |
+| Payload bytes | `139` |
+| COSE bytes | `229` |
+| Payload SHA-256 | `41ba983eefdf15c4c654e8cffd9568a3f42877a097d4bf7a6fdfdb850fa8bf74` |
+| COSE SHA-256 | `6abcfdbe6f9327e64da8966832d7335f6eade4ef532a38c14ca84cd7e2f401b6` |
+| Transport SHA-256 | `4c574f78649d64b6351e94a0e41c14bae29d0345a693cda26aa5acef93145167` |
+| QR PNG SHA-256 | `8e6627b9f93c4eff1221a05eade166fdf061356486bed069be92f5dedbba9c18` |
 
-Run the reproducible probe from the repository root:
+The numeric payload field map is:
+
+| Key | Field | Encoding |
+| ---: | --- | --- |
+| `1` | version | unsigned integer `1` |
+| `2` | issuerId | text |
+| `3` | keyId | text |
+| `4` | documentId | text |
+| `5` | documentType | text |
+| `6` | issuedAt | RFC 3339 text |
+| `7` | claims | flat CBOR map |
+| `8` | statusUrl | optional text |
+| `9` | artifactDigest | optional text |
+
+Run the reproducible vector check from the repository root:
 
 ```bash
-pnpm --filter @credaryn/paper spike
+pnpm --filter @credaryn/paper vectors:check
 ```
 
-The command generates a fresh development-only P-256 key in memory, emits a CRD1 transport, prints the payload hash and verifies the COSE proof with an in-memory trust store. The payload hash must match the value above. The complete transport changes between runs because the Phase 0 OpenSSL signer uses a fresh ECDSA nonce; deterministic COSE test vectors are frozen in Milestone 2 with the production profile implementation.
+Regenerate the binary files only when intentionally updating the fixture:
 
-The vector intentionally contains no private key or certificate secret.
+```bash
+pnpm --filter @credaryn/paper vectors:generate
+```
+
+The vector is standards-oriented and ISO 22376 VDS-informed, but it does not
+claim ISO 22376 conformance. Trust is supplied by the verifier; the QR does
+not embed a global Credaryn trust claim.

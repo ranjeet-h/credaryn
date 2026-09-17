@@ -6,6 +6,7 @@ coverage/
 .env.*
 !.env.example
 artifacts/
+providers/local/demo-trust-store.json
 *.pem
 *.key
 *.p12

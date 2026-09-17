@@ -10,7 +10,7 @@ import {
   type TrustStore,
   type VerificationInput,
 } from "@credaryn/core";
-import type { PaperVerificationOptions } from "@credaryn/paper";
+import { encodePaperSeal, verifyPaperSeal as verifyPaperSealPayload, type PaperVerificationOptions } from "@credaryn/paper";
 import type { PdfSignatureEngine, PdfVerificationResult } from "@credaryn/pdf";
 
 export interface SealPdfOptions {
@@ -29,7 +29,7 @@ export interface CredarynConfig {
   environment?: DescriptorEnvironment;
 }
 
-const PAPER_NOT_IMPLEMENTED = "Paper Seal Profile encoding is not implemented until Milestone 2";
+const PAPER_PLACEMENT_NOT_IMPLEMENTED = "Paper Seal placement inside a PDF is not implemented until Milestone 3";
 
 export class Credaryn {
   private readonly pdfEngine: PdfSignatureEngine;
@@ -50,7 +50,7 @@ export class Credaryn {
     options: SealPdfOptions = {},
   ): Promise<Uint8Array> {
     assertValidDescriptor(descriptor, { environment: this.environment });
-    if (options.includePaperSeal === true) throw new Error(PAPER_NOT_IMPLEMENTED);
+    if (options.includePaperSeal === true) throw new Error(PAPER_PLACEMENT_NOT_IMPLEMENTED);
 
     const artifactDigest = createHash("sha256").update(pdfBytes).digest("hex");
     return this.pdfEngine.sign(pdfBytes, {
@@ -84,25 +84,15 @@ export class Credaryn {
 
   async createPaperSeal(descriptor: DocumentDescriptor): Promise<Uint8Array> {
     assertValidDescriptor(descriptor, { environment: this.environment });
-    throw new Error(PAPER_NOT_IMPLEMENTED);
+    const encoded = await encodePaperSeal(descriptor, this.paperSigner);
+    return new TextEncoder().encode(encoded.transport);
   }
 
   async verifyPaperSeal(
     payload: Uint8Array,
-    _options?: PaperVerificationOptions,
+    options: PaperVerificationOptions = {},
   ) {
-    void payload;
-    return createVerificationResult({
-      cryptographicValidity: "UNVERIFIABLE",
-      trustDecision: "MISSING",
-      lifecycleStatus: "UNCHECKED",
-      securityMode: "PAPER_CLAIMS_ONLY",
-      artifactIntegrity: "NOT_APPLICABLE",
-      evidence: [{
-        code: "PAPER_PROFILE_NOT_IMPLEMENTED",
-        message: PAPER_NOT_IMPLEMENTED,
-      }],
-    });
+    return verifyPaperSealPayload(payload, { trustStore: options.trustStore ?? this.trustStore });
   }
 
   private async resolveTrust(

@@ -32,7 +32,7 @@ import { Credaryn } from "@credaryn/node";
 const credaryn = new Credaryn({ pdfEngine, paperSigner, trustStore });
 ```
 
-`sealPdf()` validates the descriptor, computes the artifact digest internally and delegates bytes to the PDF engine. Paper Seal creation remains explicitly unavailable until Milestone 2; verification returns `UNVERIFIABLE` rather than claiming validity.
+`sealPdf()` validates the descriptor, computes the artifact digest internally and delegates bytes to the PDF engine. After Milestone 2, `createPaperSeal()` emits a `CRD1:` Paper Seal Profile v1 transport; PDF placement remains a later pipeline concern. Paper verification returns `UNVERIFIABLE` when no matching public trust material is configured rather than claiming validity.
 
 ## Phase 1 manual smoke command
 

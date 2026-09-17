@@ -1,10 +1,5 @@
-import type { DocumentDescriptor } from "../../core/src/document.js";
-import type { VerificationResult } from "../../core/src/result.js";
-import type { TrustStore } from "../../core/src/trust.js";
-
-export interface PaperVerificationOptions {
-  trustStore: TrustStore;
-}
+import type { DocumentDescriptor, VerificationResult } from "@credaryn/core";
+import type { PaperVerificationOptions } from "./verify.js";
 
 export interface PaperSealProfile {
   create(descriptor: DocumentDescriptor): Promise<Uint8Array>;
