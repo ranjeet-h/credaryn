@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Credaryn verifier</title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Credaryn · offline-capable evidence</p>
+        <h1>Credaryn verifier</h1>
+        <p class="lede">Inspect a signed PDF or Paper Seal and keep artifact integrity, issuer trust, signed claims, lifecycle, and security mode separate.</p>
+      </header>
+      <form id="verify-form">
+        <label for="file">PDF or Paper Seal PNG<input id="file" type="file" accept="application/pdf,image/png,.crd1,.txt"></label>
+        <label for="paper-text">Or paste CRD1 text<textarea id="paper-text" placeholder="CRD1:"></textarea></label>
+        <button id="submit" type="submit">Verify evidence</button>
+        <p class="note">No file is sent to a hosted Credaryn service. The local verifier reports cryptography and trust independently.</p>
+      </form>
+      <section class="result-card" aria-live="polite">
+        <h2>Verification result</h2>
+        <p id="verdict">Waiting for evidence</p>
+        <dl class="result-grid">
+          <div><dt>Cryptographic validity</dt><dd id="cryptographic-validity">—</dd></div>
+          <div><dt>Issuer trust</dt><dd id="trust-decision">—</dd></div>
+          <div><dt>Artifact integrity</dt><dd id="artifact-integrity">—</dd></div>
+          <div><dt>Signed claims</dt><dd id="signed-claims">—</dd></div>
+          <div><dt>Lifecycle status</dt><dd id="lifecycle-status">—</dd></div>
+          <div><dt>Security mode</dt><dd id="security-mode">—</dd></div>
+        </dl>
+        <pre id="result">Choose a PDF/PNG or paste a CRD1 payload.</pre>
+      </section>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

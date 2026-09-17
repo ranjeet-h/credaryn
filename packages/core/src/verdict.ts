@@ -1,6 +1,7 @@
 import type { Claims } from "./document.js";
 import type {
   ArtifactIntegrity,
+  CryptographicValidity,
   LifecycleStatus,
   SecurityMode,
   VerificationEvidence,
@@ -8,8 +9,6 @@ import type {
   Verdict,
 } from "./result.js";
 import { decideTrust, type TrustDecision } from "./policy.js";
-
-export type CryptographicValidity = "VALID" | "INVALID" | "UNVERIFIABLE";
 
 export interface VerificationInput {
   cryptographicValidity: CryptographicValidity;
@@ -27,6 +26,8 @@ export interface VerificationInput {
 export function createVerificationResult(input: VerificationInput): VerificationResult {
   const result: VerificationResult = {
     verdict: determineVerdict(input.cryptographicValidity, input.trustDecision),
+    cryptographicValidity: input.cryptographicValidity,
+    trustDecision: input.trustDecision,
     lifecycleStatus: input.lifecycleStatus,
     securityMode: input.securityMode,
     evidence: input.evidence ?? [],

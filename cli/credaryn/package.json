@@ -1,0 +1,20 @@
+{
+  "name": "@credaryn/cli",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test:fixtures": "vitest run test/cli.test.ts"
+  },
+  "bin": {
+    "credaryn": "./src/main.ts"
+  },
+  "dependencies": {
+    "@credaryn/adapter-pades-dss": "workspace:*",
+    "@credaryn/core": "workspace:*",
+    "@credaryn/node": "workspace:*",
+    "@credaryn/pdf": "workspace:*",
+    "@credaryn/provider-local": "workspace:*",
+    "@credaryn/verifier": "workspace:*"
+  }
+}

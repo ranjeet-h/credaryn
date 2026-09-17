@@ -10,6 +10,7 @@
     "node": ">=24.0.0"
   },
   "scripts": {
+    "credaryn": "tsx cli/credaryn/src/main.ts",
     "lint": "node scripts/check-boundaries.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

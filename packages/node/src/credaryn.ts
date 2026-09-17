@@ -77,6 +77,7 @@ export class Credaryn {
         message: `PDF cryptographic validity is ${engineResult.cryptographicValidity.toLowerCase()}`,
       }],
     };
+    if (trustStore.trustSource !== undefined) verificationInput.trustSource = trustStore.trustSource;
     if (engineResult.issuerId !== undefined) verificationInput.issuerId = engineResult.issuerId;
     if (engineResult.keyId !== undefined) verificationInput.keyId = engineResult.keyId;
     return createVerificationResult(verificationInput);
@@ -101,6 +102,7 @@ export class Credaryn {
   ) {
     if (engineResult.cryptographicValidity !== "VALID") return "MISSING" as const;
     if (engineResult.keyId === undefined || engineResult.issuerId === undefined) return "MISSING" as const;
+    if (trustStore.trustSource === "no-trust-material") return "MISSING" as const;
     const matchingKey = await trustStore.resolve(engineResult.keyId, engineResult.issuerId);
     return decideTrust({ trustStoreAvailable: true, matchingKey: matchingKey !== undefined });
   }

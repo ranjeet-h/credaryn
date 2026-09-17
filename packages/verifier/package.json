@@ -1,0 +1,15 @@
+{
+  "name": "@credaryn/verifier",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@credaryn/core": "workspace:*",
+    "@credaryn/node": "workspace:*",
+    "@credaryn/paper": "workspace:*",
+    "@credaryn/pdf": "workspace:*"
+  }
+}

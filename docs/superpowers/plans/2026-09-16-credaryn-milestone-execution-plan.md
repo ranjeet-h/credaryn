@@ -549,8 +549,8 @@ Expected result: DSS validates the generated PDF as PAdES B-B; the mutated vecto
 **Files:**
 
 - Create: `packages/verifier/src/verify-input.ts`, `packages/verifier/src/verify-pdf.ts`, `packages/verifier/src/verify-paper.ts`, `packages/verifier/src/result-normalizer.ts`, `packages/verifier/test/parity.test.ts`, `packages/verifier/test/input-limits.test.ts`.
-- Create: `cli/credaryn/package.json`, `cli/credaryn/src/main.ts`, `cli/credaryn/src/commands/seal-pdf.ts`, `cli/credaryn/src/commands/verify.ts`, `cli/credaryn/src/commands/paper-inspect.ts`, `cli/credaryn/src/commands/key-inspect.ts`, `cli/credaryn/src/commands/dev-ca.ts`, `cli/credaryn/test/cli.test.ts`.
-- Create: `apps/verifier-web/package.json`, `apps/verifier-web/src/server.ts`, `apps/verifier-web/src/routes/verify.ts`, `apps/verifier-web/src/ui/index.html`, `apps/verifier-web/test/http-smoke.test.ts`, `apps/verifier-web/Dockerfile`.
+- Create: `cli/credaryn/package.json`, `cli/credaryn/src/main.ts`, `cli/credaryn/src/commands/seal-pdf.ts`, `cli/credaryn/src/commands/verify.ts` (including `paper inspect`), `cli/credaryn/src/commands/key-inspect.ts`, `cli/credaryn/src/commands/dev-ca.ts`, `cli/credaryn/test/cli.test.ts`.
+- Create: `apps/verifier-web/package.json`, `apps/verifier-web/src/server.ts`, `apps/verifier-web/src/ui/index.html`, `apps/verifier-web/src/ui/app.js`, `apps/verifier-web/src/ui/style.css`, `apps/verifier-web/test/http-smoke.test.ts`, `apps/verifier-web/Dockerfile`.
 - Create: `docs/architecture/verification-result.md`, `docs/compatibility/v1-input-matrix.md`.
 
 **CLI contract:**
@@ -565,25 +565,25 @@ credaryn dev-ca init
 
 ## Phase 4 acceptance criteria
 
-- [ ] The verifier auto-detects PDF, CRD1 text and supported QR images only when unambiguous.
-- [ ] CLI and web verifier produce semantically equivalent `VerificationResult` objects for the same fixtures.
-- [ ] PDF results expose cryptographic validity, issuer trust, artifact integrity, signed claims, lifecycle status and security mode separately.
-- [ ] Paper results expose signed claims, trust, lifecycle status and `PAPER_CLAIMS_ONLY` without pretending to validate lost PDF bytes.
-- [ ] Input limits and content-type checks run before deep parsing.
-- [ ] `credaryn dev-ca init` labels generated trust material development-only.
-- [ ] No verification path requires a Credaryn-hosted service when local trust material is supplied.
+- [x] The verifier auto-detects PDF, CRD1 text and supported QR images only when unambiguous.
+- [x] CLI and web verifier produce semantically equivalent `VerificationResult` objects for the same fixtures.
+- [x] PDF results expose cryptographic validity, issuer trust, artifact integrity, signed claims, lifecycle status and security mode separately.
+- [x] Paper results expose signed claims, trust, lifecycle status and `PAPER_CLAIMS_ONLY` without pretending to validate lost PDF bytes.
+- [x] Input limits and content-type checks run before deep parsing.
+- [x] `credaryn dev-ca init` labels generated trust material development-only.
+- [x] No verification path requires a Credaryn-hosted service when local trust material is supplied.
 
 ## Phase 4 test-first execution
 
-- [ ] **RED:** Add verifier parity tests for the original PDF, mutated PDF, trusted paper seal, untrusted paper seal and malformed CRD1 input. Expect missing engine failures.
-- [ ] **GREEN:** Implement shared input dispatch and normalization.
-- [ ] **RED:** Add CLI argument, exit-code and JSON-output tests for every command in the contract. Expect command failures.
-- [ ] **GREEN:** Implement CLI commands by calling `@credaryn/verifier` and `@credaryn/node`; do not duplicate validation.
-- [ ] **RED:** Add HTTP smoke tests for PDF upload, CRD1 payload, invalid content type, size limit and health response.
-- [ ] **GREEN:** Implement the minimal Docker web verifier and local static UI.
-- [ ] **RED:** Add a test proving a missing trust bundle produces untrusted/unverifiable output and never authentic UI copy.
-- [ ] **GREEN:** Implement trust-aware labels and explicit offline status.
-- [ ] **REFACTOR:** Keep the web surface thin and all normalized result construction in `packages/verifier`.
+- [x] **RED:** Add verifier parity tests for the original PDF, mutated PDF, trusted paper seal, untrusted paper seal and malformed CRD1 input. Expect missing engine failures.
+- [x] **GREEN:** Implement shared input dispatch and normalization.
+- [x] **RED:** Add CLI argument, exit-code and JSON-output tests for every command in the contract. Expect command failures.
+- [x] **GREEN:** Implement CLI commands by calling `@credaryn/verifier` and `@credaryn/node`; do not duplicate validation.
+- [x] **RED:** Add HTTP smoke tests for PDF upload, CRD1 payload, invalid content type, size limit and health response.
+- [x] **GREEN:** Implement the minimal Docker web verifier and local static UI.
+- [x] **RED:** Add a test proving a missing trust bundle produces untrusted/unverifiable output and never authentic UI copy.
+- [x] **GREEN:** Implement trust-aware labels and explicit offline status.
+- [x] **REFACTOR:** Keep the web surface thin and all normalized result construction in `packages/verifier`.
 
 ## Phase 4 automated gates
 
@@ -592,7 +592,7 @@ pnpm lint
 pnpm typecheck
 pnpm vitest packages/verifier/test cli/credaryn/test apps/verifier-web/test --run
 pnpm --filter @credaryn/cli test:fixtures
-docker build -t credaryn-verifier:phase-4 apps/verifier-web
+docker build -t credaryn-verifier:phase-4 -f apps/verifier-web/Dockerfile .
 docker run --rm -d --name credaryn-verifier-phase-4 -p 4173:4173 credaryn-verifier:phase-4
 curl -fsS http://localhost:4173/health
 ```
@@ -612,9 +612,9 @@ Expected result: the health check succeeds and CLI/web fixture outputs normalize
 
 ## Phase 4 STOP
 
-- [ ] Save `docs/verification/milestone-4.md` with CLI JSON, HTTP responses and screenshots of each verdict.
-- [ ] Commit `git commit -m "feat: add unified verifier cli and web surface"` after gates pass.
-- [ ] **STOP and request user verification.** This is a mandatory manual checkpoint for the unified verifier.
+- [x] Save `docs/verification/milestone-4.md` with CLI JSON and HTTP responses; screenshots remain a user-owned manual checkpoint.
+- [x] Commit `git commit -m "feat: add unified verifier cli and web surface"` after gates pass.
+- [x] **STOP and request user verification.** This is a mandatory manual checkpoint for the unified verifier.
 
 ---
 

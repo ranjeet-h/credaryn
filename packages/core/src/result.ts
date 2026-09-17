@@ -1,4 +1,7 @@
 import type { Claims } from "./document.js";
+import type { TrustDecision } from "./policy.js";
+
+export type CryptographicValidity = "VALID" | "INVALID" | "UNVERIFIABLE";
 
 export type Verdict = "VALID_TRUSTED" | "VALID_UNTRUSTED" | "INVALID" | "UNVERIFIABLE";
 export type LifecycleStatus = "ACTIVE" | "REVOKED" | "CANCELLED" | "SUPERSEDED" | "EXPIRED" | "UNCHECKED";
@@ -12,6 +15,8 @@ export interface VerificationEvidence {
 
 export interface VerificationResult {
   verdict: Verdict;
+  cryptographicValidity: CryptographicValidity;
+  trustDecision: TrustDecision;
   lifecycleStatus: LifecycleStatus;
   issuerId?: string;
   keyId?: string;

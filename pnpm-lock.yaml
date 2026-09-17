@@ -140,6 +140,45 @@ importers:
         specifier: workspace:*
         version: link:../../packages/pdf
 
+  apps/verifier-web:
+    dependencies:
+      '@credaryn/adapter-pades-dss':
+        specifier: workspace:*
+        version: link:../../adapters/pades-dss
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@credaryn/node':
+        specifier: workspace:*
+        version: link:../../packages/node
+      '@credaryn/provider-local':
+        specifier: workspace:*
+        version: link:../../providers/local
+      '@credaryn/verifier':
+        specifier: workspace:*
+        version: link:../../packages/verifier
+
+  cli/credaryn:
+    dependencies:
+      '@credaryn/adapter-pades-dss':
+        specifier: workspace:*
+        version: link:../../adapters/pades-dss
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@credaryn/node':
+        specifier: workspace:*
+        version: link:../../packages/node
+      '@credaryn/pdf':
+        specifier: workspace:*
+        version: link:../../packages/pdf
+      '@credaryn/provider-local':
+        specifier: workspace:*
+        version: link:../../providers/local
+      '@credaryn/verifier':
+        specifier: workspace:*
+        version: link:../../packages/verifier
+
   examples/invoice-puppeteer:
     dependencies:
       '@credaryn/adapter-pades-dss':
@@ -210,6 +249,21 @@ importers:
       '@credaryn/paper':
         specifier: workspace:*
         version: link:../paper
+
+  packages/verifier:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../core
+      '@credaryn/node':
+        specifier: workspace:*
+        version: link:../node
+      '@credaryn/paper':
+        specifier: workspace:*
+        version: link:../paper
+      '@credaryn/pdf':
+        specifier: workspace:*
+        version: link:../pdf
 
   providers/local:
     dependencies:

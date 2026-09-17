@@ -1,0 +1,11 @@
+.git
+.superpowers
+node_modules
+artifacts
+coverage
+dist
+test-vectors
+*.pem
+*.key
+*.p12
+*.pfx

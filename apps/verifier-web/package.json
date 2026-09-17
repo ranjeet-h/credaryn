@@ -1,0 +1,17 @@
+{
+  "name": "@credaryn/verifier-web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "test:smoke": "vitest run test/http-smoke.test.ts"
+  },
+  "dependencies": {
+    "@credaryn/adapter-pades-dss": "workspace:*",
+    "@credaryn/core": "workspace:*",
+    "@credaryn/node": "workspace:*",
+    "@credaryn/provider-local": "workspace:*",
+    "@credaryn/verifier": "workspace:*"
+  }
+}

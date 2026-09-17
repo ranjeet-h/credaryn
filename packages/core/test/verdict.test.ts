@@ -43,6 +43,7 @@ describe("verification verdict policy", () => {
     });
 
     expect(result.verdict).toBe("VALID_TRUSTED");
+    expect(result).toMatchObject({ cryptographicValidity: "VALID", trustDecision: "TRUSTED" });
     expect(result.lifecycleStatus).toBe("REVOKED");
   });
 
