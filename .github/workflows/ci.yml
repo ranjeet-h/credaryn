@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # pnpm 12.3.3 currently ships an mjs entrypoint while some Corepack
+      # shims look for pnpm.cjs. Invoke the pinned package directly.
+      - run: npx --yes pnpm@12.3.3 install --frozen-lockfile
+      - run: npx --yes pnpm@12.3.3 lint
+      - run: npx --yes pnpm@12.3.3 typecheck
+      - run: npx --yes pnpm@12.3.3 test

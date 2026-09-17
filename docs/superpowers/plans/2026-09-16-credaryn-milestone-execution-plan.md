@@ -8,7 +8,7 @@
 
 **Architecture:** Credaryn is a standards-first TypeScript/Node orchestration layer. `@credaryn/core` owns the normalized descriptor, trust policy, validation and verdict model; `@credaryn/node`, `@credaryn/pdf`, `@credaryn/paper` and `@credaryn/verifier` compose those contracts without exposing provider-specific or Java/DSS types. Browser printing, cloud/HSM providers, TrustVC, lifecycle services and OCR are adapters or optional delivery surfaces around the same signed-claim and normalized-verification boundaries.
 
-**Tech Stack:** Node.js 24 LTS, TypeScript 7 strict mode, pnpm 12 workspaces, Vitest 5, Playwright, fast-check, Puppeteer, European Commission DSS 6.5 in an isolated Docker adapter, QR + Base45 + deterministic CBOR + COSE_Sign1 + ES256, PostgreSQL only for optional status/admin persistence, TrustVC for V2 W3C interoperability, and Python with PaddleOCR PP-OCRv6/PP-StructureV3 for V3.
+**Tech Stack:** Node.js 24 LTS, TypeScript 7 strict mode, pnpm 12 workspaces, Vitest 5, fast-check, Puppeteer for server-side controlled PDF generation only, European Commission DSS 6.5 in an isolated Docker adapter, QR + Base45 + deterministic CBOR + COSE_Sign1 + ES256, PostgreSQL only for optional status/admin persistence, TrustVC for V2 W3C interoperability, and Python with PaddleOCR PP-OCRv6/PP-StructureV3 for V3.
 
 ## Global Constraints
 
@@ -19,12 +19,12 @@ These requirements are copied from the locked implementation baseline and apply 
 - Package manager: pnpm 12 workspaces with one lockfile.
 - Build approach: pnpm workspace scripts first; do not add Turborepo until repository scale proves it useful.
 - Unit/integration tests: Vitest 5.
-- Browser/E2E tests: Playwright.
+- UI verification: manual only in a real browser and on real devices; do not use Playwright, browser automation, or another automated UI-testing runner.
 - Property-based tests: fast-check for descriptor validation, deterministic encoding and parser invariants.
 - Versioning/release management: Changesets with semantic versioning.
 - CI: GitHub Actions on Node 24, with locked dependency installation.
 - Dependency updates: Renovate weekly; security updates may bypass the weekly window.
-- V1 PDF generation uses Puppeteer; PDFKit, Playwright PDF generation and pdf-lib adapters are V2 work.
+- V1 PDF generation uses Puppeteer only as a server-side document renderer; it is not used to test UI changes. PDFKit, Playwright PDF generation and pdf-lib adapters are V2 work and likewise require manual verification for any user-facing UI.
 - V1 PDF signatures target PAdES Baseline B-B through the Dockerized DSS 6.5 reference adapter. PAdES Baseline B-T is available only when an RFC 3161 TSA is configured.
 - V1 paper transport is `CRD1:` + Base45 (RFC 9285), containing deterministic CBOR (RFC 8949) and COSE_Sign1 (RFC 9052), signed with ES256/P-256/SHA-256, QR error correction M.
 - The maximum V1 COSE object size before Base45 transport is 1200 bytes. Oversized payloads fail closed; claims are never silently dropped.
@@ -276,12 +276,12 @@ Expected result: all commands exit successfully, the DSS health check reports re
 1. Run `docker compose -f adapters/pades-dss/docker-compose.yml up -d`.
 2. Run `pnpm --filter @credaryn/paper spike`.
 3. Open `test-vectors/paper-v1/README.md` and compare the printed CRD1 payload, payload hash and verification result with the command output.
-4. Run `pnpm --filter @credaryn/pdf dss:health` and confirm the client reports a normalized `ready` response without exposing DSS or Java types.
+4. Run `curl -fsS http://127.0.0.1:8080/health` and confirm the adapter reports a normalized `ready` response without exposing DSS or Java types.
 5. Inspect the workspace dependency graph with `pnpm why` for the paper and core packages. Confirm no private key fixture, cloud credential, frontend bundle or OCR package is present.
 
-**Successful result:** the same fixed descriptor produces the same encoded paper bytes twice; the payload verifies as trusted with the demo trust material; DSS is reachable through the adapter; and all public boundaries are standards-neutral.
+**Successful result:** the same fixed descriptor produces the same unsigned deterministic CBOR payload bytes twice; the payload verifies as trusted with the demo trust material; DSS is reachable through the adapter; and all public boundaries are standards-neutral. The Phase 0 ephemeral OpenSSL signer may produce a different ECDSA signature nonce on each run, so complete signed transport determinism is deferred to Milestone 2.
 
-**Failed result:** nondeterministic bytes, an unverifiable signature, a DSS boundary leaking provider types, or any dependency/security violation. Fix Phase 0 and repeat the phase; do not begin Phase 1.
+**Failed result:** nondeterministic unsigned payload bytes, an unverifiable signature, a DSS boundary leaking provider types, or any dependency/security violation. A changing ECDSA nonce in this ephemeral spike is expected; deterministic signed vectors are a Milestone 2 gate. Fix Phase 0 and repeat the phase; do not begin Phase 1.
 
 ## Phase 0 STOP
 
@@ -693,7 +693,7 @@ Expected result: the demo build is deterministic, documentation commands refer t
 
 - Create: `packages/web/package.json`, `packages/web/src/prepare-print.ts`, `packages/web/src/seal-element.ts`, `packages/web/src/print-css.ts`, `packages/web/src/index.ts`.
 - Create: `packages/web/test/prepare-print.test.ts`, `packages/web/test/csp.test.ts`, `packages/web/test/security-mode.test.ts`.
-- Create: `examples/browser-print/package.json`, `examples/browser-print/src/server.ts`, `examples/browser-print/src/public/invoice.html`, `examples/browser-print/src/public/client.ts`, `examples/browser-print/test/browser-print.spec.ts`.
+- Create: `examples/browser-print/package.json`, `examples/browser-print/src/server.ts`, `examples/browser-print/src/public/invoice.html`, `examples/browser-print/src/public/client.ts`.
 - Create: `docs/security/browser-print.md` and `docs/architecture/browser-print.md`.
 
 **Interfaces produced:**
@@ -735,8 +735,8 @@ Phase 6 implements `preparePrint` and the controlled print preparation. The fina
 - [ ] **GREEN:** Implement `preparePrint` with injected `fetch`, bounded response parsing and DOM target injection.
 - [ ] **RED:** Add tests for missing target, failed issuance, malformed server response and print-before-issuance ordering. Expect failures.
 - [ ] **GREEN:** Implement failure-abort behavior and `prepareAndPrint` orchestration.
-- [ ] **RED:** Add Playwright tests for an invoice page, visible seal, print CSS and browser-side bundle inspection. Expect failures.
-- [ ] **GREEN:** Implement the example server/page and browser test.
+- [ ] **STATIC CHECK:** Add non-UI checks for the example's response contract, CSP-safe source and absence of signer/private-key imports. Do not add a browser automation test.
+- [ ] **MANUAL CHECK:** Implement the example server/page, then verify its rendered states manually in a real browser using the procedure below.
 - [ ] **REFACTOR:** Remove global side effects, network dependencies and any browser bundle import of signer/private-key code.
 
 ## Phase 6 automated gates
@@ -745,11 +745,10 @@ Phase 6 implements `preparePrint` and the controlled print preparation. The fina
 pnpm lint
 pnpm typecheck
 pnpm vitest packages/web/test --run
-pnpm playwright test examples/browser-print/test/browser-print.spec.ts
 pnpm bundle:inspect --filter @credaryn/web
 ```
 
-Expected result: Playwright sees the seal and security-mode text, failed issuance prevents printing, and bundle inspection contains no private-key or server-signer implementation.
+Expected result: package tests and static bundle inspection pass. The rendered seal, security-mode text, print CSS and failure-abort behavior are verified manually, not by browser automation.
 
 ## Phase 6 manual verification
 
@@ -765,7 +764,7 @@ Expected result: Playwright sees the seal and security-mode text, failed issuanc
 
 ## Phase 6 STOP
 
-- [ ] Save `docs/verification/milestone-6.md` with Playwright output, print-preview screenshot and bundle/network inspection.
+- [ ] Save `docs/verification/milestone-6.md` with the manual browser observations, print-preview screenshot and bundle/network inspection.
 - [ ] Commit `git commit -m "feat: add secure browser print preparation"` after gates pass.
 - [ ] **STOP and request user verification.** This is a mandatory manual checkpoint for browser printing.
 
@@ -903,8 +902,8 @@ GET  /v1/version        build/version/compatibility metadata
 - [ ] **GREEN:** Implement PostgreSQL schema and status service.
 - [ ] **RED:** Add security tests for anonymous read-only verification, OIDC admin, CSRF, secure cookies, strict CORS, request correlation and redacted logs. Expect failures.
 - [ ] **GREEN:** Implement admin/auth and observability middleware.
-- [ ] **RED:** Add PWA/Web Component tests for each input surface, offline local verification, disabled history and separate result cards.
-- [ ] **GREEN:** Implement the PWA and standards-based Web Component.
+- [ ] **RED:** Add pure contract/state tests for each PWA/Web Component input surface, offline local verification, disabled history and separate result-card data. Do not automate rendered UI behavior.
+- [ ] **GREEN:** Implement the PWA and standards-based Web Component, then verify rendered states manually.
 - [ ] **RED:** Add Docker Compose smoke tests for readiness, non-root containers, read-only filesystem where practical, secret files and optional PostgreSQL.
 - [ ] **GREEN:** Implement the self-host bundle and healthchecks.
 - [ ] **REFACTOR:** Keep service components optional and prevent any service from becoming a cryptographic requirement.
@@ -915,7 +914,6 @@ GET  /v1/version        build/version/compatibility metadata
 pnpm lint
 pnpm typecheck
 pnpm vitest packages/web/test packages/widget/test packages/core/test apps/verifier-web/test services/status/test apps/admin/test --run
-pnpm playwright test apps/verifier-web/test --project=chromium
 docker compose -f deploy/docker-compose.yml config
 docker compose -f deploy/docker-compose.yml up -d
 pnpm deploy:smoke
@@ -979,7 +977,7 @@ Expected result: REST, PWA, Web Component and CLI use equivalent result semantic
 - [ ] **GREEN:** Implement the isolated TrustVC adapter and normalized result mapper.
 - [ ] **RED:** Add optional OpenAttestation compatibility tests only for the promised fixture set. Expect failures when support is enabled.
 - [ ] **GREEN:** Implement compatibility-only verification through TrustVC; do not implement OpenAttestation-first issuance.
-- [ ] **RED:** Add PDFKit and Playwright adapter tests for identical claims, seal-before-sign order, PAdES validation and mutation failure. Expect adapter failures.
+- [ ] **RED:** Add server-side document-renderer adapter tests for identical claims, seal-before-sign order, PAdES validation and mutation failure. These are document-output tests, not browser UI tests; any renderer implementation is exercised without a browser UI test runner. Expect adapter failures.
 - [ ] **GREEN:** Implement both adapters through the shared pipeline.
 - [ ] **RED:** Add consumer tests for the thinnest justified React/Next helpers. Expect failures only if the adoption decision says they materially reduce integration work.
 - [ ] **GREEN:** Implement delegates or record the explicit evidence-based deferral in the compatibility matrix.
@@ -993,7 +991,6 @@ pnpm typecheck
 pnpm vitest standards/trustvc/test packages/pdf/test packages/react/test packages/next/test --run
 pnpm interop:vectors:check
 pnpm adapter:fixtures:check
-pnpm playwright test examples/invoice-playwright/test --project=chromium
 ```
 
 Expected result: all promised interop and adapter fixtures pass, and every result maps to the same `VerificationResult` semantics.
@@ -1106,7 +1103,7 @@ Expected result: all automated gates pass without real publishing credentials; a
 
 - Create: `services/ocr/pyproject.toml`, `services/ocr/src/credaryn_ocr/main.py`, `services/ocr/src/credaryn_ocr/pipeline.py`, `services/ocr/src/credaryn_ocr/profiles.py`, `services/ocr/src/credaryn_ocr/normalize.py`, `services/ocr/src/credaryn_ocr/compare.py`, `services/ocr/tests/`.
 - Create: `packages/verifier/src/ocr-evidence.ts`, `packages/verifier/test/ocr-evidence.test.ts`.
-- Create: `apps/verifier-web/src/ocr-view.ts`, `apps/verifier-web/test/ocr-view.spec.ts`.
+- Create: `apps/verifier-web/src/ocr-view.ts`, `apps/verifier-web/test/ocr-view-model.test.ts`.
 - Create: `test-corpus/public/`, `test-corpus/private-synthetic/`, `test-corpus/tamper/`, `docs/ocr/extraction-profiles.md`, `docs/ocr/evidence-confidence.md`, `docs/benchmarks/v3-corpus.md`.
 - Create: `services/ocr/Dockerfile`, CPU deployment and optional GPU configuration; modify Compose only to make OCR optional.
 - Create: `examples/invoice-puppeteer/src/claims.ts` with `data-credaryn-claim` markers and a generated profile.
@@ -1139,8 +1136,8 @@ Expected result: all automated gates pass without real publishing credentials; a
 - [ ] **GREEN:** Implement deterministic comparison and evidence model.
 - [ ] **RED:** Add corpus tests for benign degradation and controlled tamper cases. Expect initial metrics and regression thresholds.
 - [ ] **GREEN:** Integrate PaddleOCR/PP-StructureV3, record model versions and publish measured results.
-- [ ] **RED:** Add UI tests asserting crypto verdict remains unchanged when visible assessment is `POSSIBLE_MISMATCH`, `UNCERTAIN` or `INCONCLUSIVE`.
-- [ ] **GREEN:** Implement evidence/confidence presentation.
+- [ ] **RED:** Add normalized evidence/presentation-model tests asserting crypto verdict remains unchanged when visible assessment is `POSSIBLE_MISMATCH`, `UNCERTAIN` or `INCONCLUSIVE`. Do not automate rendered UI behavior.
+- [ ] **GREEN:** Implement evidence/confidence presentation, then verify rendered states manually.
 - [ ] **REFACTOR:** Keep OCR optional in Compose and keep all deterministic crypto logic in the existing verifier package.
 
 ## Phase 11 automated gates
@@ -1150,7 +1147,6 @@ python -m pytest services/ocr/tests -q
 pnpm lint
 pnpm typecheck
 pnpm vitest packages/verifier/test --run
-pnpm playwright test apps/verifier-web/test/ocr-view.spec.ts --project=chromium
 docker build -t credaryn-ocr:phase-11 services/ocr
 docker run --rm credaryn-ocr:phase-11 python -m credaryn_ocr.self_check --cpu
 pnpm corpus:measure --public test-corpus/public --tamper test-corpus/tamper

@@ -1,0 +1,11 @@
+{
+  "issuerId": "acme-retail",
+  "documentId": "INV-2026-82919",
+  "documentType": "invoice",
+  "issuedAt": "2026-01-01T00:00:00Z",
+  "claims": {
+    "currency": "INR",
+    "invoiceNumber": "INV-2026-82919",
+    "totalMinor": 1180000
+  }
+}

@@ -1,0 +1,10 @@
+packages:
+  - packages/*
+  - providers/*
+  - adapters/*
+  - apps/*
+  - cli/*
+  - examples/*
+allowBuilds:
+  cbor-extract: true
+  esbuild: true

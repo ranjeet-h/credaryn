@@ -1,0 +1,29 @@
+{
+  "name": "credaryn",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Trust infrastructure for verifiable documents.",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@12.3.3",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "lint": "node scripts/check-boundaries.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:property": "vitest run --testNamePattern=property",
+    "coverage": "vitest run --coverage",
+    "format:check": "git diff --check"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "5.0.1",
+    "@types/node": "24.13.5",
+    "cbor-x": "1.6.6",
+    "fast-check": "4.10.1",
+    "tsx": "4.20.3",
+    "typescript": "7.0.2",
+    "vitest": "5.0.1"
+  }
+}
