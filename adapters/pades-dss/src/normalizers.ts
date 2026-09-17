@@ -15,7 +15,6 @@ export function normalizeSignedPdfResponse(value: unknown): Uint8Array {
 
 export function normalizePdfVerificationResponse(value: unknown): PdfVerificationResult {
   const response = asRecord(value, "DSS verification response");
-  if (response.signatureLevel !== "B-B") throw new Error("DSS verification response must identify PAdES Baseline B-B");
   if (response.qualifiedSignature !== false) {
     throw new Error("DSS PAdES response cannot claim qualified electronic-signature status");
   }
@@ -24,6 +23,12 @@ export function normalizePdfVerificationResponse(value: unknown): PdfVerificatio
   }
   if (!isArtifactIntegrity(response.artifactIntegrity)) {
     throw new Error("DSS verification response has an invalid artifact integrity");
+  }
+  const unknownLevelInvalid = response.signatureLevel !== "B-B"
+    && response.cryptographicValidity === "INVALID"
+    && response.artifactIntegrity === "INVALID";
+  if (response.signatureLevel !== "B-B" && !unknownLevelInvalid) {
+    throw new Error("DSS verification response must identify PAdES Baseline B-B");
   }
   const result: PdfVerificationResult = {
     cryptographicValidity: response.cryptographicValidity,

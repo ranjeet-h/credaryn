@@ -634,22 +634,22 @@ Expected result: the health check succeeds and CLI/web fixture outputs normalize
 
 ## Phase 5 acceptance criteria
 
-- [ ] A clean checkout can generate the invoice with total INR 11,800 and seal it.
-- [ ] The PDF verifies digitally and the paper QR reports the signed total.
-- [ ] Editing the PDF or photographed visible value to INR 81,800 produces the intended invalid or mismatch evidence without changing the signed paper value.
-- [ ] The demo explains the result without requiring the viewer to learn PAdES, COSE or CBOR first.
-- [ ] README integration code remains approximately ten lines after infrastructure setup.
-- [ ] No copy says uneditable, unhackable, AI-proof or qualified signature without the required legal/trust context.
+- [x] A clean checkout can generate the invoice with total INR 11,800 and seal it.
+- [x] The PDF verifies digitally and the paper QR reports the signed total.
+- [x] Editing the PDF or photographed visible value to INR 81,800 produces the intended invalid or mismatch evidence without changing the signed paper value.
+- [x] The demo explains the result without requiring the viewer to learn PAdES, COSE or CBOR first.
+- [x] README integration code remains approximately ten lines after infrastructure setup.
+- [x] No copy says uneditable, unhackable, AI-proof or qualified signature without the required legal/trust context.
 
 ## Phase 5 test-first execution
 
-- [ ] **RED:** Add an end-to-end fixture test asserting the exact invoice amount, issuer, document ID, QR claim and mutation scenario. Expect missing demo behavior.
-- [ ] **GREEN:** Implement the playground and deterministic invoice fixture.
-- [ ] **RED:** Add documentation smoke checks for the required commands, paths and expected verdict labels. Expect missing or stale documentation failures.
-- [ ] **GREEN:** Write the reproducible README and demo guide with exact commands.
-- [ ] **RED:** Add a copy-policy test that rejects prohibited security claims from README/demo/docs.
-- [ ] **GREEN:** Correct user-facing wording and add technical/legal qualification caveats.
-- [ ] **REFACTOR:** Keep the demo focused on the cross-medium proof; do not add W3C VC, OCR, blockchain, framework wrappers or cloud credentials.
+- [x] **RED:** Add an end-to-end fixture test asserting the exact invoice amount, issuer, document ID, QR claim and mutation scenario. Expect missing demo behavior.
+- [x] **GREEN:** Implement the playground and deterministic invoice fixture.
+- [x] **RED:** Add documentation smoke checks for the required commands, paths and expected verdict labels. Expect missing or stale documentation failures.
+- [x] **GREEN:** Write the reproducible README and demo guide with exact commands.
+- [x] **RED:** Add a copy-policy test that rejects prohibited security claims from README/demo/docs.
+- [x] **GREEN:** Correct user-facing wording and add technical/legal qualification caveats.
+- [x] **REFACTOR:** Keep the demo focused on the cross-medium proof; do not add W3C VC, OCR, blockchain, framework wrappers or cloud credentials.
 
 ## Phase 5 automated gates
 
@@ -678,7 +678,7 @@ Expected result: the demo build is deterministic, documentation commands refer t
 ## Phase 5 STOP
 
 - [ ] Save `docs/verification/milestone-5.md` with the demo URL, screenshots, generated hashes and reproduction notes.
-- [ ] Commit `git commit -m "feat: add launch quality invoice demo"` after gates pass.
+- [ ] Commit `git commit -m "feat: add launch quality invoice demo"` after the manual gate is released.
 - [ ] **STOP and request user verification.** This is the public-demo build/kill Checkpoint B. Continue only if the problem and reproduction are immediately understandable.
 
 ---

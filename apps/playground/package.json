@@ -1,0 +1,15 @@
+{
+  "name": "@credaryn/playground",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/server.ts"
+  },
+  "dependencies": {
+    "@credaryn/adapter-pades-dss": "workspace:*",
+    "@credaryn/core": "workspace:*",
+    "@credaryn/provider-local": "workspace:*",
+    "@credaryn/verifier": "workspace:*"
+  }
+}

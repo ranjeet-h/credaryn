@@ -71,7 +71,7 @@ export function renderInvoiceHtml(
           <tr><td>Paper Seal Profile setup</td><td>1</td><td>${formatMinorAmount(currency, 180000)}</td></tr>
         </tbody>
       </table>
-      <section class="summary"><dl class="total"><dt>Status</dt><dd>${escapeHtml(paid)}</dd><dt class="grand">Total</dt><dd class="grand">${escapeHtml(displayTotal)}</dd></dl></section>
+      <section class="summary"><dl class="total"><dt>Status</dt><dd>${escapeHtml(paid)}</dd><dt class="grand">Total</dt><dd class="grand" data-visible-total="${escapeHtml(displayTotal)}">${escapeHtml(displayTotal)}</dd></dl></section>
       <section class="seal" data-credaryn-paper-seal="CRD1:" data-credaryn-paper-seal-transport="${escapeHtml(paperSealTransport)}">
         <img src="${escapeHtml(paperSealQrDataUrl)}" alt="Credaryn Paper Seal QR Code">
         <div><h2>Verify this invoice independently</h2><p>Scan the Paper Seal to verify the signed invoice number and total without the source PDF.</p><code>${escapeHtml(paperSealTransport)}</code></div>

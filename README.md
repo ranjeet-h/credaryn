@@ -1,0 +1,57 @@
+Documents are easy to edit. Credaryn makes authentic issuance independently verifiable - from software to paper.
+
+# Credaryn
+
+Credaryn is a standards-first TypeScript/Node proof for signed documents. The
+launch demo makes the boundary visible with one controlled invoice:
+
+- the issued total is **INR 11,800**;
+- the PDF is a digitally signed PAdES Baseline B-B artifact;
+- the Paper Seal carries signed claims independently of the PDF bytes;
+- a visible change to **INR 81,800** makes the PDF invalid while the Paper Seal still reports INR 11,800.
+
+## Run the invoice demo
+
+Requirements: Node 24, pnpm 12, and Docker for the local European Commission
+DSS 6.5 reference adapter.
+
+```bash
+pnpm install --frozen-lockfile
+docker compose -f adapters/pades-dss/docker-compose.yml up -d
+pnpm demo:start
+```
+
+Open <http://localhost:3000> in a real browser. Click **Generate and seal
+invoice**, verify the original PDF and Paper Seal, then use **Tamper PDF → INR
+81,800**. The UI is a manual demonstration surface; no browser automation is
+used to test it.
+
+For a deterministic fixture build without the playground:
+
+```bash
+pnpm demo:build
+pnpm --filter @credaryn/example-invoice-puppeteer verify:fixtures
+```
+
+The demo signing key is local development material only. PAdES Baseline B-B
+does not by itself establish qualified electronic-signature status.
+
+## Integration shape
+
+After infrastructure setup, the core invoice flow remains intentionally small:
+
+```ts
+const fixture = await loadInvoiceFixture();
+const result = await createPdfPipeline({
+  paperSigner: fixture.paperSigner,
+  pdfSigner: dssSignerIdentity,
+  pdfEngine: new DssPdfSignatureEngine({ endpoint: DSS_URL }),
+  renderInvoice: (descriptor, seal) => renderInvoicePdf(descriptor, seal.transport),
+  placePaperSeal: placePaperSealBeforeSigning,
+}).seal(fixture.descriptor);
+```
+
+Read [Getting started](docs/getting-started.md) for the reproducible setup,
+[the demo script](docs/demo/invoice-tamper-demo.md) for the story, and
+[claims versus artifact integrity](docs/security/claims-vs-artifact.md) for the
+security boundary.

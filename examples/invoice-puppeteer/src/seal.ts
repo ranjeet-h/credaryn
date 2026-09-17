@@ -114,6 +114,18 @@ export async function writeMutatedFixture(pdfBytes: Uint8Array): Promise<void> {
   ]);
 }
 
+export async function createTamperedInvoicePreview(paperSealTransport: string): Promise<Uint8Array> {
+  const fixture = await loadInvoiceFixture();
+  const tamperedDescriptor: DocumentDescriptor = {
+    ...fixture.descriptor,
+    claims: {
+      ...fixture.descriptor.claims,
+      totalMinor: 8_180_000,
+    },
+  };
+  return renderInvoicePdf(tamperedDescriptor, paperSealTransport);
+}
+
 export async function verifyFixtureFiles(endpoint = process.env.DSS_URL ?? "http://127.0.0.1:8080"): Promise<void> {
   const fixture = await loadInvoiceFixture();
   const signedPdf = new Uint8Array(await readFile(new URL("../../../test-vectors/pdf/invoice-11800.pdf", import.meta.url)));

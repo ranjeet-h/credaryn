@@ -80,6 +80,23 @@ describe("DSS PDF engine boundary", () => {
     });
   });
 
+  it("normalizes an unsigned or unknown-level artifact as invalid", async () => {
+    const engine = new DssPdfSignatureEngine({
+      endpoint: "http://127.0.0.1:8080",
+      fetchImpl: async () => response({
+        cryptographicValidity: "INVALID",
+        artifactIntegrity: "INVALID",
+        signatureLevel: "UNKNOWN",
+        qualifiedSignature: false,
+      }),
+    });
+
+    await expect(engine.verify(new Uint8Array([9]), { trustStore: { resolve: async () => undefined } })).resolves.toEqual({
+      cryptographicValidity: "INVALID",
+      artifactIntegrity: "INVALID",
+    });
+  });
+
   it("rejects a qualified-signature claim and any unsupported PAdES level", async () => {
     const qualifiedResponse = new DssPdfSignatureEngine({
       endpoint: "http://127.0.0.1:8080",

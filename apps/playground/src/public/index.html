@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Credaryn · invoice proof</title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <p class="kicker">Credaryn / launch demo</p>
+        <h1>One invoice.<br><em>Two truths.</em></h1>
+        <p class="lede">Edit the visible number. The signed Paper Seal still carries the amount that was actually issued.</p>
+        <div class="hero-meta"><span>Acme Retail</span><span>INV-2026-82919</span><span>ES256 · PAdES B-B</span></div>
+      </header>
+
+      <section class="demo-panel" aria-labelledby="demo-heading">
+        <div class="panel-heading"><p class="kicker">Checkpoint A</p><h2 id="demo-heading">Issue the original</h2><p>Start with the exact INR 11,800 invoice. The PDF and its Paper Seal are produced by the same controlled fixture.</p></div>
+        <div class="actions">
+          <button id="generate" class="button button-primary">Generate and seal invoice <span>↗</span></button>
+          <button id="verify-original" class="button" disabled>Verify PDF</button>
+          <a id="open-original" class="text-link" href="/artifacts/invoice-11800/sealed.pdf" target="_blank" rel="noreferrer" aria-disabled="true">Open signed PDF ↗</a>
+        </div>
+        <p id="generate-status" class="status" role="status">Waiting for the fixture.</p>
+      </section>
+
+      <section class="evidence-grid" aria-label="Evidence states">
+        <article class="evidence-card evidence-card-paper">
+          <div class="card-top"><p class="kicker">Independent evidence</p><span class="badge">Paper Seal</span></div>
+          <h2>What was issued</h2>
+          <p class="amount">INR <strong>11,800</strong><small>.00</small></p>
+          <p class="card-copy">The QR carries signed claims. It does not depend on the PDF remaining unchanged.</p>
+          <img id="paper-qr" class="paper-qr" alt="Signed Paper Seal QR" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" />
+          <div class="card-result"><span>Paper verification</span><strong id="paper-verdict">Not checked</strong></div>
+          <div class="claim-line"><span>Security mode</span><code>PAPER_CLAIMS_ONLY</code></div>
+          <button id="verify-paper" class="button button-light" disabled>Verify Paper Seal</button>
+        </article>
+
+        <article class="evidence-card evidence-card-pdf">
+          <div class="card-top"><p class="kicker">Digital artifact</p><span class="badge badge-dark">PAdES B-B</span></div>
+          <h2>What the file says</h2>
+          <p class="amount">INR <strong id="visible-amount">11,800</strong><small>.00</small></p>
+          <p class="card-copy">The PDF signature protects the artifact bytes. A changed file is not the issued file.</p>
+          <div class="pdf-sheet"><div class="sheet-line sheet-line-long"></div><div class="sheet-line"></div><div class="sheet-total"><span>Total</span><b id="sheet-total">INR 11,800.00</b></div><div class="sheet-seal">CRD1 / SIGNED</div></div>
+          <div class="card-result"><span>PDF verification</span><strong id="pdf-verdict">Not checked</strong></div>
+          <div class="claim-line"><span>Artifact integrity</span><code id="pdf-integrity">Not checked</code></div>
+        </article>
+      </section>
+
+      <section class="tamper-panel" aria-labelledby="tamper-heading">
+        <div><p class="kicker">Checkpoint B</p><h2 id="tamper-heading">Now change the visible amount</h2><p>Render the invoice again at INR 81,800 while keeping the original signed Paper Seal. The altered PDF is no longer a signed artifact.</p></div>
+        <div class="tamper-actions"><button id="tamper" class="button button-tamper" disabled>Tamper PDF → INR 81,800</button><a id="open-tampered" class="text-link" href="/artifacts/invoice-11800/tampered-preview.pdf" target="_blank" rel="noreferrer" aria-disabled="true">Open tampered preview ↗</a></div>
+        <div id="tamper-result" class="tamper-result" hidden><span class="tamper-mark">!</span><div><strong>Mismatch made visible.</strong><p>PDF: <b>INVALID</b> · Paper claim: <b>INR 11,800.00</b> · Visible total: <b>INR 81,800.00</b></p></div></div>
+      </section>
+
+      <footer><span>Credaryn makes authentic issuance independently verifiable.</span><span>Cryptography is evidence, not a promise that files cannot be edited.</span></footer>
+    </main>
+    <script src="/demo.js" defer></script>
+  </body>
+</html>

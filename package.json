@@ -16,7 +16,10 @@
     "test": "vitest run",
     "test:property": "vitest run packages/core/test/property.test.ts",
     "coverage": "vitest run --coverage",
-    "format:check": "git diff --check"
+    "format:check": "git diff --check",
+    "demo:build": "pnpm --filter @credaryn/example-invoice-puppeteer generate",
+    "demo:start": "pnpm --filter @credaryn/playground start",
+    "docs:check": "vitest run apps/playground/test/documentation.test.ts --run"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "5.0.1",

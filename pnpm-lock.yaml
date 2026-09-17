@@ -140,6 +140,21 @@ importers:
         specifier: workspace:*
         version: link:../../packages/pdf
 
+  apps/playground:
+    dependencies:
+      '@credaryn/adapter-pades-dss':
+        specifier: workspace:*
+        version: link:../../adapters/pades-dss
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@credaryn/provider-local':
+        specifier: workspace:*
+        version: link:../../providers/local
+      '@credaryn/verifier':
+        specifier: workspace:*
+        version: link:../../packages/verifier
+
   apps/verifier-web:
     dependencies:
       '@credaryn/adapter-pades-dss':

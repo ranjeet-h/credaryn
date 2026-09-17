@@ -1,0 +1,56 @@
+:root { color-scheme: dark; --ink: #f4f1e9; --muted: #a9aaa1; --paper: #f0eadc; --night: #111513; --green: #b9e86f; --line: #343c35; --rust: #ff8c62; font-family: "Avenir Next", "Helvetica Neue", sans-serif; background: var(--night); color: var(--ink); }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 85% 0%, #283628 0, transparent 34rem), var(--night); }
+.shell { width: min(1120px, calc(100% - 48px)); margin: 0 auto; padding: 70px 0 42px; }
+.hero { max-width: 850px; padding-bottom: 54px; border-bottom: 1px solid var(--line); }
+.kicker { margin: 0 0 13px; color: var(--green); font: 500 11px/1.2 "SF Mono", "Menlo", monospace; letter-spacing: .11em; text-transform: uppercase; }
+h1, h2, p { margin-top: 0; }
+h1 { margin-bottom: 23px; font: 500 clamp(54px, 9vw, 112px)/.88 "Iowan Old Style", Georgia, serif; letter-spacing: -.065em; }
+h1 em { color: var(--green); font-style: normal; }
+.lede { max-width: 610px; margin-bottom: 33px; color: var(--muted); font-size: clamp(18px, 2.5vw, 24px); line-height: 1.35; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 24px; color: var(--muted); font: 11px "SF Mono", "Menlo", monospace; text-transform: uppercase; }
+.demo-panel, .tamper-panel { margin-top: 30px; padding: 27px 30px; border: 1px solid var(--line); background: rgb(27 33 28 / 74%); }
+.demo-panel { display: grid; grid-template-columns: 1.3fr 1fr; gap: 30px; align-items: end; }
+h2 { margin-bottom: 8px; font: 500 34px/1 "Iowan Old Style", Georgia, serif; letter-spacing: -.035em; }
+.demo-panel p:not(.kicker), .tamper-panel p:not(.kicker) { max-width: 600px; margin-bottom: 0; color: var(--muted); line-height: 1.5; }
+.actions, .tamper-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 13px; }
+.button { border: 1px solid #647060; border-radius: 2px; padding: 13px 16px; color: var(--ink); background: transparent; font: 500 12px "SF Mono", "Menlo", monospace; cursor: pointer; transition: transform .2s ease, background .2s ease, border-color .2s ease; }
+.button:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--green); }
+.button:disabled { cursor: not-allowed; opacity: .42; }
+.button-primary { border-color: var(--green); color: var(--night); background: var(--green); }
+.button-primary span { margin-left: 16px; font-size: 16px; }
+.button-light { margin-top: 22px; border-color: #b6ad9a; color: var(--night); background: var(--paper); }
+.button-tamper { border-color: var(--rust); color: var(--rust); }
+.text-link { color: var(--green); font: 11px "SF Mono", "Menlo", monospace; text-underline-offset: 4px; }
+.text-link.is-disabled { pointer-events: none; opacity: .42; }
+.status { grid-column: 1 / -1; margin: -3px 0 0; color: var(--muted); font: 12px "SF Mono", "Menlo", monospace; }
+.evidence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
+.evidence-card { min-height: 560px; padding: 28px 30px; color: var(--night); background: var(--paper); }
+.evidence-card-pdf { background: var(--green); }
+.card-top { display: flex; justify-content: space-between; align-items: start; }
+.evidence-card .kicker { color: #65705c; }
+.evidence-card h2 { margin-top: 57px; font-size: 42px; }
+.badge { padding: 7px 9px; border: 1px solid #a7a08e; color: #656051; font: 10px "SF Mono", "Menlo", monospace; text-transform: uppercase; }
+.badge-dark { border-color: #5d7446; color: #365028; }
+.amount { margin: 15px 0 17px; font: 500 clamp(38px, 5vw, 60px)/1 "Iowan Old Style", Georgia, serif; letter-spacing: -.06em; }
+.amount strong { font-weight: 600; }
+.amount small { font-size: .52em; letter-spacing: -.01em; }
+.card-copy { max-width: 390px; min-height: 50px; color: #65705c; line-height: 1.5; }
+.paper-qr { display: block; width: 160px; height: 160px; margin: 26px 0 20px; image-rendering: pixelated; background: #fff; }
+.pdf-sheet { display: grid; gap: 13px; min-height: 160px; margin: 31px 0 23px; padding: 25px; border: 1px solid #7aa449; background: #d9f599; }
+.sheet-line { width: 66%; height: 7px; background: #7d9b52; opacity: .6; }
+.sheet-line-long { width: 85%; }
+.sheet-total { display: flex; justify-content: space-between; align-items: end; margin-top: 26px; padding-top: 12px; border-top: 1px solid #7aa449; font: 11px "SF Mono", "Menlo", monospace; }
+.sheet-total b { font-size: 15px; }
+.sheet-seal { color: #4c7131; font: 10px "SF Mono", "Menlo", monospace; }
+.card-result, .claim-line { display: flex; justify-content: space-between; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid rgb(61 70 57 / 24%); font: 11px "SF Mono", "Menlo", monospace; }
+.card-result strong { font-size: 12px; }
+.claim-line { color: #65705c; }
+code { color: inherit; font: inherit; }
+.tamper-panel { display: grid; grid-template-columns: 1fr auto; gap: 25px; align-items: end; border-color: #6d4035; background: #241b18; }
+.tamper-panel .kicker { color: var(--rust); }
+.tamper-result { grid-column: 1 / -1; display: flex; gap: 13px; align-items: center; margin-top: 7px; padding: 15px 16px; border: 1px solid #734435; color: #ffb196; background: #30201c; font: 12px "SF Mono", "Menlo", monospace; }
+.tamper-result p { margin: 4px 0 0; color: #d49b89; }
+.tamper-mark { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 50%; color: #281713; background: var(--rust); font-weight: 700; }
+footer { display: flex; justify-content: space-between; gap: 24px; margin-top: 52px; color: #72776f; font: 10px/1.5 "SF Mono", "Menlo", monospace; }
+@media (max-width: 760px) { .shell { width: min(100% - 30px, 560px); padding-top: 40px; } .demo-panel, .tamper-panel, .evidence-grid { grid-template-columns: 1fr; } .evidence-card { min-height: auto; } .evidence-card h2 { margin-top: 35px; } .tamper-result { grid-column: auto; } footer { display: block; } footer span { display: block; margin-top: 10px; } }
