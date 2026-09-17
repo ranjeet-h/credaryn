@@ -22,6 +22,9 @@ pnpm demo:start
 
 Open <http://localhost:3000> in a real browser. The browser flow is manual:
 
+If port 3000 is already in use, the playground automatically selects the next
+available local port and prints the exact URL to open.
+
 1. Select **Generate and seal invoice**.
 2. Select **Verify PDF** and **Verify Paper Seal**.
 3. Open the signed PDF if you want to inspect its viewer signature panel.

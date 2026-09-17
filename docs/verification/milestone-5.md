@@ -18,6 +18,7 @@ All checks were run on branch `master` with Node `v24.13.1` and pnpm
 | `pnpm demo:build` | PASS; generated INR 11,800 fixture, PDF verification `VALID`, Paper Seal `VALID_TRUSTED` |
 | `pnpm --filter @credaryn/example-invoice-puppeteer verify:fixtures` | PASS; original `VALID`, mutation `INVALID`, Paper Seal `VALID_TRUSTED` |
 | Playground `GET /health` and static page check | PASS on local port 3001 |
+| Occupied-port startup fallback | PASS; with ports 3000 and 3001 occupied, the playground selected 3002 and printed its URL |
 | Playground API original verification | PASS; `VALID_TRUSTED`, `DIGITAL_ARTIFACT_SIGNED`, artifact `VALID` |
 | Playground API paper verification | PASS; `VALID_TRUSTED`, `PAPER_CLAIMS_ONLY`, `totalMinor: 1180000` |
 | Playground API tamper verification | PASS; visible preview INR 81,800, PDF `INVALID`, Paper claim remains INR 11,800 |

@@ -26,6 +26,9 @@ invoice**, verify the original PDF and Paper Seal, then use **Tamper PDF → INR
 81,800**. The UI is a manual demonstration surface; no browser automation is
 used to test it.
 
+If port 3000 is already in use, the playground automatically selects the next
+available local port and prints the exact URL to open.
+
 For a deterministic fixture build without the playground:
 
 ```bash

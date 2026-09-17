@@ -42,8 +42,37 @@ export function createPlaygroundServer(options: PlaygroundServerOptions = {}): S
 
 export async function startPlaygroundServer(options: PlaygroundServerOptions = {}): Promise<Server> {
   const server = createPlaygroundServer(options);
-  await new Promise<void>((resolve) => server.listen(options.port ?? Number(process.env.PORT ?? 3000), options.host ?? "127.0.0.1", resolve));
-  return server;
+  const requestedPort = options.port ?? Number(process.env.PORT ?? 3000);
+  const host = options.host ?? "127.0.0.1";
+  let port = requestedPort;
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    try {
+      await listen(server, host, port);
+      return server;
+    } catch (error) {
+      if (!isAddressInUse(error)) throw error;
+      port += 1;
+    }
+  }
+  throw new Error(`Unable to find an available local port from ${requestedPort} through ${port - 1}`);
+}
+
+function listen(server: Server, host: string, port: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const onError = (error: Error) => reject(error);
+    server.once("error", onError);
+    server.listen(port, host, () => {
+      server.off("error", onError);
+      resolve();
+    });
+  });
+}
+
+function isAddressInUse(error: unknown): boolean {
+  return typeof error === "object"
+    && error !== null
+    && "code" in error
+    && error.code === "EADDRINUSE";
 }
 
 async function handleRequest(
