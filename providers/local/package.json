@@ -1,0 +1,13 @@
+{
+  "name": "@credaryn/provider-local",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/local-signer.ts",
+    "./demo-trust-store": "./src/demo-trust-store.ts"
+  },
+  "dependencies": {
+    "@credaryn/core": "workspace:*"
+  }
+}

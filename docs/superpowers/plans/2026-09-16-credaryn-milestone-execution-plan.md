@@ -239,22 +239,22 @@ The concrete `PdfSigningRequest`, `PdfVerificationRequest`, `PdfVerificationResu
 
 ## Phase 0 acceptance criteria
 
-- [ ] The workspace installs with Node 24 and pnpm 12 using one lockfile and no Turborepo.
-- [ ] `@credaryn/core`, `@credaryn/pdf` and `@credaryn/paper` compile under strict TypeScript settings.
-- [ ] A local DSS 6.5 container starts, answers its health check, accepts normalized byte-oriented requests and returns normalized byte-oriented results.
-- [ ] A spike fixture can create and verify one CRD1-compatible Paper Seal Profile v1 object using ES256.
-- [ ] The spike records exact deterministic bytes and identifies any standards-library or DSS interoperability blocker before Phase 1.
-- [ ] The ADR records that V1 is Node/TypeScript, Puppeteer + DSS 6.5, QR-only paper, offline-capable verification and no custom crypto protocol.
+- [x] The workspace installs with Node 24 and pnpm 12 using one lockfile and no Turborepo.
+- [x] `@credaryn/core`, `@credaryn/pdf` and `@credaryn/paper` compile under strict TypeScript settings.
+- [x] A local DSS 6.5 container starts, answers its health check, accepts normalized byte-oriented requests and returns normalized byte-oriented results.
+- [x] A spike fixture can create and verify one CRD1-compatible Paper Seal Profile v1 object using ES256.
+- [x] The spike records exact deterministic bytes and identifies any standards-library or DSS interoperability blocker before Phase 1.
+- [x] The ADR records that V1 is Node/TypeScript, Puppeteer + DSS 6.5, QR-only paper, offline-capable verification and no custom crypto protocol.
 
 ## Phase 0 test-first execution
 
-- [ ] **RED:** Add `contracts.test.ts` assertions for required descriptor fields, ES256-only metadata and byte-only PDF adapter boundaries. Run `pnpm vitest packages/core/test/contracts.test.ts --run`; expect failures because the contracts do not exist.
-- [ ] **GREEN:** Add the exact interfaces above, strict compiler settings and package exports. Rerun the focused test and expect PASS.
-- [ ] **RED:** Add a paper spike test with a fixed descriptor, fixed development key and expected CRD1 prefix, deterministic payload hash and signature-verification result. Expect missing encoder/decoder failure.
-- [ ] **GREEN:** Implement the smallest spike-only encoder/decoder and signer adapter required to prove the selected libraries. Keep production behavior for Phase 2.
-- [ ] **RED:** Add the DSS health/boundary test, asserting that no package under `packages/` imports DSS or Java names and that normalized request/response JSON contains only byte buffers and core data.
-- [ ] **GREEN:** Implement the Docker adapter healthcheck and boundary harness. Rerun focused tests.
-- [ ] **REFACTOR:** Remove spike-only exports that are not part of the frozen interfaces, preserve vector bytes under `test-vectors/`, and run `pnpm typecheck`.
+- [x] **RED:** Add `contracts.test.ts` assertions for required descriptor fields, ES256-only metadata and byte-only PDF adapter boundaries. Run `pnpm vitest packages/core/test/contracts.test.ts --run`; expect failures because the contracts do not exist.
+- [x] **GREEN:** Add the exact interfaces above, strict compiler settings and package exports. Rerun the focused test and expect PASS.
+- [x] **RED:** Add a paper spike test with a fixed descriptor, fixed development key and expected CRD1 prefix, deterministic payload hash and signature-verification result. Expect missing encoder/decoder failure.
+- [x] **GREEN:** Implement the smallest spike-only encoder/decoder and signer adapter required to prove the selected libraries. Keep production behavior for Phase 2.
+- [x] **RED:** Add the DSS health/boundary test, asserting that no package under `packages/` imports DSS or Java names and that normalized request/response JSON contains only byte buffers and core data.
+- [x] **GREEN:** Implement the Docker adapter healthcheck and boundary harness. Rerun focused tests.
+- [x] **REFACTOR:** Remove spike-only exports that are not part of the frozen interfaces, preserve vector bytes under `test-vectors/`, and run `pnpm typecheck`.
 
 ## Phase 0 automated gates
 
@@ -285,9 +285,9 @@ Expected result: all commands exit successfully, the DSS health check reports re
 
 ## Phase 0 STOP
 
-- [ ] Save `docs/verification/milestone-0.md` with commands, fixture hashes, DSS health output and manual observations.
-- [ ] Commit the phase only after automated checks pass: `git add . && git commit -m "chore: establish standards spike and v1 boundaries"`.
-- [ ] **STOP and request user verification.** The next phase is blocked until the user confirms that the locked interfaces, DSS sidecar boundary and seed vectors are acceptable.
+- [x] Save `docs/verification/milestone-0.md` with commands, fixture hashes, DSS health output and manual observations.
+- [x] Commit the phase only after automated checks pass: `git add . && git commit -m "chore: establish standards spike and v1 boundaries"`.
+- [x] **STOP and request user verification.** The next phase is blocked until the user confirms that the locked interfaces, DSS sidecar boundary and seed vectors are acceptable.
 
 ---
 
@@ -339,26 +339,26 @@ The SDK methods may return a deliberate `UNVERIFIABLE` result for unimplemented 
 
 ## Phase 1 acceptance criteria
 
-- [ ] Valid descriptors accept RFC 3339 timestamps, flat string/boolean/safe-integer claims and HTTPS status URLs.
-- [ ] Invalid descriptors reject missing fields, floats, unsafe integers, arrays, nested objects, binary values, invalid timestamps, empty identity fields and non-HTTPS production status URLs.
-- [ ] A local signer generates an explicit development key, signs asynchronously, exposes public metadata and never exposes private key bytes through the provider interface.
-- [ ] Verdict construction distinguishes cryptographic validity from trust and lifecycle status.
-- [ ] `new Credaryn({ pdfEngine, paperSigner, trustStore })` is exported from `@credaryn/node` with the four primary method names from the specification.
-- [ ] fast-check properties cover descriptor rejection and stable normalization.
+- [x] Valid descriptors accept RFC 3339 timestamps, flat string/boolean/safe-integer claims and HTTPS status URLs.
+- [x] Invalid descriptors reject missing fields, floats, unsafe integers, arrays, nested objects, binary values, invalid timestamps, empty identity fields and non-HTTPS production status URLs.
+- [x] A local signer generates an explicit development key, signs asynchronously, exposes public metadata and never exposes private key bytes through the provider interface.
+- [x] Verdict construction distinguishes cryptographic validity from trust and lifecycle status.
+- [x] `new Credaryn({ pdfEngine, paperSigner, trustStore })` is exported from `@credaryn/node` with the four primary method names from the specification.
+- [x] fast-check properties cover descriptor rejection and stable normalization.
 
 ## Phase 1 test-first execution
 
-- [ ] **RED:** Add descriptor tests for the valid invoice fixture and each rejected value category listed above. Run `pnpm vitest packages/core/test/descriptor-validation.test.ts --run`; expect failures.
-- [ ] **GREEN:** Implement validation with explicit type guards, RFC 3339 parsing, safe-integer checks, flat-claim checks and HTTPS enforcement. Rerun until PASS.
-- [ ] **RED:** Add verdict tests proving a valid signature with an untrusted key returns `VALID_UNTRUSTED`, a bad signature returns `INVALID`, missing trust material returns `UNVERIFIABLE`, and lifecycle remains independent. Expect failures.
-- [ ] **GREEN:** Implement `VerificationResult` factories and policy evaluation without coupling trust to cryptographic validity.
-- [ ] **RED:** Add local-signer tests for signing, public-key retrieval, key identity and no private-key field in the returned metadata. Expect failures.
-- [ ] **GREEN:** Implement the development signer with Node's standard crypto APIs and mark its trust bundle demo-only.
-- [ ] **RED:** Add SDK surface tests for constructor dependencies and method return shapes. Expect missing export or implementation failures.
-- [ ] **GREEN:** Implement the SDK façade and explicit `UNVERIFIABLE` behavior for engines not yet delivered.
-- [ ] **RED:** Add fast-check properties that valid generated claim maps normalize deterministically and unsupported structures are rejected.
-- [ ] **GREEN:** Implement the normalization function and run the property suite with a fixed seed in CI.
-- [ ] **REFACTOR:** Keep validation and verdict code branch-focused, document the public data contract and remove any generic `any` or unsafe cast.
+- [x] **RED:** Add descriptor tests for the valid invoice fixture and each rejected value category listed above. Run `pnpm vitest packages/core/test/descriptor-validation.test.ts --run`; expect failures.
+- [x] **GREEN:** Implement validation with explicit type guards, RFC 3339 parsing, safe-integer checks, flat-claim checks and HTTPS enforcement. Rerun until PASS.
+- [x] **RED:** Add verdict tests proving a valid signature with an untrusted key returns `VALID_UNTRUSTED`, a bad signature returns `INVALID`, missing trust material returns `UNVERIFIABLE`, and lifecycle remains independent. Expect failures.
+- [x] **GREEN:** Implement `VerificationResult` factories and policy evaluation without coupling trust to cryptographic validity.
+- [x] **RED:** Add local-signer tests for signing, public-key retrieval, key identity and no private-key field in the returned metadata. Expect failures.
+- [x] **GREEN:** Implement the development signer with Node's standard crypto APIs and mark its trust bundle demo-only.
+- [x] **RED:** Add SDK surface tests for constructor dependencies and method return shapes. Expect missing export or implementation failures.
+- [x] **GREEN:** Implement the SDK façade and explicit `UNVERIFIABLE` behavior for engines not yet delivered.
+- [x] **RED:** Add fast-check properties that valid generated claim maps normalize deterministically and unsupported structures are rejected.
+- [x] **GREEN:** Implement the normalization function and run the property suite with a fixed seed in CI.
+- [x] **REFACTOR:** Keep validation and verdict code branch-focused, document the public data contract and remove any generic `any` or unsafe cast.
 
 ## Phase 1 automated gates
 
@@ -375,7 +375,7 @@ Expected result: tests pass, core/paper/verifier coverage infrastructure is acti
 ## Phase 1 manual verification
 
 1. Run `pnpm --filter @credaryn/node test:smoke` using the fixed invoice descriptor.
-2. Run `node --input-type=module` with the documented `Credaryn` import and local signer setup from `docs/architecture/data-contract.md`.
+2. From `packages/node`, run `node --import tsx --input-type=module` with the documented `Credaryn` import and local signer setup from `docs/architecture/data-contract.md`.
 3. Print the descriptor validation result, key metadata and verification verdict.
 4. Confirm the key metadata includes issuer/key/algorithm/public material but no private key or PEM secret.
 5. Change one claim and rerun the descriptor validation; confirm the changed descriptor is treated as a new input rather than silently normalized to the old value.
@@ -384,8 +384,8 @@ Expected result: tests pass, core/paper/verifier coverage infrastructure is acti
 
 ## Phase 1 STOP
 
-- [ ] Save `docs/verification/milestone-1.md` and commit `git commit -m "feat: add core contracts and node sdk skeleton"` after checks pass.
-- [ ] **STOP and request user verification.** Do not implement Paper Seal Profile encoding until the user releases Phase 2.
+- [x] Save `docs/verification/milestone-1.md` and commit `git commit -m "feat: add core contracts and node sdk skeleton"` after checks pass.
+- [x] **STOP and request user verification.** Do not implement Paper Seal Profile encoding until the user releases Phase 2.
 
 ---
 

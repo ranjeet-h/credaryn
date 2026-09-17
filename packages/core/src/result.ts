@@ -3,6 +3,7 @@ import type { Claims } from "./document.js";
 export type Verdict = "VALID_TRUSTED" | "VALID_UNTRUSTED" | "INVALID" | "UNVERIFIABLE";
 export type LifecycleStatus = "ACTIVE" | "REVOKED" | "CANCELLED" | "SUPERSEDED" | "EXPIRED" | "UNCHECKED";
 export type SecurityMode = "DIGITAL_ARTIFACT_SIGNED" | "PAPER_CLAIMS_ONLY";
+export type ArtifactIntegrity = "VALID" | "INVALID" | "NOT_APPLICABLE" | "UNKNOWN";
 
 export interface VerificationEvidence {
   code: string;
@@ -16,7 +17,7 @@ export interface VerificationResult {
   keyId?: string;
   trustSource?: string;
   securityMode: SecurityMode;
-  artifactIntegrity?: "VALID" | "INVALID" | "NOT_APPLICABLE" | "UNKNOWN";
+  artifactIntegrity?: ArtifactIntegrity;
   signedClaims?: Claims;
   evidence: readonly VerificationEvidence[];
 }

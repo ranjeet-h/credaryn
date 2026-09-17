@@ -1,0 +1,17 @@
+{
+  "name": "@credaryn/node",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test:smoke": "vitest run test/credaryn.test.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@credaryn/core": "workspace:*",
+    "@credaryn/paper": "workspace:*",
+    "@credaryn/pdf": "workspace:*"
+  }
+}

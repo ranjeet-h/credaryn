@@ -13,7 +13,7 @@
     "lint": "node scripts/check-boundaries.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:property": "vitest run --testNamePattern=property",
+    "test:property": "vitest run packages/core/test/property.test.ts",
     "coverage": "vitest run --coverage",
     "format:check": "git diff --check"
   },

@@ -133,6 +133,18 @@ importers:
 
   packages/core: {}
 
+  packages/node:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../core
+      '@credaryn/paper':
+        specifier: workspace:*
+        version: link:../paper
+      '@credaryn/pdf':
+        specifier: workspace:*
+        version: link:../pdf
+
   packages/paper:
     dependencies:
       '@credaryn/core':
@@ -147,6 +159,12 @@ importers:
       '@credaryn/core':
         specifier: workspace:*
         version: link:../core
+
+  providers/local:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
 
 packages:
 

@@ -22,3 +22,6 @@ jobs:
       - run: npx --yes pnpm@12.3.3 lint
       - run: npx --yes pnpm@12.3.3 typecheck
       - run: npx --yes pnpm@12.3.3 test
+      - run: npx --yes pnpm@12.3.3 test:property
+      - run: npx --yes pnpm@12.3.3 coverage
+      - run: npx --yes pnpm@12.3.3 format:check

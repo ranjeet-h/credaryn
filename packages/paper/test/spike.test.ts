@@ -62,5 +62,6 @@ describe("Phase 0 paper standards spike", () => {
     const trustStore: TrustStore = { resolve: async () => undefined };
 
     await expect(verifySpikePaperSeal(altered, trustStore)).resolves.toBe(false);
+    await expect(verifySpikePaperSeal("CRD1:%%%", trustStore)).resolves.toBe(false);
   });
 });

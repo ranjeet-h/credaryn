@@ -158,13 +158,6 @@ function derInteger(value: Uint8Array): Uint8Array {
   return normalized[0]! & 0x80 ? new Uint8Array([0, ...normalized]) : normalized;
 }
 
-function verifySignature(publicKey: Uint8Array, input: Uint8Array, signature: Uint8Array): boolean {
-  const verifier = createVerify("SHA256");
-  verifier.update(input);
-  verifier.end();
-  return verifier.verify(createPublicKey({ key: Buffer.from(publicKey), format: "der", type: "spki" }), signature);
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
