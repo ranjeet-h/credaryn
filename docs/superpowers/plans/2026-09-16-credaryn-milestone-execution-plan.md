@@ -844,7 +844,7 @@ Run the repository smoke examples first; they use deterministic injected clients
 ## Phase 7 STOP
 
 - [x] Save `docs/verification/milestone-7.md` plus one sub-report per provider and rotation drill; owner-run results remain marked pending.
-- [ ] Commit `git commit -m "feat: add enterprise signer providers and key lifecycle"` after all provider gates pass.
+- [x] Commit `git commit -m "feat: add enterprise signer providers and key lifecycle"` after all provider gates pass.
 - [ ] **STOP and request user verification.** Do not start the V2 platform until every production key-provider integration has its manual checkpoint report.
 
 ---
@@ -939,7 +939,7 @@ Expected result: REST, PWA, Web Component and CLI use equivalent result semantic
 ## Phase 8 STOP
 
 - [x] Save `docs/verification/milestone-8.md` with API responses, offline screenshot placeholder, storage inspection, audit/log redaction and Compose output; owner visual/container observations remain pending.
-- [ ] Commit `git commit -m "feat: add self hosted verifier platform and lifecycle status"` after gates pass.
+- [x] Commit `git commit -m "feat: add self hosted verifier platform and lifecycle status"` after gates pass.
 - [ ] **STOP and request user verification.** Do not add TrustVC or additional PDF adapters until the V2 platform is operational.
 
 ---
