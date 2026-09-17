@@ -1,0 +1,17 @@
+{
+  "name": "@credaryn/example-browser-print",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/server.ts"
+  },
+  "dependencies": {
+    "@credaryn/core": "workspace:*",
+    "@credaryn/node": "workspace:*",
+    "@credaryn/paper": "workspace:*",
+    "@credaryn/provider-local": "workspace:*",
+    "@credaryn/web": "workspace:*",
+    "esbuild": "0.25.12"
+  }
+}

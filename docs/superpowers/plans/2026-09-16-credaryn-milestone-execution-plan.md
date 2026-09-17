@@ -721,23 +721,23 @@ Phase 6 implements `preparePrint` and the controlled print preparation. The fina
 
 ## Phase 6 acceptance criteria
 
-- [ ] The browser sends the descriptor to an integrating application’s trusted server endpoint.
-- [ ] The server uses `@credaryn/node` and a signer; no private key or raw signing operation enters browser code.
-- [ ] The package injects a QR and human-readable verification text only into an explicit `<credaryn-seal>` or `data-credaryn-seal` target.
-- [ ] It applies print CSS without monkey-patching global `window.print()` by default.
-- [ ] It returns/reports `PAPER_CLAIMS_ONLY` and never `DIGITAL_ARTIFACT_SIGNED`.
-- [ ] Seal issuance/rendering completes before `prepareAndPrint()` invokes printing; failures abort by default.
-- [ ] Rendering is CSP-friendly, uses no `eval`/`new Function`, and makes no third-party network calls.
+- [x] The browser sends the descriptor to an integrating application’s trusted server endpoint.
+- [x] The server uses `@credaryn/node` and a signer; no private key or raw signing operation enters browser code.
+- [x] The package injects a QR and human-readable verification text only into an explicit `<credaryn-seal>` or `data-credaryn-seal` target.
+- [x] It applies print CSS without monkey-patching global `window.print()` by default.
+- [x] It returns/reports `PAPER_CLAIMS_ONLY` and never `DIGITAL_ARTIFACT_SIGNED`.
+- [x] Seal issuance/rendering completes before `prepareAndPrint()` invokes printing; failures abort by default.
+- [x] Rendering is CSP-friendly, uses no `eval`/`new Function`, and makes no third-party network calls.
 
 ## Phase 6 test-first execution
 
-- [ ] **RED:** Add unit tests for server response validation, explicit target selection, security mode and no-key-in-bundle assertions. Expect missing package failures.
-- [ ] **GREEN:** Implement `preparePrint` with injected `fetch`, bounded response parsing and DOM target injection.
-- [ ] **RED:** Add tests for missing target, failed issuance, malformed server response and print-before-issuance ordering. Expect failures.
-- [ ] **GREEN:** Implement failure-abort behavior and `prepareAndPrint` orchestration.
-- [ ] **STATIC CHECK:** Add non-UI checks for the example's response contract, CSP-safe source and absence of signer/private-key imports. Do not add a browser automation test.
+- [x] **RED:** Add unit tests for server response validation, explicit target selection, security mode and no-key-in-bundle assertions. Expect missing package failures.
+- [x] **GREEN:** Implement `preparePrint` with injected `fetch`, bounded response parsing and DOM target injection.
+- [x] **RED:** Add tests for missing target, failed issuance, malformed server response and print-before-issuance ordering. Expect failures.
+- [x] **GREEN:** Implement failure-abort behavior and `prepareAndPrint` orchestration.
+- [x] **STATIC CHECK:** Add non-UI checks for the example's response contract, CSP-safe source and absence of signer/private-key imports. Do not add a browser automation test.
 - [ ] **MANUAL CHECK:** Implement the example server/page, then verify its rendered states manually in a real browser using the procedure below.
-- [ ] **REFACTOR:** Remove global side effects, network dependencies and any browser bundle import of signer/private-key code.
+- [x] **REFACTOR:** Remove global side effects, network dependencies and any browser bundle import of signer/private-key code.
 
 ## Phase 6 automated gates
 

@@ -194,6 +194,27 @@ importers:
         specifier: workspace:*
         version: link:../../packages/verifier
 
+  examples/browser-print:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@credaryn/node':
+        specifier: workspace:*
+        version: link:../../packages/node
+      '@credaryn/paper':
+        specifier: workspace:*
+        version: link:../../packages/paper
+      '@credaryn/provider-local':
+        specifier: workspace:*
+        version: link:../../providers/local
+      '@credaryn/web':
+        specifier: workspace:*
+        version: link:../../packages/web
+      esbuild:
+        specifier: 0.25.12
+        version: 0.25.12
+
   examples/invoice-puppeteer:
     dependencies:
       '@credaryn/adapter-pades-dss':
@@ -279,6 +300,12 @@ importers:
       '@credaryn/pdf':
         specifier: workspace:*
         version: link:../pdf
+
+  packages/web:
+    dependencies:
+      '@credaryn/core':
+        specifier: workspace:*
+        version: link:../core
 
   providers/local:
     dependencies:
