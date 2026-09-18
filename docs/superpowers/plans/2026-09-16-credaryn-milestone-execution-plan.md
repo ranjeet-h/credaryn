@@ -1031,7 +1031,7 @@ Expected result: all promised interop and adapter fixtures pass, and every resul
 
 - [x] Threat model covers edited PDFs/paper values, copied/fake/removed seals, stolen keys, cancellation, compromised public service, OCR boundary and malicious adapters.
 - [x] Fuzz/property/mutation/adversarial tests cover changed documentId, issuerId, claims, COSE bytes, key identifiers, post-signing PDF bytes, malformed CBOR/COSE/certificate-shaped input, oversized files/images and decompression bombs.
-- [ ] PAdES fixtures validate through DSS and at least one independent compatible validator. DSS passes; the independent validator is not available locally.
+- [x] PAdES fixtures validate through DSS and at least one independent compatible validator. DSS and Poppler `pdfsig` both accept the original fixture and reject the mutated fixture.
 - [x] Paper vectors are independently reproducible from the published specification.
 - [x] Compatibility matrix and performance benchmarks are published.
 - [ ] SBOM, dependency audit, signed release, npm provenance and OIDC publishing dry-run pass. Local SBOM, high-severity audit, and ephemeral signed release dry-run pass; moderate transitive findings and external provenance remain.
@@ -1045,8 +1045,8 @@ Expected result: all promised interop and adapter fixtures pass, and every resul
 - [x] **GREEN:** Harden the PNG parser boundary and verify fail-closed behavior.
 - [x] **RED:** Add parser fuzz/property/mutation campaigns with bounded time, memory and input sizes. Expect rejected malformed-input cases to expose gaps.
 - [x] **GREEN:** Harden parsers and verify fail-closed behavior.
-- [ ] **RED:** Add an independent-validator fixture test for every claimed PAdES level and a reproducibility test for every paper vector. Reproducibility passes; the independent validator is blocked by the missing tool.
-- [ ] **GREEN:** Integrate the independent validator and correct conformance mismatches.
+- [x] **RED:** Add an independent-validator fixture test for every claimed PAdES level and a reproducibility test for every paper vector. The original/mutated fixture assertions cover the claimed profile.
+- [x] **GREEN:** Integrate Poppler `pdfsig` validation and confirm no conformance mismatch for the current fixture.
 - [x] **RED:** Add local release-script tests for locked install, SBOM, compatibility, benchmark, ephemeral signing, and absence of long-lived credentials.
 - [x] **GREEN:** Implement local release/security scripts; do not add GitHub Actions workflows.
 - [x] **REFACTOR:** Remove temporary debug output, test secrets, unsupported claims and stale documentation.

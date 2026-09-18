@@ -7,8 +7,8 @@ Branch: `master`
 Status: **BLOCKED before stable-1.0 completion**
 
 This checkpoint implements and verifies the local hardening work. It does not
-claim completion of the external independent-validator, security-review,
-provenance, or moderate-dependency-audit gates.
+claim completion of the independent security-review, provenance, or
+moderate-dependency-audit gates.
 
 ## Implemented local controls
 
@@ -45,18 +45,16 @@ provenance, or moderate-dependency-audit gates.
 | `pnpm release:dry-run` | PASS; ephemeral signed candidate, no private key persisted |
 | `pnpm audit --audit-level high` | PASS after overrides and Puppeteer upgrade |
 | `pnpm audit --audit-level moderate` | BLOCKED; five moderate TrustVC transitive findings remain |
-| `pnpm pades:validate --validator independent` | BLOCKED; `pdfsig` is not installed |
+| `pnpm pades:validate --validator independent` | PASS; Poppler `pdfsig` accepted the original and rejected the mutated fixture |
 
 ## Manual/external gates still required
 
-1. Install or provide an independent compatible PAdES validator and compare a
-   signed and mutated fixture against DSS.
-2. Remove, upgrade upstream, or explicitly risk-accept the five moderate
+1. Remove, upgrade upstream, or explicitly risk-accept the five moderate
    vulnerabilities in TrustVC's legacy BBS compatibility dependency.
-3. Complete an independent security review and record every material finding,
+2. Complete an independent security review and record every material finding,
    fix, or owner-approved risk acceptance.
-4. Configure and verify GitHub private vulnerability reporting before beta.
-5. Run a real clean-install release-candidate review, signed-tag/provenance
+3. Configure and verify GitHub private vulnerability reporting before beta.
+4. Run a real clean-install release-candidate review, signed-tag/provenance
    check, and OIDC/npm publishing dry run without long-lived credentials.
 
 The full audit disposition is recorded in
@@ -71,4 +69,5 @@ port check. Port `8080` was free after verification.
 ## STOP decision
 
 Stop Milestone 10 here. Do not claim stable 1.0 or begin Milestone 11/12 until
-the blockers above are resolved or explicitly risk-accepted by the owner.
+the remaining blockers above are resolved or explicitly risk-accepted by the
+owner.
