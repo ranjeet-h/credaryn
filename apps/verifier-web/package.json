@@ -13,6 +13,7 @@
     "@credaryn/node": "workspace:*",
     "@credaryn/observability": "workspace:*",
     "@credaryn/provider-local": "workspace:*",
+    "@credaryn/status": "workspace:*",
     "@credaryn/verifier": "workspace:*"
   }
 }

@@ -4,9 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/status-service.ts"
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "start": "tsx src/server.ts"
   },
   "dependencies": {
-    "@credaryn/core": "workspace:*"
+    "@credaryn/core": "workspace:*",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1"
   }
 }

@@ -28,6 +28,9 @@
     "key-rotation:demo": "tsx scripts/key-rotation-demo.ts",
     "deploy:smoke": "tsx scripts/deploy-smoke.ts",
     "pades:validate": "tsx scripts/pades-validate.ts",
+    "pades:validate:all": "tsx scripts/pades-validate.ts --validator dss && tsx scripts/pades-validate.ts --validator independent",
+    "changeset": "changeset",
+    "version": "changeset version",
     "vectors:reproduce": "pnpm --filter @credaryn/paper vectors:check",
     "compatibility:report": "tsx scripts/compatibility-report.ts",
     "benchmark": "tsx scripts/benchmark.ts",
@@ -41,6 +44,7 @@
     "final:air-gap-check": "tsx scripts/final-air-gap-check.ts --check"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.3",
     "@vitest/coverage-v8": "5.0.1",
     "@types/node": "24.13.5",
     "cbor-x": "1.6.6",

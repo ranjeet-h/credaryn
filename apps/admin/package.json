@@ -3,10 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "scripts": {
+    "start": "tsx src/main.ts"
+  },
   "exports": {
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@credaryn/observability": "workspace:*"
+    "@credaryn/observability": "workspace:*",
+    "jose": "^6.2.12"
   }
 }
