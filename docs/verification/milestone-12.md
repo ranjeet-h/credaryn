@@ -50,7 +50,7 @@ No browser automation was used.
 
 ## A–N evidence
 
-See [project completion checklist](../project-done-checklist.md). Criteria B, C, H, I, J, L, and M retain explicit owner/operator gates. D, E, and F also remain partial at the implementation level; see the checklist and `CODING-TODO.md`. K is an owner-approved deferral and no OCR implementation is claimed.
+See [project completion checklist](../project-done-checklist.md). Criteria B, C, H, I, J, L, and M retain explicit owner/operator gates. D, E, and F are implemented and await operator acceptance. K is an owner-approved deferral and no OCR implementation is claimed.
 
 ## Manual journeys
 

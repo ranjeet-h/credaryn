@@ -9,3 +9,22 @@ Air-gapped mode verifies PDF or Paper Seal cryptographic evidence with local, op
 5. Record host, versions, trust-bundle digest, commands, results, and network-isolation method in `docs/verification/milestone-12.md`.
 
 Run `pnpm final:air-gap-check -- --report` before the exercise. A check-mode success additionally requires the operator to perform the isolation and explicitly record confirmation; the script cannot prove host network isolation itself.
+
+## Reference bundle
+
+The `deploy/docker-compose.air-gapped.yml` override implements this profile:
+
+```bash
+mkdir -p deploy/trust
+cp /media/approved/air-gapped-trust-store.json deploy/trust/air-gapped-trust-store.json
+docker compose -f deploy/docker-compose.yml \
+  -f deploy/docker-compose.air-gapped.yml up -d
+```
+
+It sets `CREDARYN_TRUST_STORE` to the local public bundle, binds the verifier to
+host loopback, and attaches the DSS signing service only to an internal Docker
+network (`internal: true`) with no external route. Status/admin profiles must
+not be enabled, so online lifecycle is `UNCHECKED` / `UNAVAILABLE`. Compose
+cannot remove the host route for a published port, so complete egress blocking
+remains a host/network responsibility and is recorded as an operator
+observation in `docs/verification/milestone-12.md`.

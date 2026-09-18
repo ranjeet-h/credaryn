@@ -6,7 +6,7 @@ Credaryn keeps key custody outside the core packages. A signer adapter receives 
 
 | Provider | Adapter | Supported boundary | Credentials in this repository |
 | --- | --- | --- | --- |
-| AWS KMS | `@credaryn/provider-aws-kms` | `ECC_NIST_P256`, `ECDSA_SHA_256`, DER validation | No |
+| AWS KMS | `@credaryn/provider-aws-kms` | `ECC_NIST_P256`, `ECDSA_SHA_256`, DER → COSE `r\|\|s` conversion | No |
 | Google Cloud KMS | `@credaryn/provider-gcp-kms` | `EC_SIGN_P256_SHA256`, public-key retrieval, health | No |
 | Azure Key Vault / Managed HSM | `@credaryn/provider-azure-key-vault` | P-256, ES256 digest signing, public-key retrieval | No |
 | PKCS#11 / SoftHSM2 | `@credaryn/pkcs11` | ECDSA SHA-256 through injected PKCS#11 client | No |

@@ -3,7 +3,7 @@
 | Area | Supported profile | Evidence | Limit |
 | --- | --- | --- | --- |
 | Runtime | Node 24+, pnpm 12 | `pnpm compatibility:report` | exact tested versions are report evidence |
-| PDF | PAdES B-B | PDF fixtures, DSS and independent `pdfsig` report | B-T/TSA is fail-fast and not implemented; not qualified-signature advice |
+| PDF | PAdES B-B (B-T when an RFC 3161 TSA is configured) | PDF fixtures, DSS and independent `pdfsig` report | B-T is capability-negotiated and fails fast without a TSA; not qualified-signature advice |
 | Paper | CRD1 / CBOR / COSE ES256 / Base45 / QR M | published vectors | no universal printer/camera claim |
 | Inputs | PDF, CRD1 text, Paper Seal PNG | V1 input matrix | bounded sizes only |
 | Trust | local bundles, X.509 fingerprints, allow-listed did:web | trust-policy tests | operator anchors trust |

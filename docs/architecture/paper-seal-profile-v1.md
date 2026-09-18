@@ -37,8 +37,8 @@ The top-level CBOR map uses compact integer keys so the QR remains predictable:
 | `9` | artifactDigest | no | compact application-supplied text |
 | `10` | certificateFingerprint | no | signer certificate/public-key fingerprint bound to the trusted key |
 
-Claim keys are sorted using RFC 8949 deterministic map ordering: first by the
-length of the encoded key, then by encoded key bytes. Equivalent JavaScript
+Claim keys are sorted using RFC 8949 core-deterministic map ordering: by the
+bytewise lexicographic order of each key's encoded bytes. Equivalent JavaScript
 objects therefore produce byte-identical payloads regardless of insertion
 order. Unsupported floats, unsafe integers, arrays, nested objects, binary
 values, empty keys and surrounding whitespace fail closed.

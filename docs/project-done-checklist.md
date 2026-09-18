@@ -7,10 +7,10 @@ This is an evidence index, not a declaration that owner-only work passed. Run `p
 | A Digital | PDF fixtures, PAdES conformance, independent validation report | Evidence present |
 | B Paper | Profile/vectors; final physical corpus | **Blocked: corpus pending** |
 | C Browser | browser-print security/architecture and example | **Blocked: real-browser review pending** |
-| D Trust | trust bundle/X.509/did:web policy | **Partial: local exact-key trust and policy tests; delivery-surface did:web/X.509 wiring remains open** |
+| D Trust | trust bundle/X.509/did:web policy | Implemented: `TrustPolicy` (configured keys, X.509 anchors, did:web with SSRF controls) wired into the verifier; **operator trust-material acceptance pending** |
 | E Keys | provider contracts, examples, rotation docs | Evidence present at documented mock/reference levels; **real provider acceptance pending** |
-| F Lifecycle | status contract and Bitstring Status List fixture | **Partial: status is in-memory and not yet consumed by the verifier** |
-| G Interop | TrustVC vectors and tests | **Partial: did:web fixture/tests present; dedicated ECDSA-SD-2023 and Bitstring vector corpus remains open** |
+| F Lifecycle | status contract and Bitstring Status List fixture | Implemented: document-scoped append-only status repository + PostgreSQL adapter + bounded HTTP resolver; W3C Bitstring Status List v1.0. **Operator Postgres run pending** |
+| G Interop | TrustVC vectors and tests | Implemented: did:web + ECDSA-SD-2023 + Bitstring Status List fixtures/tests |
 | H Verification | shared result contract and surface tests | **Blocked: final manual UI parity pending** |
 | I Self-hosting | Compose/config/docs | **Blocked: clean-host operator run pending** |
 | J Enterprise operations | OIDC/audit/observability/retention/deployment docs | **Blocked: operator acceptance pending** |

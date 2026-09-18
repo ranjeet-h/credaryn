@@ -10,6 +10,10 @@ validity and reports lifecycle `UNCHECKED` with freshness `UNAVAILABLE`. A
 freshness-required policy similarly reports `UNCHECKED` for stale status rather
 than invalidating the signature.
 
-The in-memory `StatusService` is the reference contract. PostgreSQL persistence
-uses `services/status/src/schema.sql`; it must preserve the append-only history
-and current projection semantics.
+The reference status service uses a document-scoped `StatusRepository`. The
+default in-memory repository is the reference contract; `PostgresStatusRepository`
+accepts an injected query executor and uses `services/status/src/schema.sql`,
+which must preserve append-only history and the current projection semantics
+(UPDATE/DELETE are rejected by a trigger). `createHttpStatusResolver` provides a
+bounded HTTPS resolver for verifier consumption; when no reference is available
+or the service is unreachable, lifecycle stays `UNCHECKED`.

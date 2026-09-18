@@ -16,6 +16,9 @@ interface VerificationResult {
   securityMode: "DIGITAL_ARTIFACT_SIGNED" | "PAPER_CLAIMS_ONLY";
   artifactIntegrity?: "VALID" | "INVALID" | "NOT_APPLICABLE" | "UNKNOWN";
   signedClaims?: Record<string, string | boolean | number>;
+  documentId?: string;
+  statusUrl?: string;
+  keyLifecycleState?: "ACTIVE" | "RETIRED" | "REVOKED" | "COMPROMISED";
   evidence: readonly { code: string; message: string }[];
 }
 ```
@@ -37,13 +40,14 @@ interface VerificationResult {
 
 The combined verdict follows this policy:
 
-| Cryptographic result | Trust material | Verdict |
-| --- | --- | --- |
-| `INVALID` | any | `INVALID` |
-| `UNVERIFIABLE` | any | `UNVERIFIABLE` |
-| `VALID` | matching trusted key | `VALID_TRUSTED` |
-| `VALID` | configured bundle without matching key | `VALID_UNTRUSTED` |
-| `VALID` | no trust material configured | `UNVERIFIABLE` |
+| Cryptographic result | Artifact integrity | Trust material | Verdict |
+| --- | --- | --- | --- |
+| `INVALID` | any | any | `INVALID` |
+| any | `INVALID` | any | `INVALID` |
+| `UNVERIFIABLE` | any | any | `UNVERIFIABLE` |
+| `VALID` | `VALID`/`NOT_APPLICABLE`/`UNKNOWN` | matching trusted key | `VALID_TRUSTED` |
+| `VALID` | `VALID`/`NOT_APPLICABLE`/`UNKNOWN` | configured bundle without matching key | `VALID_UNTRUSTED` |
+| `VALID` | `VALID`/`NOT_APPLICABLE`/`UNKNOWN` | no trust material configured | `UNVERIFIABLE` |
 
 Paper verification can therefore remain useful without the original PDF: it
 reports verified signed claims and `PAPER_CLAIMS_ONLY`, while digital artifact

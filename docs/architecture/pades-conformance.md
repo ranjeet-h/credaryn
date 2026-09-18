@@ -43,9 +43,7 @@ reported cryptographic and artifact states are valid for signing, and
 
 ## B-T and legal scope
 
-PAdES Baseline B-T is not implemented by the current DSS adapter. Requests that
-select B-T are rejected with an explicit RFC 3161 configuration error; they are
-not silently converted to B-B. A PAdES Baseline B-B result is not, by itself, a
+PAdES Baseline B-T is available when the DSS adapter is configured with an RFC 3161 TSA URL (`DSS_TSA_URL`). The adapter reports `supportsTimestamping` and rejects B-T requests when no TSA is configured, so a request is never silently converted to B-B. Because a timestamp depends on a reachable TSA, B-T success is validated against a real TSA in an opt-in integration test. A PAdES Baseline B-B/B-T result is not, by itself, a
 qualified electronic signature. Qualified status depends on jurisdictional
 requirements, qualified certificates and qualified trust-service evidence;
 Credaryn does not infer or advertise that status from a DSS result.
