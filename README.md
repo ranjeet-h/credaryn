@@ -39,6 +39,24 @@ pnpm --filter @credaryn/example-invoice-puppeteer verify:fixtures
 The demo signing key is local development material only. PAdES Baseline B-B
 does not by itself establish qualified electronic-signature status.
 
+## Optional OCR for scan usability
+
+Credaryn intentionally does **not** include an OCR or vision engine. If your
+application accepts photographed or scanned documents, add OCR in your own
+web-app or service for text extraction, claim location, and a better review
+experience. Keep that layer optional and report its confidence separately from
+Credaryn's cryptographic result:
+
+1. Verify the Paper Seal and PDF signature first.
+2. Use your chosen OCR service to read visible invoice values and locate them
+   in the image or PDF.
+3. Compare OCR values with the signed claims and show any mismatch as OCR
+   evidence, never as a replacement for cryptographic verification.
+
+Choose a provider that fits your document sizes, print formats, privacy,
+retention, and deployment requirements. OCR should not be required for
+authenticity, and Credaryn does not send document content to an OCR provider.
+
 ## Integration shape
 
 After infrastructure setup, the core invoice flow remains intentionally small:
