@@ -1,0 +1,17 @@
+{
+  "name": "@credaryn/example-invoice-pdfkit",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "generate": "tsx src/seal.ts generate",
+    "verify": "tsx src/seal.ts verify"
+  },
+  "dependencies": {
+    "@credaryn/adapter-pades-dss": "workspace:*",
+    "@credaryn/core": "workspace:*",
+    "@credaryn/paper": "workspace:*",
+    "@credaryn/pdf": "workspace:*",
+    "@credaryn/provider-local": "workspace:*"
+  }
+}

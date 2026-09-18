@@ -63,7 +63,16 @@ export class DssPdfSignatureEngine implements PdfSignatureEngine {
         body: JSON.stringify(body),
         signal: controller.signal,
       });
-      if (!response.ok) throw new Error(`DSS sidecar returned HTTP ${response.status}`);
+      if (!response.ok) {
+        let detail = "";
+        try {
+          const body = await response.text();
+          if (body.length > 0) detail = `: ${body.slice(0, 512)}`;
+        } catch {
+          // Preserve the HTTP status when the error response cannot be read.
+        }
+        throw new Error(`DSS sidecar returned HTTP ${response.status}${detail}`);
+      }
       try {
         return await response.json();
       } catch {

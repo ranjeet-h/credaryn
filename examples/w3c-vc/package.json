@@ -1,0 +1,13 @@
+{
+  "name": "@credaryn/example-w3c-vc",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "issue": "tsx src/cli.ts issue",
+    "verify": "tsx src/cli.ts verify"
+  },
+  "dependencies": {
+    "@credaryn/standards-trustvc": "workspace:*"
+  }
+}

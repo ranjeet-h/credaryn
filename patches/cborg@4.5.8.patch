@@ -1,0 +1,12 @@
+diff --git a/package.json b/package.json
+index 8c38a389c8cb55fff81551a48421003aaf617a89..5231db75a005bd2481d7cf5518b6d207329963ca 100644
+--- a/package.json
++++ b/package.json
+@@ -51,6 +51,7 @@
+   "exports": {
+     ".": {
+       "import": "./cborg.js",
++      "require": "./cborg.js",
+       "types": "./types/cborg.d.ts"
+     },
+     "./length": {

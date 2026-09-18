@@ -97,6 +97,19 @@ describe("DSS PDF engine boundary", () => {
     });
   });
 
+  it("includes a bounded DSS error body when the sidecar rejects a request", async () => {
+    const engine = new DssPdfSignatureEngine({
+      endpoint: "http://127.0.0.1:8080",
+      fetchImpl: async () => response({ error: "signer_identity_mismatch" }, 400),
+    });
+
+    await expect(engine.sign(new Uint8Array([37, 80, 68, 70]), {
+      signer,
+      level: "B-B",
+      artifactDigest: "sha256:fixture",
+    })).rejects.toThrow("DSS sidecar returned HTTP 400: {\"error\":\"signer_identity_mismatch\"}");
+  });
+
   it("rejects a qualified-signature claim and any unsupported PAdES level", async () => {
     const qualifiedResponse = new DssPdfSignatureEngine({
       endpoint: "http://127.0.0.1:8080",

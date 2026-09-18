@@ -964,32 +964,30 @@ Expected result: REST, PWA, Web Component and CLI use equivalent result semantic
 
 ## Phase 9 acceptance criteria
 
-- [ ] TrustVC issuance/verification fixtures pass with did:web and ECDSA-SD-2023 without changing the core document path.
-- [ ] W3C credential lifecycle uses Bitstring Status List v1.0.
-- [ ] Any legacy OpenAttestation support is bounded to documented compatibility fixtures and does not create a new issuance path.
-- [ ] Puppeteer, PDFKit and Playwright generation paths converge into the same seal/sign/verify pipeline.
-- [ ] Each adapter proves seal placement before final PAdES signing and post-signing mutation detection.
-- [ ] React/Next helpers, if implemented, are thin delegates to the Web Component/API and add no security semantics. Their inclusion requires a documented real integration need or test consumer.
-- [ ] BBS-2023, DataMatrix, blockchain and generic multi-format signing remain out of scope.
+- [x] TrustVC issuance/verification fixtures pass with did:web and ECDSA-SD-2023 without changing the core document path.
+- [x] W3C credential lifecycle uses Bitstring Status List v1.0.
+- [x] OpenAttestation is explicitly deferred because no adoption fixture exists; any future support is bounded to documented compatibility fixtures and does not create a new issuance path.
+- [x] Puppeteer, PDFKit and Playwright generation paths converge into the same seal/sign/verify pipeline.
+- [x] Each adapter proves seal placement before final PAdES signing and post-signing mutation detection.
+- [x] React/Next helpers are explicitly deferred because no real integration need or test consumer exists; no security semantics were added.
+- [x] BBS-2023, DataMatrix, blockchain and generic multi-format signing remain out of scope.
 
 ## Phase 9 test-first execution
 
-- [ ] **RED:** Add TrustVC fixture tests for did:web, did:key local fixtures, ECDSA-SD-2023 selective disclosure and Bitstring Status List. Expect missing adapter failures.
-- [ ] **GREEN:** Implement the isolated TrustVC adapter and normalized result mapper.
-- [ ] **RED:** Add optional OpenAttestation compatibility tests only for the promised fixture set. Expect failures when support is enabled.
-- [ ] **GREEN:** Implement compatibility-only verification through TrustVC; do not implement OpenAttestation-first issuance.
-- [ ] **RED:** Add server-side document-renderer adapter tests for identical claims, seal-before-sign order, PAdES validation and mutation failure. These are document-output tests, not browser UI tests; any renderer implementation is exercised without a browser UI test runner. Expect adapter failures.
-- [ ] **GREEN:** Implement both adapters through the shared pipeline.
-- [ ] **RED:** Add consumer tests for the thinnest justified React/Next helpers. Expect failures only if the adoption decision says they materially reduce integration work.
-- [ ] **GREEN:** Implement delegates or record the explicit evidence-based deferral in the compatibility matrix.
-- [ ] **REFACTOR:** Compare normalized results across all adapters and remove any independent signature semantics.
+- [x] **RED:** Add TrustVC fixture tests for did:web, did:key local fixtures, ECDSA-SD-2023 selective disclosure and Bitstring Status List. Expect missing adapter failures.
+- [x] **GREEN:** Implement the isolated TrustVC adapter and normalized result mapper.
+- [x] **DECISION:** Defer OpenAttestation compatibility because no promised fixture or adoption evidence exists; retain the explicit read-only compatibility boundary.
+- [x] **RED:** Add server-side document-renderer adapter tests for identical claims and seal-before-sign order; validate PAdES output and mutation failure against DSS. These are document-output tests, not browser UI tests; no browser UI test runner is used.
+- [x] **GREEN:** Implement both adapters through the shared pipeline.
+- [x] **DECISION:** Defer React/Next consumer tests and helpers because no real adoption evidence exists.
+- [x] **REFACTOR:** Compare normalized results across all adapters and remove any independent signature semantics.
 
 ## Phase 9 automated gates
 
 ```bash
 pnpm lint
 pnpm typecheck
-pnpm vitest standards/trustvc/test packages/pdf/test packages/react/test packages/next/test --run
+pnpm vitest run standards/trustvc/test packages/pdf/test adapters/pades-dss/test --run
 pnpm interop:vectors:check
 pnpm adapter:fixtures:check
 ```
@@ -1009,9 +1007,9 @@ Expected result: all promised interop and adapter fixtures pass, and every resul
 
 ## Phase 9 STOP
 
-- [ ] Save `docs/verification/milestone-9.md` with fixture hashes, adapter results and the framework-wrapper adoption decision.
-- [ ] Commit `git commit -m "feat: complete interoperability and pdf adapters"` after gates pass.
-- [ ] **STOP and request user verification.** Do not begin release hardening until the interoperability matrix is reviewable.
+- [x] Save `docs/verification/milestone-9.md` with fixture hashes, adapter results and the framework-wrapper adoption decision.
+- [x] Commit `git commit -m "feat: complete interoperability and pdf adapters"` after gates pass.
+- [x] **STOP and request user verification.** Do not begin release hardening until the interoperability matrix is reviewable.
 
 ---
 

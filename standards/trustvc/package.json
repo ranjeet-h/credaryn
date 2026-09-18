@@ -1,0 +1,21 @@
+{
+  "name": "@credaryn/standards-trustvc",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run test/interoperability.test.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./issuer": "./src/issuer.ts",
+    "./verifier": "./src/verifier.ts",
+    "./status-list": "./src/status-list.ts"
+  },
+  "dependencies": {
+    "@trustvc/w3c-credential-status": "2.4.0",
+    "@trustvc/w3c-context": "2.5.0",
+    "@trustvc/w3c-issuer": "2.3.0",
+    "@trustvc/w3c-vc": "2.4.2"
+  }
+}

@@ -23,7 +23,9 @@
     "docs:check": "vitest run apps/playground/test/documentation.test.ts --run",
     "provider:smoke": "tsx scripts/provider-smoke.ts",
     "key-rotation:demo": "tsx scripts/key-rotation-demo.ts",
-    "deploy:smoke": "tsx scripts/deploy-smoke.ts"
+    "deploy:smoke": "tsx scripts/deploy-smoke.ts",
+    "interop:vectors:check": "vitest run standards/trustvc/test/interoperability.test.ts",
+    "adapter:fixtures:check": "vitest run packages/pdf/test/adapters.test.ts"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "5.0.1",

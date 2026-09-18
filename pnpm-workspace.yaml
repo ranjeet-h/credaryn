@@ -6,7 +6,13 @@ packages:
   - cli/*
   - examples/*
   - services/*
+  - standards/*
 allowBuilds:
+  '@mattrglobal/node-bbs-signatures': true
   cbor-extract: true
   esbuild: true
   puppeteer: true
+  sodium-native: true
+patchedDependencies:
+  cborg@4.5.8: patches/cborg@4.5.8.patch
+  cborg@5.1.11: patches/cborg@5.1.11.patch

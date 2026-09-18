@@ -1,0 +1,19 @@
+{
+  "name": "@credaryn/example-invoice-playwright",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "generate": "tsx src/seal.ts generate",
+    "verify": "tsx src/seal.ts verify"
+  },
+  "dependencies": {
+    "@credaryn/adapter-pades-dss": "workspace:*",
+    "@credaryn/core": "workspace:*",
+    "@credaryn/paper": "workspace:*",
+    "@credaryn/pdf": "workspace:*",
+    "@credaryn/provider-local": "workspace:*",
+    "playwright-core": "1.55.0",
+    "puppeteer": "24.26.1"
+  }
+}
