@@ -18,7 +18,9 @@ export class CredarynVerifierElement extends HTMLElementBase {
   private render(): void {
     if (this.result === undefined) return;
     const element = this as unknown as HTMLElement;
-    const root = element.shadowRoot ?? element.attachShadow({ mode: "open" });
+    const root = typeof element.attachShadow === "function"
+      ? element.shadowRoot ?? element.attachShadow({ mode: "open" })
+      : element;
     root.innerHTML = renderResultView(toResultViewModel(this.result));
   }
 }

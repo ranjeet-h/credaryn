@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import type { VerificationResult } from "@credaryn/core";
+import { CredarynVerifierElement, defineCredarynVerifier } from "../src/credaryn-verifier.js";
 import { renderResultView, toResultViewModel } from "../src/result-view.js";
 
 const result: VerificationResult = {
@@ -39,5 +40,35 @@ describe("Credaryn verifier widget view model", () => {
     });
     expect(html).not.toContain("<script>alert(1)</script>");
     expect(html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+  });
+});
+
+describe("Credaryn verifier widget element", () => {
+  const originalCustomElements = (globalThis as { customElements?: unknown }).customElements;
+
+  afterEach(() => {
+    if (originalCustomElements === undefined) {
+      delete (globalThis as { customElements?: unknown }).customElements;
+    } else {
+      (globalThis as { customElements?: unknown }).customElements = originalCustomElements;
+    }
+  });
+
+  it("defines and instantiates the embeddable custom element", () => {
+    const registry = new Map<string, unknown>();
+    (globalThis as { customElements?: unknown }).customElements = {
+      get: (name: string) => registry.get(name),
+      define: (name: string, constructor: unknown) => { registry.set(name, constructor); },
+    };
+
+    defineCredarynVerifier("credaryn-verifier");
+    expect(registry.get("credaryn-verifier")).toBe(CredarynVerifierElement);
+
+    const element = new CredarynVerifierElement() as CredarynVerifierElement & { innerHTML: string };
+    element.setResult(result);
+    expect(element.innerHTML).toContain("VALID_TRUSTED");
+    expect(element.innerHTML).toContain("Lifecycle status");
+    expect(element.innerHTML).toContain("PAPER_CLAIMS_ONLY");
+    expect(element.innerHTML).toContain("Signed claims");
   });
 });

@@ -1,6 +1,6 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { readFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { transform } from "esbuild";
 import type { DocumentDescriptor } from "@credaryn/core";
 import { Credaryn } from "@credaryn/node";
@@ -11,6 +11,29 @@ import { LocalSigner } from "@credaryn/provider-local";
 const port = Number(process.env.PORT ?? 3010);
 const webSourceDirectory = fileURLToPath(new URL("../../../packages/web/src/", import.meta.url));
 const maxBodyBytes = 64 * 1024;
+
+// Runtime hardening for every response. The inline <style> in invoice.html is served as an
+// external stylesheet so the policy can stay strict (`style-src 'self'`, no `unsafe-inline`).
+export const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self'",
+  "img-src 'self' data:",
+  "connect-src 'self'",
+  "object-src 'none'",
+  "base-uri 'none'",
+  "frame-ancestors 'none'",
+].join("; ");
+
+export const SECURITY_HEADERS: Readonly<Record<string, string>> = {
+  "content-security-policy": CONTENT_SECURITY_POLICY,
+  "x-content-type-options": "nosniff",
+  "referrer-policy": "no-referrer",
+};
+
+export function applySecurityHeaders(response: ServerResponse): void {
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) response.setHeader(name, value);
+}
 
 const signer = new LocalSigner({ issuerId: "acme-retail", keyId: "browser-print-demo-key" });
 const credaryn = new Credaryn({
@@ -23,18 +46,31 @@ const credaryn = new Credaryn({
   environment: "development",
 });
 
-const server = createServer(async (request, response) => {
-  try {
-    await route(request, response);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Request failed";
-    sendJson(response, 500, { error: message });
-  }
-});
+export function createRequestHandler(): (request: IncomingMessage, response: ServerResponse) => Promise<void> {
+  return async (request, response) => {
+    applySecurityHeaders(response);
+    try {
+      await route(request, response);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Request failed";
+      sendJson(response, 500, { error: message });
+    }
+  };
+}
 
-server.listen(port, "127.0.0.1", () => {
-  console.log(`Browser print example: http://127.0.0.1:${port}/`);
-});
+export function startServer(): void {
+  const server = createServer(createRequestHandler());
+  server.listen(port, "127.0.0.1", () => {
+    console.log(`Browser print example: http://127.0.0.1:${port}/`);
+  });
+}
+
+function isMainModule(): boolean {
+  const entry = process.argv[1];
+  return entry !== undefined && import.meta.url === pathToFileURL(entry).href;
+}
+
+if (isMainModule()) startServer();
 
 async function route(request: IncomingMessage, response: ServerResponse): Promise<void> {
   const method = request.method ?? "GET";
@@ -67,6 +103,10 @@ async function route(request: IncomingMessage, response: ServerResponse): Promis
   }
   if (path === "/client.js") {
     await sendClient(response);
+    return;
+  }
+  if (path === "/invoice.css") {
+    await sendFile(response, new URL("./public/invoice.css", import.meta.url), "text/css; charset=utf-8");
     return;
   }
   if (path === "/" || path === "/invoice.html") {
