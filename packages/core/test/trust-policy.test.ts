@@ -10,12 +10,12 @@ describe("TrustPolicy", () => {
 
     await expect(policy.evaluate({ issuerId: "acme-retail", keyId: configuredKey.keyId })).resolves.toMatchObject({
       trustDecision: "TRUSTED",
-      trustSource: "configured-public-key",
+      trustSource: "ENTERPRISE_ANCHOR",
       freshness: "NOT_APPLICABLE",
     });
     await expect(policy.evaluate({ issuerId: "acme-retail", keyId: "unknown" })).resolves.toMatchObject({
       trustDecision: "UNTRUSTED",
-      trustSource: "none",
+      trustSource: "UNCONFIGURED",
     });
   });
 
@@ -30,7 +30,7 @@ describe("TrustPolicy", () => {
 
     const didWebResolver = async () => ({ key: fetched, url: "https://keys.example.test/acme.json", fetchedAt: "2026-09-17T00:00:00.000Z", source: "did-web" as const });
     const didWebPolicy = new TrustPolicy({ resolver: didWebResolver, allowedDidWebDomains: ["keys.example.test"], now: () => Date.parse("2026-09-17T00:01:00.000Z") });
-    await expect(didWebPolicy.evaluate({ issuerId: "acme-retail", keyId: fetched.keyId })).resolves.toMatchObject({ trustDecision: "TRUSTED", trustSource: "did-web" });
+    await expect(didWebPolicy.evaluate({ issuerId: "acme-retail", keyId: fetched.keyId })).resolves.toMatchObject({ trustDecision: "TRUSTED", trustSource: "DID_WEB_DOMAIN" });
   });
 
   it("rejects HTTP resolution and stale keys when freshness is required", async () => {
@@ -48,6 +48,27 @@ describe("TrustPolicy", () => {
       trustDecision: "UNTRUSTED",
       freshness: "STALE",
     });
+  });
+
+  it("reports an X.509 anchor as X509_CHAIN and a configured key as ENTERPRISE_ANCHOR", async () => {
+    const remote = key("remote-key", "sha256:remote");
+    const policy = new TrustPolicy({
+      x509Anchors: [{ issuerId: remote.issuerId, certificateFingerprint: remote.certificateFingerprint! }],
+      resolver: async () => ({ key: remote, url: "https://keys.example.test/acme.json", fetchedAt: "2026-09-17T00:00:00.000Z", source: "fetched" as const }),
+    });
+
+    await expect(policy.evaluate({ issuerId: remote.issuerId, keyId: remote.keyId })).resolves.toMatchObject({
+      trustDecision: "TRUSTED",
+      trustSource: "X509_CHAIN",
+    });
+  });
+
+  it("resolves a remembered or configured key by certificate fingerprint", async () => {
+    const policy = new TrustPolicy({ configuredKeys: [configuredKey] });
+
+    expect(policy.resolveByFingerprint("sha256:configured")).toBe(configuredKey);
+    expect(policy.resolveByFingerprint("sha256:missing")).toBeUndefined();
+    expect(policy.resolveByFingerprint("   ")).toBeUndefined();
   });
 });
 

@@ -1,6 +1,11 @@
+import type { KeyLifecycleState } from "./result.js";
 import type { SignerKeyInfo, SignerProvider } from "./signer.js";
 
-export type KeyLifecycleState = "AUTHORIZED" | "ACTIVE" | "RETIRED" | "REVOKED" | "COMPROMISED";
+/**
+ * Registry-internal state. It extends the public {@link KeyLifecycleState}
+ * (which only exposes post-authorization states) with "AUTHORIZED".
+ */
+export type KeyVersionStatus = "AUTHORIZED" | KeyLifecycleState;
 
 export interface KeyVersionIdentity {
   issuerId: string;
@@ -12,7 +17,7 @@ export interface KeyVersionIdentity {
 export interface KeyVersionRecord {
   identity: KeyVersionIdentity;
   keyInfo: SignerKeyInfo;
-  status?: KeyLifecycleState;
+  status?: KeyVersionStatus;
   authorizedAt: string;
   activatedAt?: string;
   retiredAt?: string;

@@ -16,11 +16,11 @@ const descriptor: DocumentDescriptor = {
   claims: { currency: "INR", invoiceNumber: "INV-2026-82919", totalMinor: 1_180_000 },
 };
 
-function createSigner(): SignerProvider {
+function createSigner(keyId = "phase-2-adversarial"): SignerProvider {
   const { privateKey, publicKey } = generateKeyPairSync("ec", { namedCurve: "prime256v1" });
   const keyInfo: SignerKeyInfo = {
     issuerId: descriptor.issuerId,
-    keyId: "phase-2-adversarial",
+    keyId,
     algorithm: "ES256",
     publicKey: new Uint8Array(publicKey.export({ type: "spki", format: "der" })),
   };
@@ -57,6 +57,20 @@ describe("Paper Seal adversarial inputs", () => {
     expect((error as PaperSealSizeError).actualBytes).toBe(2_256);
   });
 
+  it("reports a measured COSE length that tracks the protected key ID header", async () => {
+    const oversized = {
+      ...descriptor,
+      claims: { ...descriptor.claims, privateNote: "x".repeat(2_000) },
+    };
+    const defaultKey = await encodePaperSeal(oversized, createSigner()).catch((caught: unknown) => caught) as PaperSealSizeError;
+    const shortKey = await encodePaperSeal(oversized, createSigner("k")).catch((caught: unknown) => caught) as PaperSealSizeError;
+
+    // The old fabricated formula (`payload.length + 120`) would differ by exactly the
+    // key-ID delta. The measured COSE length also accounts for CBOR header framing.
+    expect(defaultKey.actualBytes).toBe(2_256);
+    expect(shortKey.actualBytes).toBe(2_219);
+  });
+
   it("classifies malformed prefix, Base45 and CBOR as invalid", async () => {
     const trustStore = { resolve: async () => undefined };
 
@@ -82,5 +96,12 @@ describe("Paper Seal adversarial inputs", () => {
     expect(decoded.profile.statusUrl).toBe("https://issuer.example/status/INV-2026-82919");
     expect(decoded.profile.artifactDigest).toBe("sha256:0123456789abcdef");
     expect(new TextDecoder().decode(decoded.payload)).not.toContain("do-not-include-this");
+  });
+
+  it("accepts digitalArtifactDigest as the canonical artifact-link option", async () => {
+    const encoded = await encodePaperSeal(descriptor, createSigner(), { digitalArtifactDigest: "sha256:feedface" });
+    const decoded = decodePaperSeal(encoded.transport);
+
+    expect(decoded.profile.artifactDigest).toBe("sha256:feedface");
   });
 });

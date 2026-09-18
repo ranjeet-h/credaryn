@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createVerificationResult } from "../src/verdict.js";
+import { createVerificationResult, determineVerdict } from "../src/verdict.js";
 
 const baseInput = {
   cryptographicValidity: "VALID" as const,
@@ -33,6 +33,27 @@ describe("verification verdict policy", () => {
       ...baseInput,
       artifactIntegrity: "INVALID",
     })).toMatchObject({ verdict: "INVALID", artifactIntegrity: "INVALID" });
+  });
+
+  it("treats invalid artifact integrity as INVALID in the standalone verdict policy", () => {
+    expect(determineVerdict("VALID", "TRUSTED", "INVALID")).toBe("INVALID");
+    expect(determineVerdict("VALID", "TRUSTED", "VALID")).toBe("VALID_TRUSTED");
+    expect(determineVerdict("VALID", "TRUSTED")).toBe("VALID_TRUSTED");
+    expect(determineVerdict("INVALID", "TRUSTED", "VALID")).toBe("INVALID");
+  });
+
+  it("copies optional trajectory fields without inventing values", () => {
+    const result = createVerificationResult({
+      ...baseInput,
+      keyLifecycleState: "RETIRED",
+      documentId: "INV-2026-82919",
+      statusUrl: "https://issuer.example/status/INV-2026-82919",
+    });
+
+    expect(result.keyLifecycleState).toBe("RETIRED");
+    expect(result.documentId).toBe("INV-2026-82919");
+    expect(result.statusUrl).toBe("https://issuer.example/status/INV-2026-82919");
+    expect(createVerificationResult(baseInput)).not.toHaveProperty("keyLifecycleState");
   });
 
   it("classifies unavailable cryptographic evidence as unverifiable", () => {

@@ -13,6 +13,17 @@ describe("deterministic CBOR", () => {
     expect(Buffer.from(encoded).toString("hex")).toBe("a2616101616202");
   });
 
+  it("sorts map keys bytewise per RFC 8949 core deterministic encoding", () => {
+    // Length-first (RFC 7049) ordering would place -1 (1 byte) before 100 (2 bytes).
+    // Bytewise lexicographic ordering compares 0x18 0x64 against 0x20, so 100 sorts first.
+    const encoded = encodeDeterministicCbor(new Map<unknown, unknown>([
+      [-1, "b"],
+      [100, "a"],
+    ]));
+
+    expect(Buffer.from(encoded).toString("hex")).toBe("a218646161206162");
+  });
+
   it("uses compact integer, string and boolean representations", () => {
     const encoded = encodeDeterministicCbor({ active: true, count: 23, label: "ok" });
 

@@ -2,6 +2,7 @@ import { createSign, generateKeyPairSync } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import type { DocumentDescriptor, SignerKeyInfo, SignerProvider, TrustStore } from "@credaryn/core";
 import {
+  decodeDeterministicCbor,
   decodePaperSeal,
   decodePaperSealQr,
   encodeBase45,
@@ -173,5 +174,56 @@ describe("Paper Seal Profile v1 round trips", () => {
 
     expect(result.cryptographicValidity).toBe("UNVERIFIABLE");
     expect(result).not.toHaveProperty("signedClaims");
+  });
+
+  it("falls back to fingerprint trust when the key ID is not resolvable", async () => {
+    const { signer, keyInfo } = createSigner({ certificateFingerprint: "sha256:paper-cert" });
+    const encoded = await encodePaperSeal(descriptors.small!, signer);
+    const trustStore: TrustStore = {
+      resolve: async () => undefined,
+      resolveByFingerprint: async (fingerprint) => fingerprint === "sha256:paper-cert" ? keyInfo : undefined,
+      isTrusted: async () => true,
+    };
+
+    const result = await verifyPaperSeal(encoded.transport, { trustStore });
+
+    expect(result).toMatchObject({
+      verdict: "VALID_TRUSTED",
+      keyId: "phase-2-test",
+      signedClaims: descriptors.small!.claims,
+    });
+  });
+
+  it("honors the development environment for local HTTP status URLs", async () => {
+    const localDescriptor: DocumentDescriptor = {
+      ...descriptors.small!,
+      statusUrl: "http://127.0.0.1:8080/status/INV-2026-82919",
+    };
+
+    await expect(encodePaperSeal(localDescriptor, createSigner().signer)).rejects.toThrow(/HTTPS/i);
+
+    const encoded = await encodePaperSeal(localDescriptor, createSigner().signer, { environment: "development" });
+    const payload = decodeDeterministicCbor(encoded.payload);
+    if (!(payload instanceof Map)) throw new Error("test payload must be a CBOR map");
+
+    expect(payload.get(8)).toBe("http://127.0.0.1:8080/status/INV-2026-82919");
+  });
+
+  it("reports the decoded document identity and status reference", async () => {
+    const { signer, keyInfo } = createSigner();
+    const descriptor: DocumentDescriptor = {
+      ...descriptors.small!,
+      statusUrl: "https://issuer.example/status/INV-2026-82919",
+    };
+    const encoded = await encodePaperSeal(descriptor, signer);
+
+    const result = await verifyPaperSeal(encoded.transport, {
+      trustStore: { resolve: async () => keyInfo, isTrusted: async () => true },
+    });
+
+    expect(result).toMatchObject({
+      documentId: "INV-2026-82919",
+      statusUrl: "https://issuer.example/status/INV-2026-82919",
+    });
   });
 });

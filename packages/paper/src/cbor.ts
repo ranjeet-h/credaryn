@@ -89,7 +89,7 @@ function encodeMap(
     key: encodeValue(key, depth + 1),
     value: encodeValue(value, depth + 1),
   }));
-  encodedEntries.sort((left, right) => compareCanonicalKeys(left.key, right.key));
+  encodedEntries.sort((left, right) => compareBytes(left.key, right.key));
   for (let index = 1; index < encodedEntries.length; index += 1) {
     if (compareBytes(encodedEntries[index - 1]!.key, encodedEntries[index]!.key) === 0) {
       throw new CborEncodeError("CBOR map contains duplicate keys");
@@ -126,10 +126,10 @@ function encodeLength(majorType: number, value: number): Uint8Array {
   return concatenate([Uint8Array.of((majorType << 5) | 27), bytes]);
 }
 
-function compareCanonicalKeys(left: Uint8Array, right: Uint8Array): number {
-  return left.length - right.length || compareBytes(left, right);
-}
-
+// RFC 8949 core deterministic encoding requires map keys to be sorted by the
+// bytewise lexicographic order of their deterministic encodings. This differs
+// from the legacy RFC 7049 "length-first" canonical ordering when key types or
+// integer widths diverge.
 function compareBytes(left: Uint8Array, right: Uint8Array): number {
   for (let index = 0; index < Math.min(left.length, right.length); index += 1) {
     if (left[index]! !== right[index]!) return left[index]! - right[index]!;

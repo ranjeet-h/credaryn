@@ -56,6 +56,23 @@ describe("locked V1 contracts", () => {
     expect(V1_SIGNING_ALGORITHM).toBe("ES256");
   });
 
+  it("exposes optional fingerprint resolution and key lifecycle state on the public contracts", () => {
+    const publicKey: SignerKeyInfo = {
+      issuerId: "acme-retail",
+      keyId: "dev-key-1",
+      algorithm: "ES256",
+      publicKey: new Uint8Array([1, 2, 3]),
+      certificateFingerprint: "sha256:dev",
+    };
+    const trustStore: TrustStore = {
+      resolve: async () => publicKey,
+      resolveByFingerprint: (fingerprint) => (fingerprint === "sha256:dev" ? publicKey : undefined),
+    };
+
+    expect(trustStore.resolveByFingerprint?.("sha256:dev")).toBe(publicKey);
+    expect(trustStore.resolveByFingerprint?.("sha256:other")).toBeUndefined();
+  });
+
   it("defines a byte-only PDF signature boundary", async () => {
     const engine: PdfSignatureEngine = {
       sign: async (input) => input,

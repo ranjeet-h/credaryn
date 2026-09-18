@@ -26,6 +26,7 @@ function createSigner(): { signer: SignerProvider; trustStore: TrustStore } {
     keyId: "phase-10-mutation",
     algorithm: "ES256" as const,
     publicKey: new Uint8Array(publicKey.export({ type: "spki", format: "der" })),
+    certificateFingerprint: "sha256:original-certificate",
   };
   const signer: SignerProvider = {
     getKeyInfo: async () => keyInfo,
@@ -39,7 +40,7 @@ function createSigner(): { signer: SignerProvider; trustStore: TrustStore } {
 }
 
 describe("Paper Seal mutation boundaries", () => {
-  it.each(["issuerId", "documentId", "claims", "keyId"] as const)("rejects a changed signed %s", async (field) => {
+  it.each(["issuerId", "documentId", "claims", "keyId", "certificateFingerprint"] as const)("rejects a changed signed %s", async (field) => {
     const { signer, trustStore } = createSigner();
     const seal = await encodePaperSeal(descriptor, signer);
     const decoded = decodePaperSeal(seal.transport);
@@ -57,6 +58,7 @@ describe("Paper Seal mutation boundaries", () => {
       if (field === "issuerId") nextPayload.set(2, "different-issuer");
       if (field === "documentId") nextPayload.set(4, "different-document");
       if (field === "claims") nextPayload.set(7, new Map([["totalMinor", 81_800]]));
+      if (field === "certificateFingerprint") nextPayload.set(10, "sha256:different-certificate");
       mutatedParts = { ...decoded.coseParts, payload: encodeDeterministicCbor(nextPayload) };
     }
 

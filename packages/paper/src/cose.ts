@@ -20,6 +20,8 @@ export interface CoseSign1Parts {
 export interface CoseVerificationOptions {
   issuerId: string;
   trustStore?: TrustStore;
+  /** Certificate fingerprint carried in the signed payload, used for fingerprint trust fallback. */
+  certificateFingerprint?: string;
 }
 
 export interface CoseVerificationResult {
@@ -159,6 +161,13 @@ export async function verifyCoseSign1(
     trustedKey = await options.trustStore.resolve(keyId, options.issuerId);
   } catch {
     return unverifiableResult(options.issuerId, keyId, parts.payload);
+  }
+  if (trustedKey === undefined && options.certificateFingerprint !== undefined) {
+    try {
+      trustedKey = await options.trustStore.resolveByFingerprint?.(options.certificateFingerprint);
+    } catch {
+      return unverifiableResult(options.issuerId, keyId, parts.payload);
+    }
   }
   if (trustedKey === undefined || trustedKey.algorithm !== "ES256") {
     return unverifiableResult(options.issuerId, keyId, parts.payload);

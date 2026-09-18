@@ -2,6 +2,7 @@ import type { Claims } from "./document.js";
 import type {
   ArtifactIntegrity,
   CryptographicValidity,
+  KeyLifecycleState,
   LifecycleStatus,
   SecurityMode,
   VerificationEvidence,
@@ -19,6 +20,9 @@ export interface VerificationInput {
   issuerId?: string;
   keyId?: string;
   trustSource?: string;
+  keyLifecycleState?: KeyLifecycleState;
+  documentId?: string;
+  statusUrl?: string;
   signedClaims?: Claims;
   evidence?: readonly VerificationEvidence[];
 }
@@ -29,7 +33,7 @@ export function createVerificationResult(input: VerificationInput): Verification
       ? "INVALID"
       : input.securityMode === "DIGITAL_ARTIFACT_SIGNED" && input.artifactIntegrity !== "VALID"
         ? "UNVERIFIABLE"
-      : determineVerdict(input.cryptographicValidity, input.trustDecision),
+      : determineVerdict(input.cryptographicValidity, input.trustDecision, input.artifactIntegrity),
     cryptographicValidity: input.cryptographicValidity,
     trustDecision: input.trustDecision,
     lifecycleStatus: input.lifecycleStatus,
@@ -40,6 +44,9 @@ export function createVerificationResult(input: VerificationInput): Verification
   if (input.keyId !== undefined) result.keyId = input.keyId;
   if (input.trustSource !== undefined) result.trustSource = input.trustSource;
   if (input.artifactIntegrity !== undefined) result.artifactIntegrity = input.artifactIntegrity;
+  if (input.keyLifecycleState !== undefined) result.keyLifecycleState = input.keyLifecycleState;
+  if (input.documentId !== undefined) result.documentId = input.documentId;
+  if (input.statusUrl !== undefined) result.statusUrl = input.statusUrl;
   if (input.signedClaims !== undefined) result.signedClaims = input.signedClaims;
   return result;
 }
@@ -47,7 +54,9 @@ export function createVerificationResult(input: VerificationInput): Verification
 export function determineVerdict(
   cryptographicValidity: CryptographicValidity,
   trustDecision: TrustDecision,
+  artifactIntegrity?: ArtifactIntegrity,
 ): Verdict {
+  if (artifactIntegrity === "INVALID") return "INVALID";
   if (cryptographicValidity === "INVALID") return "INVALID";
   if (cryptographicValidity === "UNVERIFIABLE") return "UNVERIFIABLE";
   return decideTrust({

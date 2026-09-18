@@ -1,5 +1,6 @@
 import {
   assertValidDescriptor,
+  type DescriptorEnvironment,
   type DocumentDescriptor,
   type SignerKeyInfo,
   type SignerProvider,
@@ -24,8 +25,11 @@ export interface PaperSealPayload {
 }
 
 export interface PaperSealEncodeOptions {
+  /** @deprecated Prefer `digitalArtifactDigest`; both map to the same payload field. */
   artifactDigest?: string;
+  digitalArtifactDigest?: string;
   certificateFingerprint?: string;
+  environment?: DescriptorEnvironment;
 }
 
 export interface PaperSealEncoding {
@@ -51,7 +55,9 @@ export async function encodePaperSeal(
   signer: SignerProvider,
   options: PaperSealEncodeOptions = {},
 ): Promise<PaperSealEncoding> {
-  const descriptor = assertValidDescriptor(input);
+  const descriptor = assertValidDescriptor(input, {
+    ...(options.environment === undefined ? {} : { environment: options.environment }),
+  });
   const keyInfo = await signer.getKeyInfo();
   if (keyInfo.algorithm !== "ES256") throw new Error("Paper Seal Profile v1 only supports ES256 signers");
   if (keyInfo.issuerId !== descriptor.issuerId) {
@@ -92,7 +98,8 @@ export function createPaperSealPayload(
     claims,
   };
   if (descriptor.statusUrl !== undefined) profile.statusUrl = descriptor.statusUrl;
-  if (options.artifactDigest !== undefined) profile.artifactDigest = options.artifactDigest;
+  const artifactDigest = options.digitalArtifactDigest ?? options.artifactDigest;
+  if (artifactDigest !== undefined) profile.artifactDigest = artifactDigest;
   if (options.certificateFingerprint !== undefined) profile.certificateFingerprint = options.certificateFingerprint;
   return profile;
 }

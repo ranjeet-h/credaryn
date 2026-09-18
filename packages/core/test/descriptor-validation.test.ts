@@ -115,6 +115,31 @@ describe("descriptor validation", () => {
     );
   });
 
+  it("DOCUMENTS the default convention: an integer Minor amount may omit currency (SPEC GAP)", () => {
+    // SPEC GAP: the spec says money is "integer minor units plus an explicit ISO
+    // currency code", but existing paper/PDF pipeline fixtures do not carry
+    // `currency`. Enforcing by default would reject those fixtures, so the strict
+    // rule is opt-in (see `requireExplicitCurrency`). The SDK issuance boundary
+    // opts in.
+    expect(validateDescriptor(validDescriptor).valid).toBe(true);
+  });
+
+  it("enforces a co-located ISO-4217 currency for integer minor-unit amounts when opted in", () => {
+    const withoutCurrency = { ...validDescriptor, claims: { invoiceNumber: "INV", totalMinor: 1_180_000 } };
+    const withCurrency = { ...validDescriptor, claims: { invoiceNumber: "INV", totalMinor: 1_180_000, currency: "INR" } };
+    const badCurrency = { ...validDescriptor, claims: { totalMinor: 1_180_000, currency: "inr" } };
+    const nonMoney = { ...validDescriptor, claims: { quantity: 3, paid: true } };
+
+    expect(validateDescriptor(validDescriptor, { requireExplicitCurrency: true }).valid).toBe(false);
+    expect(validateDescriptor(withoutCurrency, { requireExplicitCurrency: true }).valid).toBe(false);
+    expect(validateDescriptor(withCurrency, { requireExplicitCurrency: true }).valid).toBe(true);
+    expect(validateDescriptor(badCurrency, { requireExplicitCurrency: true })).toMatchObject({
+      valid: false,
+      issues: [{ path: "claims.currency", code: "currency_invalid" }],
+    });
+    expect(validateDescriptor(nonMoney, { requireExplicitCurrency: true }).valid).toBe(true);
+  });
+
   it("fails closed when an untrusted object throws during inspection", () => {
     const input = new Proxy({}, {
       getPrototypeOf() {
@@ -126,5 +151,39 @@ describe("descriptor validation", () => {
       valid: false,
       issues: [{ code: "invalid_descriptor" }],
     });
+  });
+
+  it("rejects non-object descriptors and non-string status URLs", () => {
+    for (const input of [null, "descriptor", 42, true]) {
+      expect(validateDescriptor(input)).toMatchObject({
+        valid: false,
+        issues: [{ path: "$", code: "object_required" }],
+      });
+    }
+
+    expect(validateDescriptor({ ...validDescriptor, statusUrl: 42 })).toMatchObject({
+      valid: false,
+      issues: [{ path: "statusUrl", code: "string_required" }],
+    });
+  });
+
+  it("rejects identity fields with surrounding whitespace", () => {
+    for (const field of ["issuerId", "documentId", "documentType"] as const) {
+      const result = validateDescriptor({ ...validDescriptor, [field]: ` ${validDescriptor[field]} ` });
+
+      expect(result.valid).toBe(false);
+      expect(result.issues).toContainEqual(expect.objectContaining({ path: field, code: "surrounding_whitespace" }));
+    }
+  });
+
+  it("rejects claim keys that are empty or padded with whitespace", () => {
+    const padded = validateDescriptor({ ...validDescriptor, claims: { " padded ": "value" } });
+    const empty = validateDescriptor({ ...validDescriptor, claims: { "   ": "value" } });
+
+    expect(padded).toMatchObject({
+      valid: false,
+      issues: [{ path: "claims. padded ", code: "claim_key_invalid" }],
+    });
+    expect(empty.valid).toBe(false);
   });
 });

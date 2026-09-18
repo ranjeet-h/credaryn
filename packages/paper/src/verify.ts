@@ -29,14 +29,15 @@ export async function verifyPaperSeal(
     });
   }
 
-  const cose = await verifyCoseSign1(
-    decoded.cose,
-    options.trustStore === undefined
-      ? { issuerId: decoded.profile.issuerId }
-      : { issuerId: decoded.profile.issuerId, trustStore: options.trustStore },
-  );
+  const cose = await verifyCoseSign1(decoded.cose, {
+    issuerId: decoded.profile.issuerId,
+    ...(decoded.profile.certificateFingerprint === undefined
+      ? {}
+      : { certificateFingerprint: decoded.profile.certificateFingerprint }),
+    ...(options.trustStore === undefined ? {} : { trustStore: options.trustStore }),
+  });
   if (cose.keyId !== decoded.profile.keyId) {
-    return createVerificationResult({
+    return createPaperResult({
       cryptographicValidity: "INVALID",
       trustDecision: "MISSING",
       lifecycleStatus: "UNCHECKED",
@@ -45,10 +46,10 @@ export async function verifyPaperSeal(
       issuerId: decoded.profile.issuerId,
       keyId: decoded.profile.keyId,
       evidence: [{ code: "PAPER_KEY_ID_MISMATCH", message: "COSE key ID does not match the signed payload" }],
-    });
+    }, decoded.profile);
   }
   if (options.expectedDescriptor !== undefined && !matchesDescriptor(decoded.profile, options.expectedDescriptor)) {
-    return createVerificationResult({
+    return createPaperResult({
       cryptographicValidity: "INVALID",
       trustDecision: "MISSING",
       lifecycleStatus: "UNCHECKED",
@@ -57,12 +58,12 @@ export async function verifyPaperSeal(
       issuerId: decoded.profile.issuerId,
       keyId: decoded.profile.keyId,
       evidence: [{ code: "PAPER_DOCUMENT_MISMATCH", message: "Paper Seal claims do not match the expected document" }],
-    });
+    }, decoded.profile);
   }
   if (cose.cryptographicValidity === "VALID"
     && decoded.profile.certificateFingerprint !== undefined
     && cose.certificateFingerprint !== decoded.profile.certificateFingerprint) {
-    return createVerificationResult({
+    return createPaperResult({
       cryptographicValidity: "INVALID",
       trustDecision: "MISSING",
       lifecycleStatus: "UNCHECKED",
@@ -74,7 +75,7 @@ export async function verifyPaperSeal(
         code: "PAPER_CERTIFICATE_FINGERPRINT_MISMATCH",
         message: "Paper Seal certificate fingerprint does not match the trusted signing key",
       }],
-    });
+    }, decoded.profile);
   }
 
   const verificationInput = {
@@ -92,9 +93,21 @@ export async function verifyPaperSeal(
     }],
   } as const;
   if (options.trustStore?.trustSource !== undefined) {
-    return createVerificationResult({ ...verificationInput, trustSource: options.trustStore.trustSource });
+    return createPaperResult({ ...verificationInput, trustSource: options.trustStore.trustSource }, decoded.profile);
   }
-  return createVerificationResult(verificationInput);
+  return createPaperResult(verificationInput, decoded.profile);
+}
+
+function createPaperResult(
+  input: Parameters<typeof createVerificationResult>[0],
+  profile?: DecodedPaperSeal["profile"],
+): VerificationResult {
+  if (profile === undefined) return createVerificationResult(input);
+  return createVerificationResult({
+    ...input,
+    documentId: profile.documentId,
+    ...(profile.statusUrl === undefined ? {} : { statusUrl: profile.statusUrl }),
+  });
 }
 
 function matchesDescriptor(

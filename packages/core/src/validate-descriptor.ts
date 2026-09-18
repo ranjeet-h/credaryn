@@ -4,6 +4,16 @@ export type DescriptorEnvironment = "production" | "development";
 
 export interface DescriptorValidationOptions {
   environment?: DescriptorEnvironment;
+  /**
+   * When true, an integer claim whose key ends in `Minor` must be accompanied by a
+   * co-located ISO-4217 `currency` claim (three upper-case letters).
+   *
+   * SPEC GAP: the default is `false` because existing repository fixtures in the
+   * paper/PDF pipeline carry `totalMinor` without `currency`. Flipping the default
+   * would reject those fixtures outside this package's ownership, so the strict
+   * rule is opt-in. The SDK issuance boundary (`@credaryn/node`) opts in.
+   */
+  requireExplicitCurrency?: boolean;
 }
 
 export interface DescriptorValidationIssue {
@@ -61,6 +71,9 @@ export function validateDescriptor(
     }
 
     const claims = readClaims(input.claims, issues);
+    if (options.requireExplicitCurrency === true && claims !== undefined) {
+      issues.push(...moneyCurrencyIssues(claims));
+    }
     const statusUrl = readStatusUrl(input.statusUrl, options.environment ?? "production", issues);
 
     if (issues.length > 0 || issuerId === undefined || documentId === undefined || documentType === undefined || issuedAt === undefined || claims === undefined) {
@@ -221,6 +234,37 @@ function isClaimValue(value: unknown): value is ClaimValue {
   return typeof value === "string"
     || typeof value === "boolean"
     || (typeof value === "number" && Number.isSafeInteger(value));
+}
+
+const ISO_4217_CODE = /^[A-Z]{3}$/;
+const MINOR_MONEY_CLAIM = /Minor$/;
+
+/**
+ * Conservative money rule: only integer claims whose key ends in `Minor`
+ * (e.g. `totalMinor`, `taxMinor`) are treated as money. A co-located
+ * `currency` claim must be a three-letter upper-case ISO-4217 code.
+ */
+function moneyCurrencyIssues(claims: Claims): DescriptorValidationIssue[] {
+  const minorKeys = Object.keys(claims).filter(
+    (key) => MINOR_MONEY_CLAIM.test(key) && typeof claims[key] === "number" && Number.isSafeInteger(claims[key]),
+  );
+  const currency = claims.currency;
+  const validCurrency = typeof currency === "string" && ISO_4217_CODE.test(currency);
+  if (currency !== undefined && !validCurrency) {
+    return [{
+      path: "claims.currency",
+      code: "currency_invalid",
+      message: "currency must be a three-letter upper-case ISO-4217 code",
+    }];
+  }
+  if (minorKeys.length > 0 && !validCurrency) {
+    return [{
+      path: `claims.${minorKeys[0]}`,
+      code: "currency_required",
+      message: `integer minor-unit money claim "${minorKeys[0]}" requires a co-located ISO-4217 currency claim`,
+    }];
+  }
+  return [];
 }
 
 function isRfc3339(value: string): boolean {
