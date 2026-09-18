@@ -64,6 +64,34 @@ describe("V2 verifier API metadata", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("access-control-allow-origin")).toBe(base);
   });
+
+  it("allows the same-origin UI even when an explicit allowlist is configured", async () => {
+    const server = createVerifierServer({
+      allowedOrigins: ["https://admin.example.test"],
+      verifier: {
+        verifyInput: async () => { throw new Error("not used"); },
+        verifyPdf: async () => { throw new Error("not used"); },
+        verifyPaperText: async () => { throw new Error("not used"); },
+        verifyPaperImage: async () => { throw new Error("not used"); },
+      },
+    });
+    servers.push(server);
+    const address = await listen(server);
+    const base = `http://127.0.0.1:${address.port}`;
+
+    const sameOrigin = await fetch(`${base}/v1/health`, { headers: { origin: base } });
+    expect(sameOrigin.status).toBe(200);
+    expect(sameOrigin.headers.get("access-control-allow-origin")).toBe(base);
+
+    const forwarded = await fetch(`${base}/v1/health`, {
+      headers: { origin: `https://127.0.0.1:${address.port}`, "x-forwarded-proto": "https" },
+    });
+    expect(forwarded.status).toBe(200);
+    expect(forwarded.headers.get("access-control-allow-origin")).toBe(`https://127.0.0.1:${address.port}`);
+
+    const crossOrigin = await fetch(`${base}/v1/health`, { headers: { origin: "https://evil.example.test" } });
+    expect(crossOrigin.status).toBe(403);
+  });
 });
 
 async function listen(server: ReturnType<typeof createVerifierServer>): Promise<{ port: number }> {

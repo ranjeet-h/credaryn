@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { request as httpRequest } from "node:http";
 import type { ClientRequest } from "node:http";
 import type { VerificationResult } from "@credaryn/core";
+import { createJsonLogger } from "@credaryn/observability";
 import { createVerifierServer, MAX_WEB_REQUEST_BYTES } from "../src/server.js";
 
 const result: VerificationResult = {
@@ -151,6 +152,70 @@ describe("verifier web HTTP surface", () => {
 
     expect(response.status).toBe(408);
     expect(response.body).toContain("REQUEST_TIMEOUT");
+  });
+
+  it("bounds the parse step and returns 504 when verification does not complete", async () => {
+    const server = createVerifierServer({
+      requestTimeoutMs: 25,
+      parseTimeoutMs: 25,
+      logger: createJsonLogger({ write: () => undefined }),
+      verifier: {
+        verifyInput: async () => await new Promise<VerificationResult>(() => undefined),
+        verifyPdf: async () => result,
+        verifyPaperText: async () => result,
+        verifyPaperImage: async () => result,
+      },
+    });
+    servers.push(server);
+    const address = await listen(server);
+
+    const response = await fetch(`http://127.0.0.1:${address.port}/v1/verify`, {
+      method: "POST",
+      headers: { "content-type": "application/pdf" },
+      body: "%PDF-1.7",
+    });
+
+    expect(response.status).toBe(504);
+    expect(await response.json()).toMatchObject({ error: { code: "PARSE_TIMEOUT" } });
+  });
+
+  it("rejects over-limit clients with 429 and a Retry-After header", async () => {
+    const server = createVerifierServer({
+      rateLimit: { limit: 1, windowMs: 60_000 },
+      verifier: {
+        verifyInput: async () => result,
+        verifyPdf: async () => result,
+        verifyPaperText: async () => result,
+        verifyPaperImage: async () => result,
+      },
+    });
+    servers.push(server);
+    const address = await listen(server);
+    const baseUrl = `http://127.0.0.1:${address.port}`;
+
+    const first = await fetch(`${baseUrl}/v1/health`);
+    expect(first.status).toBe(200);
+
+    const second = await fetch(`${baseUrl}/v1/health`);
+    expect(second.status).toBe(429);
+    expect(second.headers.get("retry-after")).toMatch(/^\d+$/);
+  });
+
+  it("serves the camera module as a static asset", async () => {
+    const server = createVerifierServer({
+      verifier: {
+        verifyInput: async () => result,
+        verifyPdf: async () => result,
+        verifyPaperText: async () => result,
+        verifyPaperImage: async () => result,
+      },
+    });
+    servers.push(server);
+    const address = await listen(server);
+
+    const camera = await fetch(`http://127.0.0.1:${address.port}/camera.js`);
+    expect(camera.status).toBe(200);
+    expect(camera.headers.get("content-type")).toContain("text/javascript");
   });
 });
 

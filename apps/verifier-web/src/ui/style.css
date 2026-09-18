@@ -23,4 +23,9 @@ button:disabled { cursor: wait; opacity: .6; }
 .result-grid dd { margin: 5px 0 0; overflow-wrap: anywhere; font-size: 14px; font-weight: 750; }
 #result { margin: 0; overflow: auto; color: #34485b; font-size: 12px; line-height: 1.5; white-space: pre-wrap; }
 .note { color: #49657f; font-size: 13px; }
+fieldset.camera { display: grid; gap: 12px; margin: 18px 0 0; padding: 18px; border: 1px solid #c4d1df; border-radius: 16px; background: #fff; }
+fieldset.camera legend { padding: 0 8px; font-weight: 800; }
+.camera-controls { display: flex; flex-wrap: wrap; gap: 10px; }
+.camera-controls button { padding: 9px 14px; }
+#camera { width: 100%; max-height: 360px; border-radius: 12px; background: #0b1622; }
 @media (max-width: 560px) { .result-grid { grid-template-columns: 1fr; } }

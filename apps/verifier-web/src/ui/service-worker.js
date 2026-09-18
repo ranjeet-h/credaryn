@@ -1,5 +1,5 @@
 const CACHE_NAME = "credaryn-verifier-static-v1";
-const STATIC_ASSETS = ["/", "/app.js", "/style.css", "/manifest.webmanifest"];
+const STATIC_ASSETS = ["/", "/app.js", "/camera.js", "/style.css", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)));

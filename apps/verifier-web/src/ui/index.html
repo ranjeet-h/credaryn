@@ -15,11 +15,21 @@
         <p class="lede">Inspect a signed PDF or Paper Seal and keep artifact integrity, issuer trust, signed claims, lifecycle, and security mode separate.</p>
       </header>
       <form id="verify-form">
-        <label for="file">PDF or Paper Seal PNG<input id="file" type="file" accept="application/pdf,image/png,.crd1,.txt" capture="environment"></label>
+        <label for="file">PDF or Paper Seal image<input id="file" type="file" accept="application/pdf,image/png,image/jpeg,image/heic,image/*,.crd1,.txt"></label>
         <label for="paper-text">Or paste CRD1 text<textarea id="paper-text" placeholder="CRD1:"></textarea></label>
         <button id="submit" type="submit">Verify evidence</button>
         <p class="note">No file is sent to a hosted Credaryn service. The local verifier reports cryptography and trust independently.</p>
       </form>
+      <fieldset class="camera" id="camera-panel">
+        <legend>Camera QR scan</legend>
+        <div class="camera-controls">
+          <button id="camera-start" type="button">Start camera</button>
+          <button id="camera-capture" type="button">Capture photo</button>
+          <button id="camera-stop" type="button" disabled>Stop camera</button>
+        </div>
+        <video id="camera" playsinline muted hidden></video>
+        <p id="camera-note" class="note">Camera QR decoding runs in your browser when a native BarcodeDetector is available; otherwise a captured photo is converted to PNG and verified.</p>
+      </fieldset>
       <section class="result-card" aria-live="polite">
         <h2>Verification result</h2>
         <p id="verdict">Waiting for evidence</p>
@@ -34,6 +44,6 @@
         <pre id="result">Choose a PDF/PNG or paste a CRD1 payload.</pre>
       </section>
     </main>
-    <script src="/app.js" defer></script>
+    <script type="module" src="/app.js"></script>
   </body>
 </html>
