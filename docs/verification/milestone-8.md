@@ -11,10 +11,12 @@ No Playwright, browser automation, or automated UI runner was used.
 | --- | --- |
 | `pnpm lint` | PASS; core boundary check passed for 10 TypeScript files |
 | `pnpm typecheck` | PASS |
-| `pnpm test` | PASS; 42 files, 136 tests |
+| `pnpm test` | PASS; 43 files, 137 tests |
 | Phase 8 focused tests | PASS; trust policy, widget view model, status, admin security, API, verifier, and print tests |
 | `docker compose -f deploy/docker-compose.yml config` | PASS |
 | `docker compose --profile status -f deploy/docker-compose.yml config` | PASS |
+| Compose build/start on alternate host port 8081 | PASS; DSS and verifier healthy, verifier ran as non-root with read-only root, local secret excluded from image, teardown released port |
+| Compose `status` profile startup on alternate host port 8081 | PASS; PostgreSQL, DSS, and verifier healthy; teardown released port |
 | `pnpm deploy:smoke` against a local verifier server | PASS; `/v1/health` and `/v1/version` |
 | `pnpm docs:check` | PASS |
 | `pnpm bundle:inspect` | PASS |
@@ -30,7 +32,9 @@ optional PostgreSQL Compose profile.
 ## Manual self-host/UI checkpoint — pending owner verification
 
 No automated UI testing was used. The owner must inspect the rendered states
-manually in a normal browser and inspect the Compose containers:
+manually in a normal browser and complete the air-gapped checks. Compose
+startup, container hardening, API smoke, and teardown were verified locally;
+the owner should still inspect the running containers during their review:
 
 1. Run `docker compose -f deploy/docker-compose.yml up -d` and open
    `http://localhost:8080`.
@@ -59,7 +63,7 @@ Record observations here:
 Manual status: PENDING
 Browser/OS: pending
 Screenshot or owner visual notes: pending
-Compose startup/health: pending
+Compose startup/health: automated PASS on host port 8081; owner review pending
 Offline verification: pending
 Air-gapped status freshness: pending
 Storage/log redaction: automated utility passed; owner inspection pending

@@ -5,6 +5,7 @@ artifacts
 coverage
 dist
 test-vectors
+deploy/secrets
 *.pem
 *.key
 *.p12

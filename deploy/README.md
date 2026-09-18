@@ -12,6 +12,21 @@ curl -fsS http://localhost:8080/v1/health
 curl -fsS http://localhost:8080/v1/version
 ```
 
+If another local service already uses port 8080, choose a different host port
+without changing the container port:
+
+```bash
+CREDARYN_VERIFIER_PORT=8081 docker compose -f deploy/docker-compose.yml up -d
+curl -fsS http://localhost:8081/v1/health
+```
+
+When finished reviewing, stop the verifier and DSS containers so their ports
+are released:
+
+```bash
+docker compose -f deploy/docker-compose.yml down
+```
+
 The verifier container is non-root, read-only except for `/tmp`, and has a
 healthcheck. Uploaded documents are processed in memory and are not persisted
 by the verifier. Do not put cloud credentials or signing key material in this

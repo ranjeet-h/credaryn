@@ -1,8 +1,8 @@
 services:
   dss:
     build:
-      context: ..
-      dockerfile: adapters/pades-dss/Dockerfile
+      context: ../adapters/pades-dss
+      dockerfile: Dockerfile
       args:
         DSS_VERSION: "6.5"
     environment:
@@ -30,12 +30,12 @@ services:
       PORT: "4173"
       DSS_URL: "http://dss:8080"
       CREDARYN_BUILD_VERSION: "local-compose"
-      CREDARYN_ALLOWED_ORIGINS: "http://localhost:8080"
+      CREDARYN_ALLOWED_ORIGINS: "http://localhost:${CREDARYN_VERIFIER_PORT:-8080}"
     depends_on:
       dss:
         condition: service_healthy
     ports:
-      - "8080:4173"
+      - "${CREDARYN_VERIFIER_PORT:-8080}:4173"
     read_only: true
     tmpfs:
       - /tmp

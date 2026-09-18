@@ -889,7 +889,7 @@ GET  /v1/version        build/version/compatibility metadata
 - [x] PostgreSQL is used only for optional status/admin persistence; status history is append-only.
 - [x] OIDC/OAuth2 administration, CSRF protection, secure cookies, strict CORS and least-privilege remote signing policy are present.
 - [x] Structured JSON logs and OpenTelemetry correlation IDs/traces/metrics never contain private keys, tokens, entire uploaded documents, raw sensitive preimages or unnecessary PII.
-- [ ] Docker Compose runs verifier/API plus DSS and optional status/admin without a Credaryn-hosted dependency; containers are non-root and health-checked. Compose config and local API smoke pass; owner-run container startup remains pending.
+- [x] Docker Compose runs verifier/API plus DSS and optional status persistence without a Credaryn-hosted dependency; containers are non-root and health-checked. Compose config, status-profile startup, local API smoke, non-root/read-only checks, and teardown pass; browser and air-gapped owner checks remain pending.
 - [ ] Air-gapped PDF/paper verification works with local trust bundles and marks status freshness unavailable.
 
 ## Phase 8 test-first execution
@@ -919,6 +919,7 @@ docker compose -f deploy/docker-compose.yml up -d
 pnpm deploy:smoke
 curl -fsS http://localhost:8080/v1/health
 curl -fsS http://localhost:8080/v1/version
+docker compose -f deploy/docker-compose.yml down
 ```
 
 Expected result: REST, PWA, Web Component and CLI use equivalent result semantics; Compose health checks pass; remote resolution is bounded; and logs are demonstrably redacted.
