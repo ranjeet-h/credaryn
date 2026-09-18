@@ -1,0 +1,2 @@
+# Operator-provided Compose secrets. Never commit. See deploy/README.md.
+secrets/

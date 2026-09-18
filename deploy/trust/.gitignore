@@ -1,0 +1,5 @@
+# Local trust material for air-gapped deployments is operator-provided and must
+# never be committed. See docs/deployment/air-gapped.md and deploy/README.md.
+*
+!.gitignore
+!README.md
