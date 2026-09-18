@@ -23,6 +23,8 @@ moderate-dependency-audit gates.
   PAdES, vector-reproduction, and release dry-run commands.
 - Added dependency overrides for patched transitive high-severity packages and
   upgraded Puppeteer examples to `25.11.0`.
+- Removed the legacy TrustVC BBS compatibility dependency and recorded the
+  independent security review in `docs/security/phase10-review.md`.
 - Added an ephemeral signed release-candidate manifest. The private key is
   generated in memory and is never written.
 
@@ -41,21 +43,23 @@ moderate-dependency-audit gates.
 | `pnpm pades:validate --validator dss` | PASS; original PDF valid, mutation invalid |
 | `pnpm compatibility:report` | PASS; Node `v24.13.1`, pnpm `12.3.3` |
 | `pnpm benchmark` | PASS; 50 bounded iterations; report documented |
-| `pnpm sbom:check` | PASS; CycloneDX report with 453 external components |
+| `pnpm sbom:check` | PASS; CycloneDX report with 281 external components |
 | `pnpm release:dry-run` | PASS; ephemeral signed candidate, no private key persisted |
 | `pnpm audit --audit-level high` | PASS after overrides and Puppeteer upgrade |
-| `pnpm audit --audit-level moderate` | BLOCKED; five moderate TrustVC transitive findings remain |
+| `pnpm audit --audit-level moderate` | PASS; no known vulnerabilities after removing the legacy TrustVC BBS compatibility subtree |
 | `pnpm pades:validate --validator independent` | PASS; Poppler `pdfsig` accepted the original and rejected the mutated fixture |
+| Independent GPT-5.6 Luna security review | PASS; no Critical or Important findings remain |
 
 ## Manual/external gates still required
 
-1. Remove, upgrade upstream, or explicitly risk-accept the five moderate
-   vulnerabilities in TrustVC's legacy BBS compatibility dependency.
-2. Complete an independent security review and record every material finding,
-   fix, or owner-approved risk acceptance.
-3. Configure and verify GitHub private vulnerability reporting before beta.
-4. Run a real clean-install release-candidate review, signed-tag/provenance
+1. Configure and verify GitHub private vulnerability reporting before beta.
+2. Run a real clean-install release-candidate review, signed-tag/provenance
    check, and OIDC/npm publishing dry run without long-lived credentials.
+
+The private vulnerability-reporting API returned HTTP 404 for this private
+repository, and the repository metadata does not expose `security_and_analysis`.
+No GitHub setting was changed. Enable the feature in a plan that supports it or
+keep the documented private maintainer contact before public beta.
 
 The full audit disposition is recorded in
 `docs/security/dependency-audit.md`. OCR remains explicitly out of scope and

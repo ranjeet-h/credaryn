@@ -13,9 +13,13 @@
     "./status-list": "./src/status-list.ts"
   },
   "dependencies": {
+    "@digitalbazaar/data-integrity": "2.5.0",
+    "@digitalbazaar/ecdsa-multikey": "1.8.0",
+    "@digitalbazaar/ecdsa-sd-2023-cryptosuite": "3.4.1",
     "@trustvc/w3c-credential-status": "2.4.0",
     "@trustvc/w3c-context": "2.5.0",
     "@trustvc/w3c-issuer": "2.3.0",
-    "@trustvc/w3c-vc": "2.4.2"
+    "jsonld-signatures": "11.6.0",
+    "uuid": "11.1.1"
   }
 }

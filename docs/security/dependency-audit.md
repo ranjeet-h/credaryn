@@ -16,14 +16,15 @@ finding disappeared with that Puppeteer upgrade.
 pnpm audit --audit-level moderate
 ```
 
-Result: five moderate findings remain in the legacy `request`/`tough-cookie`/
-`qs`/`uuid` subtree pulled by TrustVC's transitive BBS compatibility package.
-`request` has no patched release. Credaryn's adapter exposes only ECDSA-SD-2023
-and does not expose BBS APIs, but the dependency remains installed and must be
-removed, upgraded upstream, or explicitly risk-accepted before stable 1.0.
+Result: PASS; no known vulnerabilities were reported at the moderate threshold.
+The five previous findings were removed by replacing TrustVC's
+`@trustvc/w3c-vc` dependency with the direct modern ECDSA-SD-2023 stack. The
+legacy `request`/`tough-cookie`/`qs`/old-`uuid` subtree is absent from the
+lockfile. `@trustvc/w3c-issuer` still supplies DID/key generation, including
+its optional BBS key-generation packages, but no audit finding remains in that
+path and Credaryn does not expose BBS credential operations.
 
-This is a release blocker, not a clean audit claim. The SBOM records the full
-dependency graph with:
+The SBOM records the full dependency graph with:
 
 ```bash
 pnpm sbom:check

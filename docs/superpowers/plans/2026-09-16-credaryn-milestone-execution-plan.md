@@ -1034,8 +1034,8 @@ Expected result: all promised interop and adapter fixtures pass, and every resul
 - [x] PAdES fixtures validate through DSS and at least one independent compatible validator. DSS and Poppler `pdfsig` both accept the original fixture and reject the mutated fixture.
 - [x] Paper vectors are independently reproducible from the published specification.
 - [x] Compatibility matrix and performance benchmarks are published.
-- [ ] SBOM, dependency audit, signed release, npm provenance and OIDC publishing dry-run pass. Local SBOM, high-severity audit, and ephemeral signed release dry-run pass; moderate transitive findings and external provenance remain.
-- [ ] Independent security review is complete; material findings are fixed or publicly risk-accepted.
+- [ ] SBOM, dependency audit, signed release, npm provenance and OIDC publishing dry-run pass. Local SBOM, clean moderate audit, and ephemeral signed release dry-run pass; signed-tag/provenance and external publishing remain.
+- [x] Independent repository security review is complete; no Critical or Important findings remain. This is not a third-party penetration test.
 - [ ] `SECURITY.md` is ready; GitHub private vulnerability reporting configuration still requires owner verification before public beta.
 - [x] Legal wording distinguishes technical validation from jurisdiction-specific qualified/electronic-signature status.
 

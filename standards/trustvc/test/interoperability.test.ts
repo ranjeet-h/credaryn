@@ -26,7 +26,8 @@ describe("TrustVC W3C interoperability", () => {
 
     expect(identity.did).toMatch(/^did:key:/);
     expect(issued.credential.issuer).toBe(identity.did);
-    expect(issued.credential.proof?.cryptosuite).toBe("ecdsa-sd-2023");
+    const proof = Array.isArray(issued.credential.proof) ? issued.credential.proof[0] : issued.credential.proof;
+    expect(proof?.cryptosuite).toBe("ecdsa-sd-2023");
     expect(result.cryptographicValidity).toBe("VALID");
     expect(result.issuerId).toBe(identity.did);
   });
@@ -57,6 +58,28 @@ describe("TrustVC W3C interoperability", () => {
     expect(derived.credential.credentialSubject).toMatchObject({ invoiceNumber: credentialSubject.invoiceNumber });
     expect(derived.credential.credentialSubject).not.toHaveProperty("totalMinor");
     expect(issued.credential.credentialSubject).toHaveProperty("totalMinor", credentialSubject.totalMinor);
+
+    const result = await verifyCredential(derived.credential);
+    expect(result.cryptographicValidity).toBe("VALID");
+
+    const tampered = {
+      ...issued.credential,
+      credentialSubject: { ...issued.credential.credentialSubject, totalMinor: 81_800 },
+    };
+    const tamperedResult = await verifyCredential(tampered);
+    expect(tamperedResult.cryptographicValidity).toBe("INVALID");
+
+    const tamperedDerived = {
+      ...derived.credential,
+      credentialSubject: { ...derived.credential.credentialSubject, invoiceNumber: "INV-TAMPERED" },
+    };
+    const tamperedDerivedResult = await verifyCredential(tamperedDerived);
+    expect(tamperedDerivedResult.cryptographicValidity).toBe("INVALID");
+
+    const missingProof = { ...issued.credential };
+    delete missingProof.proof;
+    const missingProofResult = await verifyCredential(missingProof);
+    expect(missingProofResult.cryptographicValidity).toBe("INVALID");
   });
 
   it("creates W3C Bitstring Status List v1.0 entries", async () => {

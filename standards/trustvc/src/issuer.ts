@@ -1,28 +1,47 @@
 import { createRequire } from "node:module";
 import type { Document, DocumentLoader } from "@trustvc/w3c-context";
-import type { RawVerifiableCredential, SignedVerifiableCredential } from "@trustvc/w3c-vc";
+// These Digital Bazaar packages do not publish TypeScript declarations.
+// @ts-expect-error -- untyped ESM dependency
+import { DataIntegrityProof } from "@digitalbazaar/data-integrity";
+// @ts-expect-error -- untyped ESM dependency
+import * as EcdsaMultikey from "@digitalbazaar/ecdsa-multikey";
+// @ts-expect-error -- untyped ESM dependency
+import { createDiscloseCryptosuite, createSignCryptosuite } from "@digitalbazaar/ecdsa-sd-2023-cryptosuite";
+// @ts-expect-error -- untyped ESM dependency
+import jsonldSignatures from "jsonld-signatures";
+import { v7 as uuidV7 } from "uuid";
 
 const require = createRequire(import.meta.url);
 const trustVcContext = require("@trustvc/w3c-context") as typeof import("@trustvc/w3c-context");
 const trustVcIssuer = require("@trustvc/w3c-issuer") as typeof import("@trustvc/w3c-issuer");
-const trustVcVc = require("@trustvc/w3c-vc") as typeof import("@trustvc/w3c-vc");
 const { getDocumentLoader } = trustVcContext;
 const { CryptoSuite, generateDidKeyPair, generateKeyPair, VerificationType } = trustVcIssuer;
-const { deriveCredential, signCredential } = trustVcVc;
+const { purposes: { AssertionProofPurpose } } = jsonldSignatures;
+
+export interface CredentialProof {
+  readonly type?: string;
+  readonly cryptosuite?: string;
+  readonly proofValue?: string;
+}
 
 export interface W3cCredentialSubject {
   readonly id?: string;
   readonly [key: string]: unknown;
 }
 
-export type W3cCredential = SignedVerifiableCredential & {
+export type W3cCredential = {
+  readonly "@context": readonly unknown[];
+  readonly id?: string;
+  readonly type: readonly string[];
   credentialSubject: W3cCredentialSubject;
   issuer: string;
+  readonly validFrom?: string;
+  readonly proof?: CredentialProof | readonly CredentialProof[];
 };
 
 export interface DidIdentity {
   readonly did: string;
-  readonly keyPair: Parameters<typeof signCredential>[1];
+  readonly keyPair: Record<string, unknown>;
   readonly didDocument?: Record<string, unknown>;
 }
 
@@ -71,7 +90,7 @@ export async function createDidWebIdentity(domain: string, seedBase58?: string):
     controller: did,
     publicKeyMultibase: generated.publicKeyMultibase,
     secretKeyMultibase: generated.secretKeyMultibase,
-  } as Parameters<typeof signCredential>[1];
+  };
   const didDocument = {
     "@context": ["https://www.w3.org/ns/did/v1", "https://w3id.org/security/multikey/v1"],
     id: did,
@@ -91,22 +110,42 @@ export async function issueCredential(options: IssueCredentialOptions): Promise<
   if (options.deriveFrom) {
     const pointers = [...(options.mandatoryPointers ?? ["/credentialSubject"])] as string[];
     const derived = await deriveCredential(options.deriveFrom, pointers);
-    if (!("derived" in derived) || !derived.derived) throw new Error(`TrustVC derivation failed: ${"error" in derived ? derived.error : "unknown error"}`);
-    return { credential: derived.derived as W3cCredential, identity: options.identity };
+    return { credential: derived, identity: options.identity };
   }
 
-  const raw: RawVerifiableCredential = {
+  const raw = {
     "@context": [CREDENTIAL_CONTEXT, DATA_INTEGRITY_CONTEXT, CREDARYN_CONTEXT],
     type: ["VerifiableCredential"],
     issuer: options.identity.did,
     validFrom: "2026-01-01T00:00:00Z",
     credentialSubject: options.credentialSubject,
   };
-  const signed = await signCredential(raw, options.identity.keyPair, "ecdsa-sd-2023", {
-    mandatoryPointers: [...(options.mandatoryPointers ?? [])],
+  const keyPair = await EcdsaMultikey.from({ ...options.identity.keyPair });
+  const mandatoryPointers = ["/issuer", "/validFrom", ...(options.mandatoryPointers ?? [])]
+    .filter((pointer, index, pointers) => pointers.indexOf(pointer) === index);
+  const suite = new DataIntegrityProof({
+    signer: keyPair.signer(),
+    cryptosuite: createSignCryptosuite({ mandatoryPointers }),
   });
-  if (!("signed" in signed) || !signed.signed) throw new Error(`TrustVC signing failed: ${"error" in signed ? signed.error : "unknown error"}`);
-  return { credential: signed.signed as W3cCredential, identity: options.identity };
+  const signed = await jsonldSignatures.sign({ ...raw, id: `urn:uuid:${uuidV7()}` }, {
+    suite,
+    purpose: new AssertionProofPurpose(),
+    documentLoader: await createDocumentLoader(options.identity.didDocument
+      ? new Map([[options.identity.did, options.identity.didDocument]])
+      : new Map()),
+  });
+  return { credential: signed as W3cCredential, identity: options.identity };
+}
+
+export async function deriveCredential(credential: W3cCredential, selectivePointers: readonly string[], documentLoader?: DocumentLoader): Promise<W3cCredential> {
+  const suite = new DataIntegrityProof({
+    cryptosuite: createDiscloseCryptosuite({ selectivePointers: [...selectivePointers] }),
+  });
+  return jsonldSignatures.derive(credential, {
+    suite,
+    purpose: new AssertionProofPurpose(),
+    documentLoader: documentLoader ?? await createDocumentLoader(),
+  }) as Promise<W3cCredential>;
 }
 
 export async function createDocumentLoader(didDocuments: ReadonlyMap<string, Record<string, unknown>> = new Map()): Promise<DocumentLoader> {
