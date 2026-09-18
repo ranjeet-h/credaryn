@@ -107,6 +107,50 @@ describe("credaryn CLI contract", () => {
       error: { code: "UNKNOWN_INPUT" },
     });
   });
+
+  it("forwards --descriptor as expectedDescriptor so a copied seal is rejected", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "credaryn-cli-descriptor-"));
+    const paperPath = join(directory, "seal.crd1");
+    const descriptorPath = join(directory, "descriptor.json");
+    const descriptor = {
+      issuerId: "acme-retail",
+      documentId: "INV-2026-82919",
+      documentType: "invoice",
+      issuedAt: "2026-01-01T00:00:00Z",
+      claims: { currency: "INR", invoiceNumber: "INV-2026-82919", totalMinor: 1_180_000 },
+    };
+    await writeFile(paperPath, "CRD1:!");
+    await writeFile(descriptorPath, JSON.stringify(descriptor));
+
+    const received: unknown[] = [];
+    const dependencies = createDependencies();
+    dependencies.verifier = {
+      ...dependencies.verifier,
+      verifyInput: async (input) => {
+        received.push(input);
+        return paperResult;
+      },
+    };
+
+    const result = await runCli(["paper", "inspect", paperPath, "--descriptor", descriptorPath], dependencies);
+
+    expect(result.exitCode).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual(paperResult);
+    expect(received[0]).toMatchObject({ expectedDescriptor: descriptor });
+  });
+
+  it("reports an invalid descriptor as an input error", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "credaryn-cli-descriptor-invalid-"));
+    const paperPath = join(directory, "seal.crd1");
+    const descriptorPath = join(directory, "descriptor.json");
+    await writeFile(paperPath, "CRD1:!");
+    await writeFile(descriptorPath, JSON.stringify({ issuerId: "acme-retail" }));
+
+    const result = await runCli(["paper", "inspect", paperPath, "--descriptor", descriptorPath], createDependencies());
+
+    expect(result.exitCode).toBe(2);
+    expect(JSON.parse(result.stdout)).toMatchObject({ error: { code: "INPUT_ERROR" } });
+  });
 });
 
 function createDependencies(): CliDependencies {

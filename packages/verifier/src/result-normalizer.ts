@@ -13,6 +13,9 @@ export function normalizeVerificationResult(result: VerificationResult): Verific
   if (result.keyId !== undefined) normalized.keyId = result.keyId;
   if (result.trustSource !== undefined) normalized.trustSource = result.trustSource;
   if (result.artifactIntegrity !== undefined) normalized.artifactIntegrity = result.artifactIntegrity;
+  if (result.keyLifecycleState !== undefined) normalized.keyLifecycleState = result.keyLifecycleState;
+  if (result.documentId !== undefined) normalized.documentId = result.documentId;
+  if (result.statusUrl !== undefined) normalized.statusUrl = result.statusUrl;
   if (result.signedClaims !== undefined) {
     normalized.signedClaims = Object.fromEntries(
       Object.entries(result.signedClaims).sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0),

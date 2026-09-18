@@ -1,10 +1,12 @@
 import type {
+  DocumentDescriptor,
   SignerProvider,
   TrustStore,
   VerificationResult,
 } from "@credaryn/core";
 import { Credaryn } from "@credaryn/node";
 import { MAX_PDF_BYTES as PDF_MAX_BYTES, type PdfSignatureEngine } from "@credaryn/pdf";
+import { applyStatusResolver, type StatusResolver } from "./status.js";
 import { verifyPaperImage, verifyPaperText } from "./verify-paper.js";
 import { verifyPdf } from "./verify-pdf.js";
 
@@ -20,19 +22,21 @@ export type DetectedInputKind = "pdf" | "paper-text" | "paper-image";
 export interface VerificationInput {
   bytes: Uint8Array;
   contentType?: string;
+  expectedDescriptor?: DocumentDescriptor;
 }
 
 export interface VerifierDependencies {
   pdfEngine: PdfSignatureEngine;
   paperSigner: SignerProvider;
   trustStore: TrustStore;
+  statusResolver?: StatusResolver;
 }
 
 export interface Verifier {
   verifyInput(input: VerificationInput): Promise<VerificationResult>;
   verifyPdf(input: Uint8Array, trustStore?: TrustStore): Promise<VerificationResult>;
-  verifyPaperText(input: string, trustStore?: TrustStore): Promise<VerificationResult>;
-  verifyPaperImage(input: Uint8Array, trustStore?: TrustStore): Promise<VerificationResult>;
+  verifyPaperText(input: string, trustStore?: TrustStore, expectedDescriptor?: DocumentDescriptor): Promise<VerificationResult>;
+  verifyPaperImage(input: Uint8Array, trustStore?: TrustStore, expectedDescriptor?: DocumentDescriptor): Promise<VerificationResult>;
 }
 
 export class VerificationInputError extends Error {
@@ -47,24 +51,28 @@ export class VerificationInputError extends Error {
 
 export function createVerifier(dependencies: VerifierDependencies): Verifier {
   const sdk = new Credaryn(dependencies);
+  const withStatus = (result: VerificationResult): Promise<VerificationResult> =>
+    applyStatusResolver(result, dependencies.statusResolver);
   return {
     verifyInput: async (input) => {
       const kind = detectInput(input.bytes, input.contentType);
-      if (kind === "pdf") return verifyPdf(input.bytes, sdk);
-      if (kind === "paper-text") return verifyPaperText(decodeText(input.bytes).trim(), sdk);
-      return verifyPaperImage(input.bytes, sdk);
+      if (kind === "pdf") return withStatus(await verifyPdf(input.bytes, sdk));
+      if (kind === "paper-text") {
+        return withStatus(await verifyPaperText(decodeText(input.bytes).trim(), sdk, undefined, input.expectedDescriptor));
+      }
+      return withStatus(await verifyPaperImage(input.bytes, sdk, undefined, input.expectedDescriptor));
     },
     verifyPdf: async (input, trustStore) => {
       assertSize(input, "application/pdf");
-      return verifyPdf(input, sdk, trustStore);
+      return withStatus(await verifyPdf(input, sdk, trustStore));
     },
-    verifyPaperText: async (input, trustStore) => {
+    verifyPaperText: async (input, trustStore, expectedDescriptor) => {
       assertSize(new TextEncoder().encode(input), "text/vnd.credaryn.crd1");
-      return verifyPaperText(input, sdk, trustStore);
+      return withStatus(await verifyPaperText(input, sdk, trustStore, expectedDescriptor));
     },
-    verifyPaperImage: async (input, trustStore) => {
+    verifyPaperImage: async (input, trustStore, expectedDescriptor) => {
       assertSize(input, "image/png");
-      return verifyPaperImage(input, sdk, trustStore);
+      return withStatus(await verifyPaperImage(input, sdk, trustStore, expectedDescriptor));
     },
   };
 }

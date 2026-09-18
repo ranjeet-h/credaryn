@@ -1,4 +1,5 @@
 export * from "./result-normalizer.js";
+export * from "./status.js";
 export * from "./trust-store.js";
 export * from "./verify-input.js";
 export * from "./verify-paper.js";
