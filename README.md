@@ -5,6 +5,9 @@ Documents are easy to edit. Credaryn makes authentic issuance independently veri
 **Trust infrastructure for verifiable documents.** Cryptographic authenticity from software to paper.
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![CI](https://github.com/ranjeet-h/credaryn/actions/workflows/ci.yml/badge.svg)](https://github.com/ranjeet-h/credaryn/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/ranjeet-h/credaryn/actions/workflows/codeql.yml/badge.svg)](https://github.com/ranjeet-h/credaryn/actions/workflows/codeql.yml)
+[![Website](https://img.shields.io/badge/website-ranjeet--h.github.io%2Fcredaryn-38e0c4.svg)](https://ranjeet-h.github.io/credaryn/)
 [![Node](https://img.shields.io/badge/node-%3E%3D24-brightgreen.svg)](https://nodejs.org)
 [![pnpm](https://img.shields.io/badge/pnpm-12-orange.svg)](https://pnpm.io)
 [![Standards](https://img.shields.io/badge/standards-PAdES%20%C2%B7%20COSE%20%2F%20CBOR%20%C2%B7%20W3C%20VC%20%C2%B7%20ISO%2022376--informed-success)](#standards-and-interoperability)

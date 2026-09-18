@@ -1,6 +1,6 @@
 # ADR 0004: No GitHub Actions CI; local and owner-run gates
 
-- Status: accepted for Phase 10/12
+- Status: superseded by ADR 0009 for the public OSS repository (the local-first gates remain)
 - Date: 2026-09-18
 - Supersedes: the CI requirement in spec §18 (GitHub Actions on Node 24), §19 (SoftHSM2 "in CI") and §21 ("in CI" provenance/fuzz/release gates)
 

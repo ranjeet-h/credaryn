@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use Credaryn in a project or publication, please cite it as below."
+title: "Credaryn: trust infrastructure for verifiable documents"
+abstract: >-
+  Open-source, standards-first infrastructure for issuing and verifying authentic
+  business documents across controlled digital PDF and physical paper. Credaryn
+  composes PAdES, COSE/CBOR, X.509/PKI and W3C Verifiable Credentials behind one
+  developer API and one normalized verification result.
+type: software
+license: Apache-2.0
+repository-code: "https://github.com/ranjeet-h/credaryn"
+url: "https://ranjeet-h.github.io/credaryn/"
+issues: "https://github.com/ranjeet-h/credaryn/issues"
+keywords:
+  - verifiable-documents
+  - pades
+  - cose
+  - cbor
+  - verifiable-credentials
+  - pki
+  - kms
+  - hsm
+  - qr
+authors:
+  - family-names: "Credaryn maintainers"
+    alias: "ranjeet-h"
+    web: "https://github.com/ranjeet-h"

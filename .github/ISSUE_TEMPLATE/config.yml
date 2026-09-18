@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/ranjeet-h/credaryn/security/advisories/new
+    about: Report a vulnerability privately. Do not open a public issue.
+  - name: Documentation
+    url: https://github.com/ranjeet-h/credaryn#documentation
+    about: Read the README and docs before opening an issue.
+  - name: Questions and ideas
+    url: https://github.com/ranjeet-h/credaryn/discussions
+    about: Ask usage questions or discuss ideas.

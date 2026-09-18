@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Credaryn — trust infrastructure for verifiable documents</title>
+<meta name="description" content="Credaryn is open-source, standards-first infrastructure for issuing and verifying authentic business documents across digital PDF and physical paper. PAdES, COSE/CBOR, X.509/KMS and W3C Verifiable Credentials behind one developer API and one normalized verification result." />
+<meta name="theme-color" content="#080b12" />
+<link rel="canonical" href="https://ranjeet-h.github.io/credaryn/" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Credaryn — trust infrastructure for verifiable documents" />
+<meta property="og:description" content="Authentic issuance independently verifiable — from software to paper. Open source under Apache-2.0." />
+<meta property="og:url" content="https://ranjeet-h.github.io/credaryn/" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Credaryn — trust infrastructure for verifiable documents" />
+<meta name="twitter:description" content="Seal a generated PDF with PAdES, bind business claims, carry them onto paper as a signed QR seal, and verify both with one result model." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23080b12'/%3E%3Cpath d='M16 6l8 3v7c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V9z' fill='none' stroke='%2338e0c4' stroke-width='2'/%3E%3Cpath d='M12 16l3 3 5-6' fill='none' stroke='%236d8cff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top" aria-label="Credaryn home">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="rgba(255,255,255,.04)"/>
+        <path d="M16 6l8 3v7c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V9z" fill="none" stroke="#38e0c4" stroke-width="2"/>
+        <path d="M12 16l3 3 5-6" fill="none" stroke="#6d8cff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Credaryn</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#verify">Verification</a>
+      <a href="#deploy">Deploy</a>
+      <a href="#docs">Docs</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-ghost" href="https://github.com/ranjeet-h/credaryn">GitHub</a>
+      <a class="btn btn-primary" href="https://github.com/ranjeet-h/credaryn/blob/master/docs/getting-started.md">Get started</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <span id="top"></span>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="glow glow-a" aria-hidden="true"></div>
+    <div class="glow glow-b" aria-hidden="true"></div>
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="dot"></span> Open source · Apache-2.0 · standards-first</p>
+        <h1>Authentic issuance, independently verifiable — <span class="grad">from software to paper.</span></h1>
+        <p class="lede">
+          Credaryn is trust infrastructure for business documents. Seal a generated PDF with a
+          standards-compatible PAdES signature, bind your business-critical claims, carry those claims
+          onto paper as a signed machine-readable seal, and verify both through one normalized result —
+          with no mandatory cloud service.
+        </p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary btn-lg" href="https://github.com/ranjeet-h/credaryn">View on GitHub</a>
+          <a class="btn btn-ghost btn-lg" href="https://github.com/ranjeet-h/credaryn/blob/master/docs/getting-started.md">Read the quickstart →</a>
+        </div>
+        <ul class="chips" aria-label="Standards">
+          <li>PAdES</li><li>COSE · CBOR</li><li>X.509 · PKI</li><li>AWS / GCP / Azure KMS</li><li>PKCS#11 / HSM</li><li>W3C VC · did:web</li><li>ISO 22376-informed</li>
+        </ul>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="card seal-card">
+          <div class="card-head">
+            <span class="pill pill-ok">VALID_TRUSTED</span>
+            <span class="mono muted">DIGITAL_ARTIFACT_SIGNED</span>
+          </div>
+          <div class="kv"><span>Issuer</span><b>acme-retail</b></div>
+          <div class="kv"><span>Document</span><b class="mono">INV-2026-82919</b></div>
+          <div class="kv"><span>PDF signature</span><b class="ok">valid · PAdES B-B</b></div>
+          <div class="kv"><span>Artifact integrity</span><b class="ok">valid</b></div>
+          <div class="hr"></div>
+          <div class="kv big"><span>Signed total</span><b class="mono">INR 11,800.00</b></div>
+          <div class="kv"><span>Paper seal</span><b class="ok">present · valid</b></div>
+          <div class="kv"><span>Lifecycle</span><b class="muted">ACTIVE</b></div>
+        </div>
+        <div class="card tamper-card">
+          <div class="card-head"><span class="pill pill-bad">INVALID</span><span class="mono muted">edited PDF</span></div>
+          <div class="kv"><span>Artifact integrity</span><b class="bad">failed</b></div>
+          <div class="kv"><span>Paper seal says</span><b class="mono ok">INR 11,800.00</b></div>
+          <p class="tiny muted">Edit the file to INR 81,800: the PDF fails integrity while the signed paper claim stays 11,800.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="band">
+    <div class="wrap">
+      <div class="band-grid">
+        <div>
+          <h2 class="kicker">The problem isn't that documents can be edited.</h2>
+          <p class="muted">PDFs, images and paper will always be editable. The real problem is that a recipient has no simple, independent way to know what the issuer actually issued — or whether the visible document was altered.</p>
+        </div>
+        <div>
+          <h2 class="kicker">Credaryn makes that verification boring.</h2>
+          <p class="muted">One developer-facing layer orchestrates established standards, adds the missing browser-and-paper bridge, and returns one result a recipient can understand.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="section">
+    <div class="wrap">
+      <p class="section-label">Top features</p>
+      <h2 class="section-title">Everything needed for cross-medium document trust</h2>
+      <div class="grid grid-3">
+        <article class="feat"><div class="ico">🔐</div><h3>PAdES PDF signatures</h3><p>Baseline B-B through an isolated EU DSS 6.5 adapter, optional B-T with an RFC 3161 TSA. No DSS/Java types leak into your code.</p></article>
+        <article class="feat"><div class="ico">📄</div><h3>Bound business claims</h3><p>Money as integer minor units plus ISO currency, never floating point. High-value claims are bound into the signed representation.</p></article>
+        <article class="feat"><div class="ico">🧾</div><h3>Paper Seal Profile v1</h3><p><span class="mono">CRD1:</span> + Base45 + deterministic CBOR + COSE_Sign1 + ES256, QR error-correction M, fail-closed 1200-byte limit.</p></article>
+        <article class="feat"><div class="ico">✅</div><h3>One verification result</h3><p><span class="mono">VALID_TRUSTED</span>, <span class="mono">VALID_UNTRUSTED</span>, <span class="mono">INVALID</span>, <span class="mono">UNVERIFIABLE</span> — across PDF, CRD1 text and QR images.</p></article>
+        <article class="feat"><div class="ico">🏢</div><h3>Enterprise trust</h3><p>Configured public keys, X.509 anchors and <span class="mono">did:web</span>, with the real trust method reported. Fetched never means trusted.</p></article>
+        <article class="feat"><div class="ico">🔑</div><h3>KMS / HSM signers</h3><p>AWS KMS, Google Cloud KMS, Azure Key Vault / Managed HSM and PKCS#11 — all ES256, private keys never leave your provider.</p></article>
+        <article class="feat"><div class="ico">🖨️</div><h3>Browser printing</h3><p>Prepare a page with a signed QR seal before printing, and report <span class="mono">PAPER_CLAIMS_ONLY</span> — no false claims about OS print bytes.</p></article>
+        <article class="feat"><div class="ico">🧩</div><h3>Embeddable verifier</h3><p>A framework-neutral Web Component plus a self-hosted PWA and versioned REST API, one shared engine.</p></article>
+        <article class="feat"><div class="ico">📦</div><h3>Self-hostable</h3><p>Docker Compose reference deployment with optional PostgreSQL status/admin profiles and an air-gapped override. No Credaryn SaaS dependency.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section id="how" class="section">
+    <div class="wrap">
+      <p class="section-label">How it works</p>
+      <h2 class="section-title">Standards underneath. Simplicity on top.</h2>
+      <div class="pipeline">
+        <div class="step"><span class="n">01</span><h3>Describe</h3><p>A normalized <span class="mono">DocumentDescriptor</span>: issuer, document id, type, time and flat claims.</p></div>
+        <div class="step"><span class="n">02</span><h3>Sign</h3><p>The signer stays in your KMS/HSM. PDF → PAdES; claims → COSE_Sign1 with ES256.</p></div>
+        <div class="step"><span class="n">03</span><h3>Carry</h3><p>Place the signed paper seal, then apply the PAdES signature to the final artifact.</p></div>
+        <div class="step"><span class="n">04</span><h3>Verify</h3><p>Detect input, verify the signature, resolve trust separately, optionally check lifecycle.</p></div>
+      </div>
+      <div class="code-split">
+        <div class="code-card">
+          <div class="code-head"><span class="mono">issue.ts</span></div>
+          <pre><code><span class="c">// one call: seal the PDF and bind the claims</span>
+<span class="k">const</span> sealedPdf = <span class="k">await</span> credaryn.<span class="f">sealPdf</span>(pdfBytes, {
+  issuerId: <span class="s">"acme-retail"</span>,
+  documentId: <span class="s">"INV-2026-82919"</span>,
+  documentType: <span class="s">"invoice"</span>,
+  issuedAt: <span class="s">"2026-09-18T00:00:00Z"</span>,
+  claims: { invoiceNumber: <span class="s">"INV-2026-82919"</span>,
+            totalMinor: <span class="n">1180000</span>, currency: <span class="s">"INR"</span> },
+});</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-head"><span class="mono">verify</span></div>
+          <pre><code><span class="c"># CLI</span>
+pnpm credaryn verify sealed.pdf <span class="o">--trust</span> ./trust
+
+<span class="c"># REST (self-hosted, anonymous read-only)</span>
+curl -F file=@sealed.pdf \
+  http://localhost:8080/v1/verify/pdf</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VERIFY -->
+  <section id="verify" class="section">
+    <div class="wrap">
+      <p class="section-label">Verification result model</p>
+      <h2 class="section-title">Facts stay separate — never one word: “authentic”.</h2>
+      <div class="grid grid-4">
+        <article class="verdict v-ok"><h3>VALID_TRUSTED</h3><p>Checks pass and the issuer chains to a configured trusted identity.</p></article>
+        <article class="verdict v-warn"><h3>VALID_UNTRUSTED</h3><p>The signature is valid but the issuer is not trusted here. Never labelled authentic.</p></article>
+        <article class="verdict v-bad"><h3>INVALID</h3><p>A signature, an integrity check or a signed-claim binding failed.</p></article>
+        <article class="verdict v-mute"><h3>UNVERIFIABLE</h3><p>Required evidence is missing, unsupported or cannot be resolved.</p></article>
+      </div>
+      <p class="muted center">Lifecycle (<span class="mono">ACTIVE · REVOKED · CANCELLED · SUPERSEDED · EXPIRED · UNCHECKED</span>) and security mode (<span class="mono">DIGITAL_ARTIFACT_SIGNED</span> vs <span class="mono">PAPER_CLAIMS_ONLY</span>) are independent fields.</p>
+    </div>
+  </section>
+
+  <!-- STANDARDS -->
+  <section class="section standards">
+    <div class="wrap">
+      <p class="section-label">Built on established standards</p>
+      <div class="std-row">
+        <span>PAdES</span><span>ETSI</span><span>COSE</span><span>CBOR</span><span>Base45</span>
+        <span>X.509</span><span>W3C VC 2.0</span><span>ECDSA-SD-2023</span><span>Bitstring Status List</span><span>did:web</span><span>ISO 22376-informed</span>
+      </div>
+      <p class="muted center small">Open by design: interoperability over invention. Credaryn never claims ISO 22376 conformance before review, and never calls a PAdES result a qualified signature.</p>
+    </div>
+  </section>
+
+  <!-- DEPLOY -->
+  <section id="deploy" class="section">
+    <div class="wrap">
+      <p class="section-label">Deployment</p>
+      <h2 class="section-title">From a library to an air-gapped verifier</h2>
+      <div class="grid grid-3">
+        <article class="feat"><div class="ico">📚</div><h3>Library-only</h3><p>Embed the SDKs and manage your own trust and status. Fully offline-capable when trust material is local.</p><a class="link" href="https://github.com/ranjeet-h/credaryn/blob/master/docs/deployment/library-only.md">Deployment guide →</a></article>
+        <article class="feat"><div class="ico">🐳</div><h3>Self-hosted standard</h3><p>Docker Compose: verifier + DSS, optional PostgreSQL-backed status/admin profiles, secret-file configuration, digest-pinned images.</p><a class="link" href="https://github.com/ranjeet-h/credaryn/blob/master/docs/deployment/docker-compose.md">Compose guide →</a></article>
+        <article class="feat"><div class="ico">🛰️</div><h3>Air-gapped</h3><p>Local trust bundles, no outbound network, lifecycle clearly marked unavailable/stale. Core verification never needs a hosted service.</p><a class="link" href="https://github.com/ranjeet-h/credaryn/blob/master/docs/deployment/air-gapped.md">Air-gap guide →</a></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOCS -->
+  <section id="docs" class="section">
+    <div class="wrap">
+      <p class="section-label">Documentation</p>
+      <h2 class="section-title">Read, integrate, audit</h2>
+      <div class="doc-grid">
+        <a class="doc" href="https://github.com/ranjeet-h/credaryn#readme"><b>README</b><span>Overview, features and usage</span></a>
+        <a class="doc" href="https://github.com/ranjeet-h/credaryn/blob/master/docs/getting-started.md"><b>Getting started</b><span>Reproduce the invoice proof</span></a>
+        <a class="doc" href="https://github.com/ranjeet-h/credaryn/blob/master/docs/standards/paper-seal-v1.md"><b>Paper Seal Profile v1</b><span>Binary and transport spec</span></a>
+        <a class="doc" href="https://github.com/ranjeet-h/credaryn/blob/master/docs/architecture/verification-result.md"><b>Verification result</b><span>The normalized contract</span></a>
+        <a class="doc" href="https://github.com/ranjeet-h/credaryn/blob/master/docs/architecture/pades-conformance.md"><b>PAdES conformance</b><span>Signing order and validation</span></a>
+        <a class="doc" href="https://github.com/ranjeet-h/credaryn/blob/master/docs/trust/index.md"><b>Trust model</b><span>X.509, bundles and did:web</span></a>
+        <a class="doc" href="https://github.com/ranjeet-h/credaryn/blob/master/docs/key-management/index.md"><b>Key management</b><span>KMS, HSM and rotation</span></a>
+        <a class="doc" href="https://github.com/ranjeet-h/credaryn/blob/master/docs/threat-model/index.md"><b>Threat model</b><span>Assumptions and mitigations</span></a>
+        <a class="doc" href="https://github.com/ranjeet-h/credaryn/blob/master/openapi/v1.yaml"><b>OpenAPI</b><span>Versioned verifier API</span></a>
+        <a class="doc" href="https://github.com/ranjeet-h/credaryn/tree/master/docs/compatibility"><b>Compatibility</b><span>Matrix and inputs</span></a>
+        <a class="doc" href="https://github.com/ranjeet-h/credaryn/blob/master/docs/security/claims-vs-artifact.md"><b>Claims vs artifact</b><span>The security boundary</span></a>
+        <a class="doc" href="https://github.com/ranjeet-h/credaryn/tree/master/docs/adr"><b>Decision records</b><span>ADRs and trade-offs</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="glow glow-c" aria-hidden="true"></div>
+    <div class="wrap cta-inner">
+      <h2>Make authenticity boring.</h2>
+      <p>Install, run the demo, and issue your first verifiable document — digital and on paper — in minutes.</p>
+      <div class="hero-ctas center">
+        <a class="btn btn-primary btn-lg" href="https://github.com/ranjeet-h/credaryn">Star on GitHub</a>
+        <a class="btn btn-ghost btn-lg" href="https://github.com/ranjeet-h/credaryn/blob/master/docs/getting-started.md">Quickstart</a>
+        <a class="btn btn-ghost btn-lg" href="https://github.com/ranjeet-h/credaryn/blob/master/CONTRIBUTING.md">Contribute</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="rgba(255,255,255,.04)"/>
+        <path d="M16 6l8 3v7c0 5-3.4 8.2-8 10-4.6-1.8-8-5-8-10V9z" fill="none" stroke="#38e0c4" stroke-width="2"/>
+        <path d="M12 16l3 3 5-6" fill="none" stroke="#6d8cff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <b>Credaryn</b>
+        <p class="muted small">Trust infrastructure for verifiable documents.</p>
+      </div>
+    </div>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="https://github.com/ranjeet-h/credaryn">GitHub</a>
+      <a href="https://github.com/ranjeet-h/credaryn/blob/master/SECURITY.md">Security</a>
+      <a href="https://github.com/ranjeet-h/credaryn/blob/master/CONTRIBUTING.md">Contributing</a>
+      <a href="https://github.com/ranjeet-h/credaryn/blob/master/LICENSE">Apache-2.0</a>
+      <a href="https://github.com/ranjeet-h/credaryn/issues">Issues</a>
+    </nav>
+  </div>
+  <div class="wrap">
+    <p class="muted tiny legal">
+      Credaryn validates technical signatures. A PAdES signature, or any Credaryn result, is not by itself
+      legal proof of identity or intent; legal qualification depends on the certificate, trust service and
+      jurisdiction-specific policy. No warranty; see the Apache-2.0 licence.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

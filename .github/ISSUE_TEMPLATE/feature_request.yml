@@ -1,0 +1,54 @@
+name: Feature request
+description: Propose a capability, adapter, provider or interoperability path
+title: "[feature] "
+labels: ["enhancement", "needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Credaryn is scope-disciplined: proposals must fit the standards-first document trust model
+        (no custom cryptography, no blockchain, no mandatory hosted service for core verification).
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What cannot be done today, and for whom?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should change? Which package/surface?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - core / contracts
+        - node SDK
+        - PDF / PAdES
+        - paper seal
+        - verifier / CLI / REST
+        - provider (KMS/HSM)
+        - interoperability (W3C / TrustVC)
+        - deployment / self-hosting
+        - docs
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: standards
+    attributes:
+      label: Standards / interoperability impact
+      description: Which standard or existing implementation does this compose with?
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
