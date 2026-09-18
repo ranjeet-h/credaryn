@@ -20,6 +20,24 @@ CREDARYN_VERIFIER_PORT=8081 docker compose -f deploy/docker-compose.yml up -d
 curl -fsS http://localhost:8081/v1/health
 ```
 
+The default deployment intentionally has no trust material, so a valid
+signature is reported as `UNVERIFIABLE` rather than trusted. To manually test
+the browser with the development Paper Seal trust bundle, generate the local
+demo bundle first and start the opt-in override:
+
+```bash
+pnpm --filter @credaryn/paper demo:encode
+CREDARYN_VERIFIER_PORT=8081 \
+docker compose -f deploy/docker-compose.yml \
+  -f deploy/docker-compose.demo-trust.yml up -d
+```
+
+Use `artifacts/paper/invoice-11800.png` or its CRD1 text in the browser. The
+expected result is `VALID_TRUSTED`, `PAPER_CLAIMS_ONLY`, and populated signed
+claims. This bundle is development-only and does not match the DSS PDF key.
+For a trusted PDF test, provide an operator-managed bundle containing the DSS
+certificate's public key and set `CREDARYN_TRUST_BUNDLE` to that JSON file.
+
 When finished reviewing, stop the verifier and DSS containers so their ports
 are released:
 

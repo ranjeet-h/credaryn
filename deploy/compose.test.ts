@@ -3,8 +3,9 @@ import { describe, expect, it } from "vitest";
 
 describe("self-hosted deployment Compose", () => {
   it("builds DSS from its adapter directory so all Dockerfile inputs are available", async () => {
-    const [compose, dockerfile, dockerignore] = await Promise.all([
+    const [compose, demoTrustCompose, dockerfile, dockerignore] = await Promise.all([
       readFile(new URL("./docker-compose.yml", import.meta.url), "utf8"),
+      readFile(new URL("./docker-compose.demo-trust.yml", import.meta.url), "utf8"),
       readFile(new URL("../apps/verifier-web/Dockerfile", import.meta.url), "utf8"),
       readFile(new URL("../.dockerignore", import.meta.url), "utf8"),
     ]);
@@ -17,5 +18,8 @@ describe("self-hosted deployment Compose", () => {
     expect(dockerfile).toContain("chmod -R a+rX /app");
     expect(dockerfile).toContain("CMD [\"node\", \"node_modules/tsx/dist/cli.mjs\", \"apps/verifier-web/src/server.ts\"]");
     expect(dockerignore).toContain("deploy/secrets");
+    expect(dockerignore).toContain("deploy/trust");
+    expect(demoTrustCompose).toContain("CREDARYN_TRUST_STORE: /run/trust/trust-store.json");
+    expect(demoTrustCompose).toContain("CREDARYN_TRUST_BUNDLE");
   });
 });

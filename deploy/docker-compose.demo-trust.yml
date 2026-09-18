@@ -1,0 +1,6 @@
+services:
+  verifier:
+    environment:
+      CREDARYN_TRUST_STORE: /run/trust/trust-store.json
+    volumes:
+      - ${CREDARYN_TRUST_BUNDLE:-../providers/local/demo-trust-store.json}:/run/trust/trust-store.json:ro

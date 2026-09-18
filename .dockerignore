@@ -6,6 +6,7 @@ coverage
 dist
 test-vectors
 deploy/secrets
+deploy/trust
 *.pem
 *.key
 *.p12

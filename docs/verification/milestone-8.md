@@ -17,6 +17,7 @@ No Playwright, browser automation, or automated UI runner was used.
 | `docker compose --profile status -f deploy/docker-compose.yml config` | PASS |
 | Compose build/start on alternate host port 8081 | PASS; DSS and verifier healthy, verifier ran as non-root with read-only root, local secret excluded from image, teardown released port |
 | Compose `status` profile startup on alternate host port 8081 | PASS; PostgreSQL, DSS, and verifier healthy; teardown released port |
+| Demo-trust Compose override API check | PASS; Paper Seal returned `VALID_TRUSTED`; the DSS PDF remained `VALID_UNTRUSTED` because the demo bundle intentionally contains only the Paper Seal key |
 | `pnpm deploy:smoke` against a local verifier server | PASS; `/v1/health` and `/v1/version` |
 | `pnpm docs:check` | PASS |
 | `pnpm bundle:inspect` | PASS |
@@ -62,7 +63,7 @@ Record observations here:
 ```text
 Manual status: PENDING
 Browser/OS: pending
-Screenshot or owner visual notes: pending
+Screenshot or owner visual notes: owner observed Paper Seal PNG with VALID cryptography, populated signed claims, PAPER_CLAIMS_ONLY, and MISSING trust in the default deployment; CLI with explicit demo trust returned VALID_TRUSTED
 Compose startup/health: automated PASS on host port 8081; owner review pending
 Offline verification: pending
 Air-gapped status freshness: pending
