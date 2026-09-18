@@ -1,13 +1,13 @@
 ARG DSS_VERSION=6.5
 
-FROM maven:3.9.11-eclipse-temurin-17 AS build
+FROM maven:3.9.11-eclipse-temurin-17@sha256:e4a7ace3dc0d645ed97f8d9ad0b0d3f0b14fa8d150138f27f116d7105a639b82 AS build
 ARG DSS_VERSION
 WORKDIR /build
 COPY pom.xml .
 COPY src ./src
 RUN mvn -q -DskipTests -Ddss.version=${DSS_VERSION} package
 
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:17-jdk@sha256:bc033b57e11b773c3043babfd664e7a5ef110805548b921cbfc3e8c67a0725d6
 ARG DSS_VERSION
 ENV DSS_VERSION=${DSS_VERSION}
 RUN apt-get update \

@@ -1,6 +1,7 @@
 import { createSign, generateKeyPairSync } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import type { DocumentDescriptor, SignerKeyInfo, SignerProvider } from "@credaryn/core";
+import { decodePaperSeal } from "@credaryn/paper";
 import type { PdfSignatureEngine } from "../src/engine.js";
 import { createPdfPipeline } from "../src/pipeline.js";
 
@@ -58,5 +59,28 @@ describe("controlled PDF pipeline", () => {
     expect(result.unsignedPdf).toEqual(new Uint8Array([1, 2]));
     expect(result.signedPdf).toEqual(new Uint8Array([1, 2, 3]));
     expect(result.artifactDigest).toMatch(/^sha256:[0-9a-f]{64}$/);
+    // No caller-supplied link: the circular self-digest is never fabricated.
+    expect(decodePaperSeal(result.paperSeal.transport).profile.artifactDigest).toBeUndefined();
+  });
+
+  it("embeds a caller-supplied linked artifact digest in the Paper Seal payload", async () => {
+    const linkedArtifactDigest = `sha256:${"b".repeat(64)}`;
+    const pdfEngine: PdfSignatureEngine = {
+      sign: async (input) => input,
+      verify: async () => ({ cryptographicValidity: "UNVERIFIABLE", artifactIntegrity: "UNKNOWN" }),
+    };
+    const pipeline = createPdfPipeline({
+      paperSigner: signer,
+      pdfEngine,
+      linkedArtifactDigest,
+      renderInvoice: async () => new Uint8Array([1]),
+      placePaperSeal: async (input) => input,
+    });
+
+    const result = await pipeline.seal(descriptor);
+
+    // The caller's reference digest must land in the signed payload before placement.
+    expect(decodePaperSeal(result.paperSeal.transport).profile.artifactDigest).toBe(linkedArtifactDigest);
+    expect(decodePaperSeal(result.paperSeal.transport).payload).toEqual(result.paperSeal.payload);
   });
 });

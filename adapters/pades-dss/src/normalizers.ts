@@ -1,9 +1,14 @@
 import type { PdfVerificationResult } from "@credaryn/pdf";
 
-export function normalizeSignedPdfResponse(value: unknown): Uint8Array {
+export function normalizeSignedPdfResponse(
+  value: unknown,
+  expectedLevel: "B-B" | "B-T" = "B-B",
+): Uint8Array {
   const response = asRecord(value, "DSS signing response");
   if (response.status !== "signed") throw new Error("DSS signing response status must be signed");
-  if (response.signatureLevel !== "B-B") throw new Error("DSS signing response must use PAdES Baseline B-B");
+  if (response.signatureLevel !== expectedLevel) {
+    throw new Error(`DSS signing response must use PAdES Baseline ${expectedLevel}`);
+  }
   if (response.qualifiedSignature !== false) {
     throw new Error("DSS PAdES response cannot claim qualified electronic-signature status");
   }
@@ -24,11 +29,12 @@ export function normalizePdfVerificationResponse(value: unknown): PdfVerificatio
   if (!isArtifactIntegrity(response.artifactIntegrity)) {
     throw new Error("DSS verification response has an invalid artifact integrity");
   }
-  const unknownLevelInvalid = response.signatureLevel !== "B-B"
+  const knownLevel = response.signatureLevel === "B-B" || response.signatureLevel === "B-T";
+  const unknownLevelInvalid = !knownLevel
     && response.cryptographicValidity === "INVALID"
     && response.artifactIntegrity === "INVALID";
-  if (response.signatureLevel !== "B-B" && !unknownLevelInvalid) {
-    throw new Error("DSS verification response must identify PAdES Baseline B-B");
+  if (!knownLevel && !unknownLevelInvalid) {
+    throw new Error("DSS verification response must identify PAdES Baseline B-B or B-T");
   }
   const result: PdfVerificationResult = {
     cryptographicValidity: response.cryptographicValidity,

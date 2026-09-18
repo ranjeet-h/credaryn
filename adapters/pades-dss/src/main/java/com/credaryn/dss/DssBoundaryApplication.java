@@ -3,6 +3,7 @@ package com.credaryn.dss;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import eu.europa.esig.dss.diagnostic.CertificateWrapper;
 import eu.europa.esig.dss.diagnostic.DiagnosticData;
 import eu.europa.esig.dss.diagnostic.SignatureWrapper;
 import eu.europa.esig.dss.enumerations.DigestAlgorithm;
@@ -14,6 +15,7 @@ import eu.europa.esig.dss.model.SignatureValue;
 import eu.europa.esig.dss.model.ToBeSigned;
 import eu.europa.esig.dss.pades.PAdESSignatureParameters;
 import eu.europa.esig.dss.pades.signature.PAdESService;
+import eu.europa.esig.dss.service.tsp.OnlineTSPSource;
 import eu.europa.esig.dss.spi.DSSUtils;
 import eu.europa.esig.dss.spi.validation.CommonCertificateVerifier;
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry;
@@ -32,6 +34,7 @@ import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 public final class DssBoundaryApplication {
@@ -63,6 +66,7 @@ public final class DssBoundaryApplication {
                 .put("engine", "DSS")
                 .put("version", DSS_VERSION)
                 .put("padesClassLoaded", engine.isDssLoaded())
+                .put("supportsTimestamping", engine.supportsTimestamping())
                 .put("keyLoaded", true));
     }
 
@@ -94,14 +98,18 @@ public final class DssBoundaryApplication {
             requireText(request, "operation", "sign");
             byte[] pdf = decodeBase64(request, "pdfBase64");
             JsonNode signatureRequest = request.required("signatureRequest");
-            requireText(signatureRequest, "level", "B-B");
+            // Validate the requested level against this boundary's capability and fail
+            // closed: an unconfigured boundary must never silently downgrade B-T to B-B.
+            String level = text(signatureRequest, "level");
+            if (!"B-B".equals(level) && !"B-T".equals(level)) throw new BadRequest("level_invalid");
+            if ("B-T".equals(level) && !engine.supportsTimestamping()) throw new BadRequest("timestamping_not_configured");
             String artifactDigest = text(signatureRequest, "artifactDigest");
             if (!artifactDigest.matches("sha256:[0-9a-f]{64}")) throw new BadRequest("artifact_digest_required");
             JsonNode signer = request.required("signer");
             engine.assertSigner(signer);
             if (!artifactDigest.equals(sha256(pdf))) throw new BadRequest("artifact_digest_mismatch");
 
-            byte[] signed = engine.sign(pdf);
+            byte[] signed = engine.sign(pdf, level);
             ObjectNode response = JSON.createObjectNode()
                     .put("status", "signed")
                     .put("signedPdfBase64", Base64.getEncoder().encodeToString(signed))
@@ -109,7 +117,7 @@ public final class DssBoundaryApplication {
                     .put("artifactIntegrity", "VALID")
                     .put("issuerId", engine.issuerId())
                     .put("keyId", engine.keyId())
-                    .put("signatureLevel", "B-B")
+                    .put("signatureLevel", level)
                     .put("qualifiedSignature", false);
             respond(exchange, 200, response);
         } catch (BadRequest error) {
@@ -132,10 +140,13 @@ public final class DssBoundaryApplication {
             ObjectNode response = JSON.createObjectNode()
                     .put("cryptographicValidity", result.cryptographicValidity)
                     .put("artifactIntegrity", result.artifactIntegrity)
-                    .put("issuerId", engine.issuerId())
-                    .put("keyId", engine.keyId())
                     .put("signatureLevel", result.signatureLevel)
                     .put("qualifiedSignature", false);
+            // Identity is derived from the artifact's signing certificate, never from the
+            // container configuration. Omit the fields when the certificate cannot be read
+            // so a caller cannot mistake a missing identity for a trusted one.
+            if (result.issuerId != null) response.put("issuerId", result.issuerId);
+            if (result.keyId != null) response.put("keyId", result.keyId);
             respond(exchange, 200, response);
         } catch (BadRequest error) {
             respond(exchange, 400, error(error.code));
@@ -212,7 +223,12 @@ public final class DssBoundaryApplication {
         }
     }
 
-    private record ValidationResult(String cryptographicValidity, String artifactIntegrity, String signatureLevel) {
+    private record ValidationResult(
+            String cryptographicValidity,
+            String artifactIntegrity,
+            String signatureLevel,
+            String issuerId,
+            String keyId) {
     }
 
     private static final class BadRequest extends IOException {
@@ -226,6 +242,7 @@ public final class DssBoundaryApplication {
 
     private static final class DssEngine {
         private final boolean dssLoaded;
+        private final boolean timestampingEnabled;
         private final String issuerId = System.getenv().getOrDefault("DSS_ISSUER_ID", "acme-retail");
         private final String keyId = System.getenv().getOrDefault("DSS_KEY_ID", "dss-demo-key");
         private final Pkcs12SignatureToken token;
@@ -235,6 +252,8 @@ public final class DssBoundaryApplication {
         private DssEngine() {
             try {
                 dssLoaded = Class.forName("eu.europa.esig.dss.pades.signature.PAdESService") != null;
+                String tsaUrl = System.getenv().getOrDefault("DSS_TSA_URL", "").trim();
+                timestampingEnabled = !tsaUrl.isEmpty();
                 String path = System.getenv().getOrDefault("DSS_KEYSTORE_PATH", "/tmp/credaryn-demo.p12");
                 String password = System.getenv().getOrDefault("DSS_KEYSTORE_PASSWORD", "changeit");
                 String alias = System.getenv().getOrDefault("DSS_KEY_ALIAS", "credaryn-demo");
@@ -242,6 +261,9 @@ public final class DssBoundaryApplication {
                 key = token.getKey(alias);
                 if (key == null) throw new IllegalStateException("DSS signing key alias not found");
                 service = new PAdESService(new CommonCertificateVerifier());
+                // B-T only: the TSA source is consulted by DSS while producing a
+                // PAdES_BASELINE_T signature. It is never used for B-B.
+                if (timestampingEnabled) service.setTspSource(new OnlineTSPSource(tsaUrl));
             } catch (Exception error) {
                 throw new IllegalStateException("Unable to load DSS signing configuration", error);
             }
@@ -249,6 +271,10 @@ public final class DssBoundaryApplication {
 
         private boolean isDssLoaded() {
             return dssLoaded;
+        }
+
+        private boolean supportsTimestamping() {
+            return timestampingEnabled;
         }
 
         private String issuerId() {
@@ -265,12 +291,14 @@ public final class DssBoundaryApplication {
             }
         }
 
-        private synchronized byte[] sign(byte[] pdf) throws Exception {
+        private synchronized byte[] sign(byte[] pdf, String level) throws Exception {
             DSSDocument document = new InMemoryDocument(pdf, "invoice.pdf");
             PAdESSignatureParameters parameters = new PAdESSignatureParameters();
             parameters.setSigningCertificate(key.getCertificate());
             parameters.setCertificateChain(key.getCertificateChain());
-            parameters.setSignatureLevel(SignatureLevel.PAdES_BASELINE_B);
+            parameters.setSignatureLevel("B-T".equals(level)
+                    ? SignatureLevel.PAdES_BASELINE_T
+                    : SignatureLevel.PAdES_BASELINE_B);
             parameters.setDigestAlgorithm(DigestAlgorithm.SHA256);
             parameters.setSignerName(keyId);
             SignatureAlgorithm algorithm = SignatureAlgorithm.getAlgorithm(key.getEncryptionAlgorithm(), DigestAlgorithm.SHA256);
@@ -285,12 +313,60 @@ public final class DssBoundaryApplication {
             validator.setCertificateVerifier(new CommonCertificateVerifier());
             Reports reports = validator.validateDocument();
             DiagnosticData diagnostic = reports.getDiagnosticData();
-            if (diagnostic.getSignatureIdList().isEmpty()) return new ValidationResult("INVALID", "INVALID", "UNKNOWN");
-            SignatureWrapper signature = diagnostic.getSignatureById(diagnostic.getFirstSignatureId());
-            boolean intact = signature.isSignatureIntact();
-            boolean valid = signature.isSignatureValid();
-            String signatureLevel = SignatureLevel.PAdES_BASELINE_B.equals(signature.getSignatureFormat()) ? "B-B" : "UNKNOWN";
-            return new ValidationResult(valid ? "VALID" : "INVALID", intact ? "VALID" : "INVALID", signatureLevel);
+            List<SignatureWrapper> signatures = diagnostic.getSignatures();
+            if (signatures.isEmpty()) return new ValidationResult("INVALID", "INVALID", "UNKNOWN", null, null);
+
+            // Evaluate every signature: a single invalid or broken signature must invalidate
+            // the artifact as a whole rather than being hidden behind the first signature.
+            boolean allValid = true;
+            boolean allIntact = true;
+            for (SignatureWrapper signature : signatures) {
+                allValid = allValid && signature.isSignatureValid();
+                allIntact = allIntact && signature.isSignatureIntact();
+            }
+
+            // Identity always comes from the artifact. Keep the first signature's level so a
+            // multi-signature PDF is still reported with a stable PAdES profile.
+            SignatureWrapper primary = signatures.get(0);
+            SignatureLevel primaryFormat = primary.getSignatureFormat();
+            String signatureLevel = SignatureLevel.PAdES_BASELINE_B.equals(primaryFormat) ? "B-B"
+                    : SignatureLevel.PAdES_BASELINE_T.equals(primaryFormat) ? "B-T"
+                    : "UNKNOWN";
+            CertificateWrapper certificate = primary.getSigningCertificate();
+            String issuerId = null;
+            String keyId = null;
+            if (certificate != null) {
+                issuerId = firstNonBlank(certificate.getCommonName(), certificate.getOrganizationalUnit(), certificate.getOrganizationName());
+                keyId = certificateFingerprint(certificate);
+            }
+            return new ValidationResult(
+                    allValid ? "VALID" : "INVALID",
+                    allIntact ? "VALID" : "INVALID",
+                    signatureLevel,
+                    issuerId,
+                    keyId);
         }
+    }
+
+    private static String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) return value;
+        }
+        return null;
+    }
+
+    private static String certificateFingerprint(CertificateWrapper certificate) throws Exception {
+        // DSS retains the certificate digest in the diagnostic model even when the DER
+        // bytes are not materialized (getBinaries() may be null); prefer it, then fall
+        // back to hashing the encoded certificate when DSS does expose it.
+        var algoAndValue = certificate.getDigestAlgoAndValue();
+        if (algoAndValue != null && algoAndValue.getDigestMethod() != null && algoAndValue.getDigestValue() != null) {
+            return algoAndValue.getDigestMethod().getName().toLowerCase() + ":" + HexFormat.of().formatHex(algoAndValue.getDigestValue());
+        }
+        byte[] binaries = certificate.getBinaries();
+        if (binaries != null) {
+            return "sha256:" + HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(binaries));
+        }
+        return null;
     }
 }

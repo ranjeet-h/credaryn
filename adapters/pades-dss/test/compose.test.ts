@@ -12,5 +12,11 @@ describe("DSS 6.5 container boundary", () => {
     expect(compose).toContain("/health");
     expect(compose).toContain("curl -fsS");
     expect(application).toContain("/v1/probe");
+    // B-T is opt-in: the TSA URL is passed through, read from the environment,
+    // and only then is PAdES Baseline T selectable.
+    expect(compose).toContain("DSS_TSA_URL");
+    expect(application).toContain("DSS_TSA_URL");
+    expect(application).toContain("PAdES_BASELINE_T");
+    expect(application).toContain("timestamping_not_configured");
   });
 });

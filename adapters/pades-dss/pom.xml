@@ -30,6 +30,12 @@
       <artifactId>dss-token</artifactId>
       <version>${dss.version}</version>
     </dependency>
+    <!-- OnlineTSPSource: used only when DSS_TSA_URL configures RFC 3161 B-T. -->
+    <dependency>
+      <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+      <artifactId>dss-service</artifactId>
+      <version>${dss.version}</version>
+    </dependency>
     <dependency>
       <groupId>eu.europa.ec.joinup.sd-dss</groupId>
       <artifactId>dss-validation</artifactId>

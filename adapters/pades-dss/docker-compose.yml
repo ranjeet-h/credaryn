@@ -10,6 +10,9 @@ services:
       DSS_KEY_ID: "dss-demo-key"
       DSS_KEY_ALIAS: "credaryn-demo"
       DSS_KEYSTORE_PASSWORD: "changeit"
+      # Optional RFC 3161 TSA. Empty (the default) keeps the boundary at B-B;
+      # set it to advertise B-T capability on /health and accept level "B-T".
+      DSS_TSA_URL: "${DSS_TSA_URL:-}"
     ports:
       - "8080:8080"
     read_only: true

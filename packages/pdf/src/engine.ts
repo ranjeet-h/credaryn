@@ -21,6 +21,11 @@ export interface PdfVerificationResult {
 }
 
 export interface PdfSignatureEngine {
+  /**
+   * Whether this engine can produce RFC 3161 timestamped (B-T) signatures.
+   * Absent means the engine makes no claim, so callers must not select B-T.
+   */
+  readonly supportsTimestamping?: boolean;
   sign(input: Uint8Array, request: PdfSigningRequest): Promise<Uint8Array>;
   verify(input: Uint8Array, request: PdfVerificationRequest): Promise<PdfVerificationResult>;
 }

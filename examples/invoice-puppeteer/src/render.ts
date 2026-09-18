@@ -4,6 +4,13 @@ import puppeteer from "puppeteer";
 
 const DEFAULT_QR_PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Crect width='100%25' height='100%25' fill='white'/%3E%3C/svg%3E";
 
+/**
+ * Stable evidence marker emitted by the controlled renderer itself. The Paper Seal
+ * placement step refuses to sign a PDF that lacks it, so placement cannot silently
+ * regress into a no-op.
+ */
+export const PAPER_SEAL_EVIDENCE_MARKER = "Credaryn Paper Seal QR Code";
+
 export function renderInvoiceHtml(
   descriptor: DocumentDescriptor,
   paperSealTransport: string,
@@ -73,7 +80,7 @@ export function renderInvoiceHtml(
       </table>
       <section class="summary"><dl class="total"><dt>Status</dt><dd>${escapeHtml(paid)}</dd><dt class="grand">Total</dt><dd class="grand" data-visible-total="${escapeHtml(displayTotal)}">${escapeHtml(displayTotal)}</dd></dl></section>
       <section class="seal" data-credaryn-paper-seal="CRD1:" data-credaryn-paper-seal-transport="${escapeHtml(paperSealTransport)}">
-        <img src="${escapeHtml(paperSealQrDataUrl)}" alt="Credaryn Paper Seal QR Code">
+        <img src="${escapeHtml(paperSealQrDataUrl)}" alt="${escapeHtml(PAPER_SEAL_EVIDENCE_MARKER)}">
         <div><h2>Verify this invoice independently</h2><p>Scan the Paper Seal to verify the signed invoice number and total without the source PDF.</p><code>${escapeHtml(paperSealTransport)}</code></div>
       </section>
       <p class="footer">Paper claims and digital artifact integrity are separate verification signals.</p>

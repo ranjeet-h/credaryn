@@ -1,6 +1,6 @@
-import { createHash, createSign, generateKeyPairSync } from "node:crypto";
+import { createSign, generateKeyPairSync } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import type { DocumentDescriptor, SignerProvider } from "@credaryn/core";
+import type { DocumentDescriptor, SignerProvider, TrustStore } from "@credaryn/core";
 import type { PdfSignatureEngine } from "../../src/engine.js";
 import { createPdfPipeline } from "../../src/pipeline.js";
 import { isArtifactIntegrityValid } from "../../src/verify.js";
@@ -28,16 +28,19 @@ const signer: SignerProvider = {
   },
 };
 
+const trustStore: TrustStore = { resolve: async () => undefined };
+
 describe("PAdES artifact mutation boundary", () => {
-  it("rejects a changed post-signing PDF byte", async () => {
-    let signedDigest = "";
+  it("rejects a changed post-signing PDF byte in the signed artifact", async () => {
+    let signedArtifact: Uint8Array | undefined;
     const engine: PdfSignatureEngine = {
-      sign: async (input, request) => {
-        signedDigest = request.artifactDigest;
-        return new Uint8Array([...input, 0x53]);
+      sign: async (input) => {
+        signedArtifact = new Uint8Array([...input, 0x53]);
+        return signedArtifact;
       },
       verify: async (input) => {
-        const valid = digest(input) === signedDigest;
+        const valid = signedArtifact !== undefined
+          && Buffer.compare(Buffer.from(input), Buffer.from(signedArtifact)) === 0;
         return { cryptographicValidity: valid ? "VALID" : "INVALID", artifactIntegrity: valid ? "VALID" : "INVALID" };
       },
     };
@@ -48,13 +51,13 @@ describe("PAdES artifact mutation boundary", () => {
       placePaperSeal: async (input) => input,
     }).seal(descriptor);
 
-    const mutated = new Uint8Array(result.unsignedPdf);
+    expect(result.signedPdf).not.toEqual(result.unsignedPdf);
+    const mutated = new Uint8Array(result.signedPdf);
     mutated[mutated.length - 1] = mutated[mutated.length - 1]! ^ 0x01;
-    await expect(engine.verify(result.unsignedPdf, { trustStore: { resolve: async () => undefined } })).resolves.toSatisfy(isArtifactIntegrityValid);
-    await expect(engine.verify(mutated, { trustStore: { resolve: async () => undefined } })).resolves.not.toSatisfy(isArtifactIntegrityValid);
+
+    await expect(engine.verify(result.signedPdf, { trustStore })).resolves.toSatisfy(isArtifactIntegrityValid);
+    // The unsigned pre-signing artifact is not what a verifier receives and must not validate.
+    await expect(engine.verify(result.unsignedPdf, { trustStore })).resolves.not.toSatisfy(isArtifactIntegrityValid);
+    await expect(engine.verify(mutated, { trustStore })).resolves.not.toSatisfy(isArtifactIntegrityValid);
   });
 });
-
-function digest(input: Uint8Array): string {
-  return `sha256:${createHash("sha256").update(input).digest("hex")}`;
-}

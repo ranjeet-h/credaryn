@@ -1,6 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { SignerKeyInfo, SignerProvider, TrustStore } from "@credaryn/core";
 import { DssPdfSignatureEngine } from "../src/dss-engine.js";
+
+// Tests assert capability defaults without depending on the developer's ambient
+// environment; `DSS_TSA_URL` is explicitly stubbed and always restored.
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 const keyInfo: SignerKeyInfo = {
   issuerId: "acme-retail",
@@ -58,14 +64,16 @@ describe("DSS PDF engine boundary", () => {
     });
   });
 
-  it("normalizes DSS validation and never marks PAdES as qualified by default", async () => {
+  it("normalizes DSS validation and reports the artifact-derived identity, never qualified", async () => {
+    const artifactIssuerId = "Credaryn Demo Issuer";
+    const artifactKeyId = `sha256:${"a".repeat(64)}`;
     const engine = new DssPdfSignatureEngine({
       endpoint: "http://127.0.0.1:8080/",
       fetchImpl: async () => response({
         cryptographicValidity: "VALID",
         artifactIntegrity: "INVALID",
-        issuerId: "acme-retail",
-        keyId: "dss-test-key",
+        issuerId: artifactIssuerId,
+        keyId: artifactKeyId,
         signatureLevel: "B-B",
         qualifiedSignature: false,
       }),
@@ -75,9 +83,82 @@ describe("DSS PDF engine boundary", () => {
     await expect(engine.verify(new Uint8Array([9]), { trustStore })).resolves.toEqual({
       cryptographicValidity: "VALID",
       artifactIntegrity: "INVALID",
-      issuerId: "acme-retail",
-      keyId: "dss-test-key",
+      issuerId: artifactIssuerId,
+      keyId: artifactKeyId,
     });
+  });
+
+  it("declares B-T capability only when a TSA URL is configured", () => {
+    vi.stubEnv("DSS_TSA_URL", "");
+    const withoutTsa = new DssPdfSignatureEngine({ endpoint: "http://127.0.0.1:8080" });
+    const withOption = new DssPdfSignatureEngine({
+      endpoint: "http://127.0.0.1:8080",
+      timestampAuthorityUrl: "http://127.0.0.1:3181/tsa",
+    });
+    vi.stubEnv("DSS_TSA_URL", "http://127.0.0.1:3181/tsa");
+    const withEnv = new DssPdfSignatureEngine({ endpoint: "http://127.0.0.1:8080" });
+
+    expect(withoutTsa.supportsTimestamping).toBe(false);
+    expect(withOption.supportsTimestamping).toBe(true);
+    expect(withEnv.supportsTimestamping).toBe(true);
+  });
+
+  it("rejects a TSA URL that is not HTTP(S)", () => {
+    expect(() => new DssPdfSignatureEngine({
+      endpoint: "http://127.0.0.1:8080",
+      timestampAuthorityUrl: "ldap://tsa.example.test",
+    })).toThrow(/TSA URL/);
+  });
+
+  it("accepts B-T at the boundary when a TSA URL is configured", async () => {
+    const requests: Array<Record<string, unknown>> = [];
+    const engine = new DssPdfSignatureEngine({
+      endpoint: "http://127.0.0.1:8080",
+      timestampAuthorityUrl: "http://127.0.0.1:3181/tsa",
+      fetchImpl: async (_url, init) => {
+        requests.push(JSON.parse(String(init?.body)) as Record<string, unknown>);
+        return response({
+          status: "signed",
+          signedPdfBase64: Buffer.from([7, 8, 9]).toString("base64"),
+          cryptographicValidity: "VALID",
+          artifactIntegrity: "VALID",
+          issuerId: keyInfo.issuerId,
+          keyId: keyInfo.keyId,
+          signatureLevel: "B-T",
+          qualifiedSignature: false,
+        });
+      },
+    });
+
+    const signed = await engine.sign(new Uint8Array([1, 2, 3]), {
+      signer,
+      level: "B-T",
+      artifactDigest: "sha256:fixture",
+    });
+
+    expect(signed).toEqual(new Uint8Array([7, 8, 9]));
+    expect(requests[0]).toMatchObject({ signatureRequest: { level: "B-T" } });
+  });
+
+  it("rejects a signed response whose PAdES level does not match the request", async () => {
+    const engine = new DssPdfSignatureEngine({
+      endpoint: "http://127.0.0.1:8080",
+      timestampAuthorityUrl: "http://127.0.0.1:3181/tsa",
+      fetchImpl: async () => response({
+        status: "signed",
+        signedPdfBase64: Buffer.from([4]).toString("base64"),
+        cryptographicValidity: "VALID",
+        artifactIntegrity: "VALID",
+        signatureLevel: "B-B",
+        qualifiedSignature: false,
+      }),
+    });
+
+    await expect(engine.sign(new Uint8Array([1]), {
+      signer,
+      level: "B-T",
+      artifactDigest: "sha256:fixture",
+    })).rejects.toThrow(/PAdES Baseline B-T/);
   });
 
   it("normalizes an unsigned or unknown-level artifact as invalid", async () => {
@@ -110,7 +191,8 @@ describe("DSS PDF engine boundary", () => {
     })).rejects.toThrow("DSS sidecar returned HTTP 400: {\"error\":\"signer_identity_mismatch\"}");
   });
 
-  it("rejects a qualified-signature claim and any unsupported PAdES level", async () => {
+  it("rejects a qualified-signature claim and B-T without a configured TSA", async () => {
+    vi.stubEnv("DSS_TSA_URL", "");
     const qualifiedResponse = new DssPdfSignatureEngine({
       endpoint: "http://127.0.0.1:8080",
       fetchImpl: async () => response({

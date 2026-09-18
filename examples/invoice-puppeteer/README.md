@@ -33,3 +33,7 @@ ignored by Git). The committed vectors are under `test-vectors/pdf/`.
 
 The demo signing key is ephemeral and must not be used for production. PAdES
 Baseline B-B is not a claim of qualified electronic-signature status.
+
+`test/pades-bt.integration.test.ts` covers the opt-in PAdES Baseline B-T path.
+It is skipped unless the DSS sidecar is running *with* `DSS_TSA_URL` set and the
+TSA at that URL is reachable from the test host; it never fakes a timestamp.

@@ -7,7 +7,7 @@ import { createPdfPipeline, isArtifactIntegrityValid, type SealedPdfPipelineResu
 import { LocalSigner } from "@credaryn/provider-local";
 import { DemoTrustStore } from "@credaryn/provider-local/demo-trust-store";
 import { DssPdfSignatureEngine } from "@credaryn/adapter-pades-dss";
-import { renderInvoicePdf } from "./render.js";
+import { PAPER_SEAL_EVIDENCE_MARKER, renderInvoicePdf } from "./render.js";
 
 const fixtureUrl = new URL("./fixtures/invoice-11800.json", import.meta.url);
 const vectorDirectoryUrl = new URL("../../../test-vectors/pdf/", import.meta.url);
@@ -59,16 +59,31 @@ export async function createInvoiceArtifacts(endpoint = process.env.DSS_URL ?? "
   return { ...result, paperVerification, pdfVerification };
 }
 
+export const PAPER_SEAL_TRANSPORT_PREFIX = "%Credaryn-Paper-Seal: ";
+
 export function placePaperSealBeforeSigning(pdfBytes: Uint8Array, transport: string): Uint8Array {
   if (!(pdfBytes instanceof Uint8Array) || pdfBytes.byteLength === 0) throw new Error("Rendered invoice PDF must contain bytes");
   if (!transport.startsWith("CRD1:")) throw new Error("Paper Seal transport must start with CRD1:");
+  if (/[\r\n\0]/.test(transport)) throw new Error("Paper Seal transport must not contain control characters");
   if (pdfBytes[0] !== 0x25 || pdfBytes[1] !== 0x50 || pdfBytes[2] !== 0x44 || pdfBytes[3] !== 0x46) {
     throw new Error("Rendered invoice must be a PDF before paper-seal placement");
   }
-  // The controlled renderer materializes the QR and human-readable seal in the
-  // HTML before producing these bytes. This boundary makes that ordering
-  // explicit and prevents the signer from receiving the pre-seal render.
-  return new Uint8Array(pdfBytes);
+
+  const source = Buffer.from(pdfBytes);
+  // The controlled renderer materializes the QR and human-readable seal in the HTML
+  // before producing these bytes. Refuse to sign an unsealed render: if the seal step
+  // were skipped, the marker would be absent and this would fail closed.
+  if (source.indexOf(PAPER_SEAL_EVIDENCE_MARKER) < 0) {
+    throw new Error("Rendered invoice PDF is missing the Paper Seal; refusing to sign an unsealed document");
+  }
+  const eofIndex = source.lastIndexOf(Buffer.from("%%EOF", "utf8"));
+  if (eofIndex < 0) throw new Error("Rendered invoice PDF is missing its %%EOF marker");
+
+  // Real placement: embed the machine-readable transport in the bytes that will be
+  // signed. A PDF comment line is valid syntax and keeps the whole document signed.
+  const sealLine = Buffer.from(`\n${PAPER_SEAL_TRANSPORT_PREFIX}${transport}\n`, "utf8");
+  const placed = Buffer.concat([source.subarray(0, eofIndex), sealLine, source.subarray(eofIndex)]);
+  return new Uint8Array(placed);
 }
 
 export function mutatePdfBytes(pdfBytes: Uint8Array): Uint8Array {
