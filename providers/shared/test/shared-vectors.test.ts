@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
-import type { DocumentDescriptor } from "@credaryn/core";
+import type { DocumentDescriptor, ManagedSignerProvider } from "@credaryn/core";
 import { encodePaperSeal } from "@credaryn/paper";
 import { AwsKmsSigner, type AwsKmsClient } from "../../aws-kms/src/aws-kms-signer.js";
 import { derToCoseSignature } from "../../aws-kms/src/der-to-cose.js";
@@ -9,6 +9,7 @@ import { GcpKmsSigner, type GcpKmsClient } from "../../gcp-kms/src/gcp-kms-signe
 import { Pkcs11Signer, type Pkcs11Client } from "../../pkcs11/src/pkcs11-signer.js";
 
 interface Es256Vector {
+  name: string;
   derHex: string;
   coseSignatureHex: string;
 }
@@ -24,15 +25,45 @@ const descriptor: DocumentDescriptor = {
 describe("shared ES256 provider vectors", () => {
   it("matches the DER-to-COSE known-answer vector", async () => {
     const vector = await readVector();
-    expect(Buffer.from(derToCoseSignature(Buffer.from(vector.derHex, "hex"))).toString("hex")).toBe(vector.coseSignatureHex);
+    expect(Buffer.from(derToCoseSignature(derBytes(vector))).toString("hex")).toBe(vector.coseSignatureHex);
+  });
+
+  it("AWS KMS converts a DER client signature to fixed-width COSE r||s at the boundary", async () => {
+    const vector = await readVector();
+    const signer = new AwsKmsSigner({ client: awsClient(derBytes(vector)) });
+
+    const signature = await signer.sign(new Uint8Array([1, 2, 3]));
+
+    // The injected AWS client returns DER; the adapter must hand callers the
+    // fixed-width 64-byte ES256 r||s form, not the raw DER.
+    expect(signature).toHaveLength(64);
+    expect(Buffer.from(signature).toString("hex")).toBe(vector.coseSignatureHex);
+  });
+
+  it("cloud and HSM adapters pass through their client's documented DER signature", async () => {
+    const vector = await readVector();
+    const der = derBytes(vector);
+    const signers: ReadonlyArray<readonly [string, ManagedSignerProvider]> = [
+      ["gcp-kms", new GcpKmsSigner({ client: gcpClient(der) })],
+      ["azure-key-vault", new AzureKeyVaultSigner({ client: azureClient(der) })],
+      ["pkcs11", new Pkcs11Signer({ client: pkcs11Client(der) })],
+    ];
+
+    for (const [provider, signer] of signers) {
+      const signature = await signer.sign(new Uint8Array([1, 2, 3]));
+      expect(signature, `${provider} must not re-encode its client signature`).toHaveLength(der.length);
+      expect(Buffer.from(signature).toString("hex"), `${provider} DER passthrough`).toBe(vector.derHex);
+    }
   });
 
   it("produces identical Paper Seal semantics across provider adapters", async () => {
+    const vector = await readVector();
+    const der = derBytes(vector);
     const signers = [
-      new AwsKmsSigner({ client: awsClient() }),
-      new GcpKmsSigner({ client: gcpClient() }),
-      new AzureKeyVaultSigner({ client: azureClient() }),
-      new Pkcs11Signer({ client: pkcs11Client() }),
+      new AwsKmsSigner({ client: awsClient(der) }),
+      new GcpKmsSigner({ client: gcpClient(der) }),
+      new AzureKeyVaultSigner({ client: azureClient(der) }),
+      new Pkcs11Signer({ client: pkcs11Client(der) }),
     ];
     const transports = await Promise.all(signers.map(async (signer) => (await encodePaperSeal(descriptor, signer)).transport));
     expect(new Set(transports).size).toBe(1);
@@ -42,6 +73,10 @@ describe("shared ES256 provider vectors", () => {
 
 async function readVector(): Promise<Es256Vector> {
   return JSON.parse(await readFile(new URL("../../../test-vectors/providers/es256/der-signature.json", import.meta.url), "utf8")) as Es256Vector;
+}
+
+function derBytes(vector: Es256Vector): Uint8Array {
+  return new Uint8Array(Buffer.from(vector.derHex, "hex"));
 }
 
 function material() {
@@ -55,22 +90,18 @@ function material() {
   };
 }
 
-function signature(): Uint8Array {
-  return new Uint8Array([0x30, 0x06, 0x02, 0x01, 0x01, 0x02, 0x01, 0x01]);
+function awsClient(signature: Uint8Array): AwsKmsClient {
+  return { describeKey: async () => material(), sign: async () => signature, healthCheck: async () => undefined };
 }
 
-function awsClient(): AwsKmsClient {
-  return { describeKey: async () => material(), sign: async () => signature(), healthCheck: async () => undefined };
+function gcpClient(signature: Uint8Array): GcpKmsClient {
+  return { getPublicKey: async () => material(), asymmetricSign: async () => signature, healthCheck: async () => undefined };
 }
 
-function gcpClient(): GcpKmsClient {
-  return { getPublicKey: async () => material(), asymmetricSign: async () => signature(), healthCheck: async () => undefined };
+function azureClient(signature: Uint8Array): AzureKeyVaultClient {
+  return { getKey: async () => material(), sign: async () => signature, healthCheck: async () => undefined };
 }
 
-function azureClient(): AzureKeyVaultClient {
-  return { getKey: async () => material(), sign: async () => signature(), healthCheck: async () => undefined };
-}
-
-function pkcs11Client(): Pkcs11Client {
-  return { getPublicKey: async () => material(), sign: async () => signature(), healthCheck: async () => undefined };
+function pkcs11Client(signature: Uint8Array): Pkcs11Client {
+  return { getPublicKey: async () => material(), sign: async () => signature, healthCheck: async () => undefined };
 }

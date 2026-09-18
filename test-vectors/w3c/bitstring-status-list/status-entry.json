@@ -1,0 +1,7 @@
+{
+  "id": "https://issuer.example.test/status/1#7",
+  "type": "BitstringStatusListEntry",
+  "statusPurpose": "revocation",
+  "statusListIndex": "7",
+  "statusListCredential": "https://issuer.example.test/status/1"
+}
