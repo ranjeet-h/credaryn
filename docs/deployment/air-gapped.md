@@ -6,7 +6,7 @@ Air-gapped mode verifies PDF or Paper Seal cryptographic evidence with local, op
 2. Transfer them through the organization's approved media process and verify checksums/signatures inside the isolated environment.
 3. Configure only local trust paths and local DSS/verifier endpoints. Block DNS and network egress at the host/network layer.
 4. Reproduce the Paper vector, verify the original and mutated PDF, and inspect lifecycle freshness.
-5. Record host, versions, trust-bundle digest, commands, results, and network-isolation method in `docs/verification/milestone-12.md`.
+5. Record host, versions, trust-bundle digest, commands, results, and network-isolation method in the operator's own runbook.
 
 Run `pnpm final:air-gap-check -- --report` before the exercise. A check-mode success additionally requires the operator to perform the isolation and explicitly record confirmation; the script cannot prove host network isolation itself.
 
@@ -27,4 +27,4 @@ network (`internal: true`) with no external route. Status/admin profiles must
 not be enabled, so online lifecycle is `UNCHECKED` / `UNAVAILABLE`. Compose
 cannot remove the host route for a published port, so complete egress blocking
 remains a host/network responsibility and is recorded as an operator
-observation in `docs/verification/milestone-12.md`.
+observation in the operator's own runbook.

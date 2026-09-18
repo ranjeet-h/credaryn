@@ -37,11 +37,7 @@
     "sbom:check": "tsx scripts/sbom.ts",
     "release:dry-run": "tsx scripts/release-dry-run.ts",
     "interop:vectors:check": "vitest run standards/trustvc/test/interoperability.test.ts",
-    "adapter:fixtures:check": "vitest run packages/pdf/test/adapters.test.ts",
-    "project:audit": "tsx scripts/project-audit.ts --check",
-    "final:user-journeys": "tsx scripts/final-user-journeys.ts --check",
-    "final:self-host-check": "tsx scripts/final-self-host-check.ts --check",
-    "final:air-gap-check": "tsx scripts/final-air-gap-check.ts --check"
+    "adapter:fixtures:check": "vitest run packages/pdf/test/adapters.test.ts"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",

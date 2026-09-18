@@ -1,4 +1,4 @@
-# Phase 1 data contract
+# Data contract
 
 `DocumentDescriptor` is the application input to every issuing flow. V1 requires non-empty `issuerId`, `documentId`, `documentType`, an RFC 3339 `issuedAt`, and a flat `claims` map containing only strings, booleans and safe integers. Production `statusUrl` values use HTTPS; local HTTP is permitted only with `environment: "development"` and a loopback host.
 
@@ -24,7 +24,7 @@ if (!result.valid) {
 
 `normalizeDescriptor()` returns a new descriptor with claim keys sorted by code-unit order. It never drops unsupported values; callers must validate first. `assertValidDescriptor()` throws `DescriptorValidationError` with structured paths for invalid input.
 
-The Phase 1 SDK façade is constructed with the stable boundaries:
+The SDK façade is constructed with the stable boundaries:
 
 ```ts
 import { Credaryn } from "@credaryn/node";
@@ -32,11 +32,11 @@ import { Credaryn } from "@credaryn/node";
 const credaryn = new Credaryn({ pdfEngine, paperSigner, trustStore });
 ```
 
-`sealPdf()` validates the descriptor, computes the artifact digest internally and delegates bytes to the PDF engine. After Milestone 2, `createPaperSeal()` emits a `CRD1:` Paper Seal Profile v1 transport; PDF placement remains a later pipeline concern. Paper verification returns `UNVERIFIABLE` when no matching public trust material is configured rather than claiming validity.
+`sealPdf()` validates the descriptor, computes the artifact digest internally and delegates bytes to the PDF engine. `createPaperSeal()` emits a `CRD1:` Paper Seal Profile v1 transport; PDF placement remains a later pipeline concern. Paper verification returns `UNVERIFIABLE` when no matching public trust material is configured rather than claiming validity.
 
-## Phase 1 manual smoke command
+## Manual smoke command
 
-From `packages/node`, run this with the development-only signer. The fake PDF engine is intentional: the real PDF implementation is a later milestone.
+From `packages/node`, run this with the development-only signer. The fake PDF engine stands in for the real PDF implementation.
 
 ```bash
 node --import tsx --input-type=module <<'EOF'
@@ -52,7 +52,7 @@ const descriptor = {
   issuedAt: "2026-01-01T00:00:00Z",
   claims: { currency: "INR", invoiceNumber: "INV-2026-82919", totalMinor: 1180000 },
 };
-const signer = new LocalSigner({ issuerId: descriptor.issuerId, keyId: "phase-1-local" });
+const signer = new LocalSigner({ issuerId: descriptor.issuerId, keyId: "local-dev" });
 const keyInfo = await signer.getKeyInfo();
 const trustStore = new DemoTrustStore([keyInfo]);
 const pdfEngine = {

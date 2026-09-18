@@ -4,7 +4,7 @@ This directory is reserved for bounded, public negative fixtures. It must not
 contain private keys, signing credentials, customer documents, or intentionally
 unbounded decompression payloads.
 
-The Phase 10 test corpus covers these classes through generated inputs and
+The test corpus covers these classes through generated inputs and
 focused fixtures:
 
 - changed `issuerId`, `documentId`, claims, COSE payloads, key identifiers, and

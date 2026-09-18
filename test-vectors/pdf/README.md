@@ -27,4 +27,4 @@ shasum -a 256 test-vectors/pdf/*.pdf
 
 The generated signed bytes may change when the DSS demo key or renderer
 changes. Update the hashes only after manually inspecting the PDF and
-recording the DSS original/mutation results in the milestone verification log.
+recording the DSS original/mutation results in the operator's own runbook.

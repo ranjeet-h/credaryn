@@ -31,7 +31,7 @@ Useful scripts: `pnpm test:property`, `pnpm test:fuzz -- --time-limit=120`,
 
 ## What we expect in a change
 
-- **Test-first (RED → GREEN → REFACTOR).** Add a failing test that describes the behaviour, then implement it.
+- **Test-first.** Add a failing test that describes the behaviour, then implement it.
 - **Security fixes require a regression test** before the fix is merged.
 - **Respect the trust boundaries.** `@credaryn/core` must not import DSS/Java, Puppeteer, TrustVC,
   cloud SDKs, OCR libraries, database clients or browser globals. Provider/vendor types stay inside
@@ -72,5 +72,5 @@ Participation is governed by [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
 
 ## Project decisions
 
-Architecture decisions live in [`docs/adr`](docs/adr) and the locked baseline in
-[`complete-product-specification-architecture-implementation-roadmap.md`](complete-product-specification-architecture-implementation-roadmap.md).
+Architecture decisions live in [`docs/adr`](docs/adr). The product definition and architecture are
+summarized in the [README](README.md).

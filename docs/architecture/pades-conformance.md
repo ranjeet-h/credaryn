@@ -50,6 +50,6 @@ Credaryn does not infer or advertise that status from a DSS result.
 
 ## Independent verification expectation
 
-Milestone 3 uses DSS as the reference validator. Stable 1.0 remains blocked
-until the security-hardening milestone validates these fixtures with at least
-one independent compatible validator and records the compatibility result.
+DSS is the reference validator. Stable 1.0 requires these fixtures to be
+validated with at least one independent compatible validator, with the
+compatibility result recorded.

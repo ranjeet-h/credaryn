@@ -1,8 +1,8 @@
 # ADR 0006: Hand-rolled provider clients instead of official cloud SDKs
 
-- Status: accepted for Phase 12
+- Status: accepted
 - Date: 2026-09-18
-- Supersedes: spec §19 "through the official AWS/Google/Azure SDK"
+- Supersedes: the earlier requirement to use the official AWS/Google/Azure SDKs
 
 ## Decision
 
@@ -20,6 +20,6 @@ Importing three large vendor SDKs would add heavyweight transitive dependencies,
 
 ## Consequences
 
-- The "official SDK" wording in spec §19 is **not met as written**; parity with real provider behaviour must be proven by owner-run smoke tests (`pnpm provider:smoke`, documented per provider under `docs/verification/milestone-7-*.md`).
+- The official SDKs are not imported; parity with real provider behaviour must be proven by live smoke tests (`pnpm provider:smoke`), documented per provider.
 - Adapter authors carry more normalisation code (for example DER/COSE conversion) and must keep golden vectors current.
 - A future decision to adopt official SDKs must preserve the injected-client seam and add the dependency deliberately.

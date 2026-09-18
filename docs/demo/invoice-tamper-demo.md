@@ -1,6 +1,6 @@
 # Invoice tamper demo
 
-The launch story is deliberately concrete:
+The demo is deliberately concrete:
 
 1. Credaryn issues invoice `INV-2026-82919` for **INR 11,800.00**.
 2. The invoice PDF receives a PAdES Baseline B-B signature.
@@ -19,7 +19,8 @@ docker compose -f adapters/pades-dss/docker-compose.yml up -d
 pnpm demo:start
 ```
 
-Then open <http://localhost:3000> and follow Checkpoint A and Checkpoint B.
+Then open <http://localhost:3000> and follow the two on-screen steps: issue the
+original invoice, then change the visible amount.
 The demo explains the evidence first; PAdES, COSE and CBOR implementation
 details are intentionally kept in the architecture documentation.
 

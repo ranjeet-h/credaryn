@@ -9,7 +9,7 @@ Documents are easy to edit. Credaryn makes authentic issuance independently veri
 [![Node](https://img.shields.io/badge/node-%3E%3D24-brightgreen.svg)](https://nodejs.org)
 [![pnpm](https://img.shields.io/badge/pnpm-12-orange.svg)](https://pnpm.io)
 [![Standards](https://img.shields.io/badge/standards-PAdES%20%C2%B7%20COSE%20%2F%20CBOR%20%C2%B7%20W3C%20VC%20%C2%B7%20ISO%2022376--informed-success)](#standards-and-interoperability)
-[![Status](https://img.shields.io/badge/status-pre--1.0-yellow.svg)](docs/project-done-checklist.md)
+[![Status](https://img.shields.io/badge/status-pre--1.0-yellow.svg)](#roadmap-and-project-status)
 
 Credaryn is open-source, standards-first infrastructure for issuing and verifying authentic
 business documents across **digital PDF** and **physical paper**. It seals a generated PDF with a
@@ -459,6 +459,7 @@ payload and image upload. See
 | Topic | Link |
 |---|---|
 | Getting started | [docs/getting-started.md](docs/getting-started.md) |
+| Product specification | [docs/product-specification.md](docs/product-specification.md) |
 | Architecture (index) | [docs/architecture/index.md](docs/architecture/index.md) |
 | Data contract | [docs/architecture/data-contract.md](docs/architecture/data-contract.md) |
 | Verification result | [docs/architecture/verification-result.md](docs/architecture/verification-result.md) |
@@ -476,7 +477,6 @@ payload and image upload. See
 | API (OpenAPI) | [openapi/v1.yaml](openapi/v1.yaml) |
 | Benchmarks | [docs/benchmarks/v1.md](docs/benchmarks/v1.md) |
 | ADRs (design decisions) | [docs/adr](docs/adr) |
-| Project-done checklist | [docs/project-done-checklist.md](docs/project-done-checklist.md) |
 
 ---
 
@@ -515,21 +515,21 @@ pnpm pades:validate:all # DSS + independent (pdfsig) validation
 pnpm vectors:reproduce
 ```
 
-The project is **test-first** (RED → GREEN → REFACTOR), commits golden vectors for deterministic
+The project is **test-first**, commits golden vectors for deterministic
 CBOR/COSE/Base45/QR output, and treats every security fix as regression-tested.
 
 ---
 
 ## Roadmap and project status
 
-The planned V1 (digital + paper), V2 (enterprise providers, verifier platform, lifecycle, interop)
+The V1 (digital + paper), V2 (enterprise providers, verifier platform, lifecycle, interop)
 and V3 scope are implemented; **OCR/vision is intentionally out of scope** — if you accept
 photographed documents, add OCR in your own layer, verify the seal first, and report OCR mismatch as
 confidence-bearing evidence, never as cryptographic truth.
 
-Remaining work before a stable 1.0 is **owner-run acceptance** (devices, cloud accounts, air-gapped
+Remaining work before a stable 1.0 is manual acceptance (devices, cloud accounts, air-gapped
 deployment, independent security review, release provenance). Track it in
-[MANUAL-CHECKS.md](MANUAL-CHECKS.md) and [docs/project-done-checklist.md](docs/project-done-checklist.md).
+[MANUAL-CHECKS.md](MANUAL-CHECKS.md).
 
 Known design limits: PAdES B-T requires a configured RFC 3161 TSA; `did:web` resolution documents a
 DNS-rebinding residual; package-level coverage thresholds are enforced but below the aspirational

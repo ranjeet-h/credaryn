@@ -17,5 +17,5 @@ pnpm changeset
 - Added the air-gapped Compose profile, optional status/admin containers,
   digest-pinned PostgreSQL image and Docker-secret keystore password.
 - Added workspace-wide trust-boundary enforcement, signed-artifact mutation
-  regression, PAdES validation gate, coverage thresholds and Phase 12 evidence
+  regression, PAdES validation gate, coverage thresholds and release-verification
   scripts.

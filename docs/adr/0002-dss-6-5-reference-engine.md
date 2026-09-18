@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for Milestone 3.
+Accepted.
 
 ## Decision
 
@@ -36,6 +36,6 @@ The TypeScript contract remains independent of Java/DSS types, and the
 reference PDF vectors can be checked by any DSS 6.5-compatible deployment.
 The sidecar adds a Java/Maven/Docker operational dependency for issuance, but
 verification remains expressible as a bounded local adapter call and no
-Credaryn-hosted service is required. A later milestone may add an independent
-validator and adoption-driven generator adapters without changing the core
-verdict model.
+Credaryn-hosted service is required. An independent validator and
+adoption-driven generator adapters may be added later without changing the
+core verdict model.

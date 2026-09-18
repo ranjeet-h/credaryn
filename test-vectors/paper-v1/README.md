@@ -1,6 +1,6 @@
 # Paper Seal Profile v1 golden vectors
 
-These files are reproducible Milestone 2 vectors for the fixed descriptor in
+These files are the reproducible golden vectors for the fixed descriptor in
 `descriptor.json`. The fixture signer contains only a public key and a fixed
 known-answer signature; no private key is stored in this repository.
 

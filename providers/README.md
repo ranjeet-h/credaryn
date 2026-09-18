@@ -25,15 +25,16 @@ integration:
 
 This override is recorded in `docs/adr/0006-hand-rolled-provider-clients.md`
 (cloud SDKs) and `docs/adr/0007-pkcs11-manual-opt-in.md` (PKCS#11/SoftHSM2).
-The spec's "through the official SDK" and "SoftHSM2 in CI" wording is therefore
-not met as written; real-provider parity is proven by owner-run smoke checks
-documented per provider under `docs/verification/milestone-7-*.md`.
+Adapters are validated against injected client doubles rather than the official
+SDKs; the supported boundary of each provider is summarized in
+[`docs/key-management/index.md`](../docs/key-management/index.md), and runnable
+example flows live under `examples/`.
 
 ## Tests
 
 - Shared golden vectors and per-adapter encodings:
   `providers/shared/test/shared-vectors.test.ts`.
 - Provider contract doubles: `providers/*/test/*.test.ts`.
-- The PKCS#11 SoftHSM2 checkpoint is opt-in and skipped by default; see
+- The PKCS#11 SoftHSM2 integration test is opt-in and skipped by default; see
   `providers/pkcs11/test/pkcs11-softhsm.integration.test.ts` for the operator
   procedure and the documented native-dependency limitation.

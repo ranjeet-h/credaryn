@@ -6,7 +6,6 @@ const documentationFiles = [
   "docs/getting-started.md",
   "docs/demo/invoice-tamper-demo.md",
   "docs/security/claims-vs-artifact.md",
-  "docs/verification/milestone-5-demo-script.md",
 ] as const;
 
 describe("launch demo documentation", () => {

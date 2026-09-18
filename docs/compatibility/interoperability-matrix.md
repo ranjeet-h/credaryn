@@ -1,4 +1,4 @@
-# Milestone 9 interoperability matrix
+# Interoperability matrix
 
 | Surface | Format / implementation | Status | Verification boundary |
 | --- | --- | --- | --- |

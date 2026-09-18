@@ -1,4 +1,4 @@
-# Phase 1 trust model
+# Trust model
 
 Credaryn keeps three facts separate:
 

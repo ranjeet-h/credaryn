@@ -1,6 +1,6 @@
 # ADR 0003: immutable versioned key identity and overlap rotation
 
-- Status: accepted for Milestone 7
+- Status: accepted
 - Date: 2026-09-17
 
 ## Decision
@@ -18,4 +18,4 @@ Provider version IDs and public fingerprints make an old document explainable af
 - Operators must publish trust metadata before activation and retain historical public records.
 - Provider adapters must normalize vendor failures and never return private material.
 - Production deployments need durable storage around the registry semantics; the package registry is intentionally not a distributed store.
-- Real-provider validation requires an operator-owned test account or HSM and is a manual checkpoint, not a repository test fixture.
+- Real-provider validation requires a live test account or HSM and is a manual verification step, not a repository test fixture.

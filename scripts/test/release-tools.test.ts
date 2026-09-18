@@ -4,7 +4,7 @@ import { fuzzTargets, parseTimeLimit } from "../fuzz.js";
 import { mutationTargets } from "../mutation.js";
 import { createCycloneDxBom } from "../sbom.js";
 
-describe("Phase 10 release tools", () => {
+describe("Release tools", () => {
   it("parses bounded fuzz time limits and keeps parser targets explicit", () => {
     expect(parseTimeLimit(["--time-limit=12"])).toBe(12);
     expect(parseTimeLimit(["--time-limit", "7"])).toBe(7);

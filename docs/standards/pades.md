@@ -4,7 +4,7 @@ Credaryn targets PAdES Baseline B-B through the isolated DSS 6.5 adapter, with o
 
 PAdES validity does not imply a jurisdiction-specific qualified signature. The final seal-bearing PDF bytes are signed; changing signed bytes must invalidate artifact integrity.
 
-## Validation gate
+## Validation
 
 Run both independent validators against the sealed fixture and its post-signing mutation:
 
@@ -21,6 +21,5 @@ pnpm pades:validate:all
   exits non-zero when `pdfsig` is unavailable or either fixture is misclassified.
 
 Each validator must accept the original fixture and reject the mutated fixture.
-The same commands are recorded as Phase 10 automated gates in the execution plan.
-This is a local/owner-run gate (there is no CI, see
+Validation is a local verification step (see
 [ADR 0004](../adr/0004-no-ci-github-actions.md)).

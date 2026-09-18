@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for Phase 0.
+Accepted.
 
 ## Decision
 
@@ -14,4 +14,4 @@ Local development keys are generated only by explicit development tooling and ar
 
 ## Deliberately deferred
 
-W3C Verifiable Credentials, TrustVC, additional PDF generators, cloud key providers, browser printing, OCR, blockchain, DataMatrix and framework wrappers are later milestones. The Phase 0 DSS container is a classpath and normalized-boundary probe, not the final PAdES signing implementation.
+W3C Verifiable Credentials, TrustVC, additional PDF generators, cloud key providers, browser printing, OCR, blockchain, DataMatrix and framework wrappers are not part of V1. The DSS container is a classpath and normalized-boundary probe, not the final PAdES signing implementation.

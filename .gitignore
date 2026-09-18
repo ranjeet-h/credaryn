@@ -6,6 +6,7 @@ coverage/
 .env.*
 !.env.example
 artifacts/
+.superpowers/
 providers/local/demo-trust-store.json
 *.pem
 *.key

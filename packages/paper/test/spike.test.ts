@@ -38,7 +38,7 @@ function createSpikeSigner(): { signer: SignerProvider; keyInfo: SignerKeyInfo }
   };
 }
 
-describe("Phase 0 paper standards spike", () => {
+describe("Paper seal standards spike", () => {
   it("creates deterministic CRD1 payload bytes and verifies an ES256 COSE proof", async () => {
     const first = createSpikeSigner();
     const second = createSpikeSigner();

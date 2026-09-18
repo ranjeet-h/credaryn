@@ -1,8 +1,8 @@
 # ADR 0008: Optional status/admin services ship in Compose behind profiles
 
-- Status: accepted for Phase 12
+- Status: accepted
 - Date: 2026-09-18
-- Supersedes: the earlier plan divergence that shipped no status/admin container
+- Supersedes: the earlier bundle without status/admin containers
 
 ## Decision
 
@@ -12,11 +12,11 @@ Supporting detail:
 
 - `deploy/docker-compose.yml` keeps `dss` and `verifier` as the default services. `status`, `status-db` and `admin` are only started with `--profile status` / `--profile admin`.
 - `deploy/docker-compose.air-gapped.yml` is an override that mounts an operator-controlled local trust bundle and attaches the verifier/DSS to an internal network with no external egress.
-- The status container runs `@credaryn/status` with a PostgreSQL-backed repository when `DATABASE_URL`/`PG*` is configured (in-memory only for local dev), and the admin container runs `@credaryn/admin` with real OIDC/JWKS verification when configured (fail-closed otherwise). Packages: P1-4 and P2-3 are implemented; operator runs against live infrastructure remain part of the manual checklist.
+- The status container runs `@credaryn/status` with a PostgreSQL-backed repository when `DATABASE_URL`/`PG*` is configured (in-memory only for local dev), and the admin container runs `@credaryn/admin` with real OIDC/JWKS verification when configured (fail-closed otherwise). The packages are implemented; live-infrastructure runs remain part of the manual checklist.
 
 ## Rationale
 
-Spec §19/§21 list optional status and admin components as part of the self-hosted bundle, while the earlier plan shipped only verifier + DSS + Postgres. Packaging them behind profiles satisfies the required surface without making core cryptographic verification depend on an optional service. The default path stays small, and the optional services are backed by real implementations (PostgreSQL repository, OIDC/JWKS) while remaining non-essential for core verification.
+Optional status and admin components are part of the self-hosted surface, while the original bundle shipped only verifier + DSS + Postgres. Packaging them behind profiles satisfies that surface without making core cryptographic verification depend on an optional service. The default path stays small, and the optional services are backed by real implementations (PostgreSQL repository, OIDC/JWKS) while remaining non-essential for core verification.
 
 ## Consequences
 

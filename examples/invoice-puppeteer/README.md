@@ -1,9 +1,9 @@
 # Controlled Puppeteer invoice example
 
-This example is the Milestone 3 reference integration. Puppeteer runs only on
-the server to materialize the invoice PDF; it is not a UI test runner. The
-Paper Seal QR is rendered into the invoice before the resulting bytes are
-passed to the DSS 6.5 PAdES Baseline B-B boundary.
+This is the reference integration for the controlled PDF workflow. Puppeteer
+runs only on the server to materialize the invoice PDF; it is not a UI test
+runner. The Paper Seal QR is rendered into the invoice before the resulting
+bytes are passed to the DSS 6.5 PAdES Baseline B-B boundary.
 
 After the DSS container is ready, the application flow is intentionally small:
 
