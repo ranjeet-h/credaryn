@@ -69,6 +69,7 @@ export async function verifySpikePaperSeal(
 
     const trustedKey = await trustStore.resolve(keyId, issuerId);
     if (!trustedKey || trustedKey.algorithm !== "ES256") return false;
+    if (trustStore.isTrusted === undefined || !(await trustStore.isTrusted(trustedKey))) return false;
 
     const signatureInput = encoder.encode(["Signature1", Buffer.from(protectedHeaders), Buffer.alloc(0), Buffer.from(payload)]);
     const verifier = createVerify("SHA256");

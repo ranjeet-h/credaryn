@@ -33,5 +33,10 @@ export function createDemoTrustStore(paperKey: SignerKeyInfo): TrustStore {
   return {
     trustSource: "local-demo-trust-store",
     resolve: async (keyId, issuerId) => keys.find((key) => key.keyId === keyId && key.issuerId === issuerId),
+    isTrusted: (keyInfo) => keys.some((key) => key.issuerId === keyInfo.issuerId
+      && key.keyId === keyInfo.keyId
+      && key.algorithm === keyInfo.algorithm
+      && key.publicKey.length === keyInfo.publicKey.length
+      && key.publicKey.every((byte, index) => byte === keyInfo.publicKey[index])),
   };
 }

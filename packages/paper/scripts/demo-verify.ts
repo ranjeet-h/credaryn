@@ -43,5 +43,9 @@ async function loadTrustStore(path: string | undefined): Promise<TrustStore> {
   return {
     trustSource,
     resolve: async (keyId, issuerId) => keys.find((key) => key.keyId === keyId && key.issuerId === issuerId),
+    isTrusted: (keyInfo) => keys.some((key) => key.keyId === keyInfo.keyId
+      && key.issuerId === keyInfo.issuerId
+      && key.publicKey.length === keyInfo.publicKey.length
+      && key.publicKey.every((byte, index) => byte === keyInfo.publicKey[index])),
   };
 }

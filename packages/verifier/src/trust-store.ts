@@ -53,6 +53,7 @@ export async function loadTrustStore(path: string): Promise<TrustStore> {
   return {
     trustSource: developmentOnly ? `${trustSource} (development-only)` : trustSource,
     resolve: async (keyId, issuerId) => keys.find((key) => key.keyId === keyId && key.issuerId === issuerId),
+    isTrusted: (keyInfo) => keys.some((candidate) => sameKey(candidate, keyInfo)),
   };
 }
 
@@ -93,8 +94,29 @@ function readKeys(value: unknown, file: string): SignerKeyInfo[] {
     } catch {
       throw new TrustStoreLoadError(`Trust bundle key ${index} has invalid public key bytes: ${file}`);
     }
-    return { issuerId: key.issuerId, keyId: key.keyId, algorithm: "ES256", publicKey };
+    const certificateFingerprint = key.certificateFingerprint;
+    if (certificateFingerprint !== undefined && (typeof certificateFingerprint !== "string" || certificateFingerprint.trim() === "")) {
+      throw new TrustStoreLoadError(`Trust bundle key ${index} has invalid certificate fingerprint: ${file}`);
+    }
+    return {
+      issuerId: key.issuerId,
+      keyId: key.keyId,
+      algorithm: "ES256",
+      publicKey,
+      ...(certificateFingerprint === undefined ? {} : { certificateFingerprint }),
+    };
   });
+}
+
+function sameKey(left: SignerKeyInfo, right: SignerKeyInfo): boolean {
+  if (left.issuerId !== right.issuerId
+    || left.keyId !== right.keyId
+    || left.algorithm !== right.algorithm
+    || left.certificateFingerprint !== right.certificateFingerprint
+    || left.publicKey.length !== right.publicKey.length) {
+    return false;
+  }
+  return left.publicKey.every((byte, index) => byte === right.publicKey[index]);
 }
 
 function isBase64(value: string): boolean {

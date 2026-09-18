@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { defineProviderContract } from "../../shared/test/provider-contract.js";
 import { AwsKmsSigner, type AwsKmsClient } from "../src/aws-kms-signer.js";
 import { derToCoseSignature } from "../src/der-to-cose.js";
 
@@ -10,9 +9,33 @@ const DER_SIGNATURE = new Uint8Array([
   0x81, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
 ]);
 
-defineProviderContract("aws-kms", (signature = DER_SIGNATURE, failure) => new AwsKmsSigner({ client: client(signature, failure) }));
-
 describe("AWS KMS DER conversion", () => {
+  it("returns immutable versioned public metadata and a healthy status", async () => {
+    const provider = new AwsKmsSigner({ client: client(DER_SIGNATURE) });
+
+    const keyInfo = await provider.getKeyInfo();
+    const publicKey = await provider.getPublicKey();
+    const health = await provider.healthCheck();
+
+    expect(keyInfo).toMatchObject({
+      issuerId: "acme-retail",
+      keyId: "issuer-key@v1",
+      algorithm: "ES256",
+    });
+    expect(publicKey.publicKey).toEqual(keyInfo.publicKey);
+    expect(Object.hasOwn(keyInfo, "privateKey")).toBe(false);
+    expect(health).toMatchObject({ provider: "aws-kms", status: "HEALTHY", keyId: "issuer-key@v1" });
+  });
+
+  it("returns the fixed-width COSE signature from the signer boundary", async () => {
+    const provider = new AwsKmsSigner({ client: client(DER_SIGNATURE) });
+
+    const signature = await provider.sign(new Uint8Array([1, 2, 3]));
+
+    expect(signature).toEqual(derToCoseSignature(DER_SIGNATURE));
+    expect(signature).toHaveLength(64);
+  });
+
   it("converts a DER ECDSA signature to fixed-width COSE r||s", () => {
     const raw = derToCoseSignature(DER_SIGNATURE);
     expect(raw).toHaveLength(64);

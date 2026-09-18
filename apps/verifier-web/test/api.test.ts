@@ -43,6 +43,27 @@ describe("V2 verifier API metadata", () => {
     const denied = await fetch(`${base}/v1/health`, { headers: { origin: "https://evil.example.test" } });
     expect(denied.status).toBe(403);
   });
+
+  it("allows the same-origin browser request when no explicit CORS allowlist is configured", async () => {
+    const server = createVerifierServer({
+      verifier: {
+        verifyInput: async () => { throw new Error("not used"); },
+        verifyPdf: async () => { throw new Error("not used"); },
+        verifyPaperText: async () => { throw new Error("not used"); },
+        verifyPaperImage: async () => { throw new Error("not used"); },
+      },
+    });
+    servers.push(server);
+    const address = await listen(server);
+    const base = `http://127.0.0.1:${address.port}`;
+
+    const response = await fetch(`${base}/v1/health`, {
+      headers: { origin: base },
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("access-control-allow-origin")).toBe(base);
+  });
 });
 
 async function listen(server: ReturnType<typeof createVerifierServer>): Promise<{ port: number }> {

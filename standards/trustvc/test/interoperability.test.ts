@@ -6,7 +6,7 @@ import {
   type W3cCredential,
 } from "../src/issuer.js";
 import { verifyCredential } from "../src/verifier.js";
-import { createBitstringStatusList, createStatusEntry } from "../src/status-list.js";
+import { createBitstringStatusList, createStatusEntry, STATUS_LIST_CONTEXT } from "../src/status-list.js";
 
 const credentialSubject = {
   invoiceNumber: "INV-2026-82919",
@@ -90,6 +90,8 @@ describe("TrustVC W3C interoperability", () => {
     });
     const status = createStatusEntry(statusList, 7);
 
+    expect(STATUS_LIST_CONTEXT).toBe("https://www.w3.org/ns/credentials/status/v1");
+    expect(statusList.credential["@context"]).toContain("https://www.w3.org/ns/credentials/status/v1");
     expect(statusList.credential.credentialSubject.type).toBe("BitstringStatusList");
     expect(statusList.credential.credentialSubject.statusPurpose).toBe("revocation");
     expect(status.statusListIndex).toBe("7");

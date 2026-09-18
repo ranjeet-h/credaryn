@@ -56,8 +56,7 @@ export class AwsKmsSigner implements ManagedSignerProvider {
         messageType: "DIGEST",
         signingAlgorithm: "ECDSA_SHA_256",
       });
-      derToCoseSignature(signature);
-      return new Uint8Array(signature);
+      return derToCoseSignature(signature);
     } catch (error) {
       throw normalizeProviderError("aws-kms", "SIGNING_FAILED", false, error);
     }

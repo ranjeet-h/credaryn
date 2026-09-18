@@ -254,11 +254,24 @@ function setSecurityHeaders(response: ServerResponse): void {
 function applyCors(request: IncomingMessage, response: ServerResponse, allowedOrigins: readonly string[]): void {
   const origin = headerValue(request.headers.origin);
   if (origin === undefined) return;
-  if (!allowedOrigins.includes(origin)) throw new WebError(403, "CORS_ORIGIN_DENIED", "Origin is not allowed");
+  const sameOrigin = allowedOrigins.length === 0 && isSameOrigin(origin, headerValue(request.headers.host));
+  if (!sameOrigin && !allowedOrigins.includes(origin)) {
+    throw new WebError(403, "CORS_ORIGIN_DENIED", "Origin is not allowed");
+  }
   response.setHeader("access-control-allow-origin", origin);
   response.setHeader("access-control-allow-methods", "GET,POST,OPTIONS");
   response.setHeader("access-control-allow-headers", "content-type,x-correlation-id");
   response.setHeader("vary", "origin");
+}
+
+function isSameOrigin(origin: string, host: string | undefined): boolean {
+  if (host === undefined) return false;
+  try {
+    const parsed = new URL(origin);
+    return (parsed.protocol === "http:" || parsed.protocol === "https:") && parsed.host === host;
+  } catch {
+    return false;
+  }
 }
 
 function withinRateLimit(

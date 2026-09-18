@@ -10,7 +10,11 @@ const expectedTransport = (await readFile(resolve(vectorDirectory, "transport.tx
 const expectedQr = await readFile(resolve(vectorDirectory, "qr-512.png"));
 const generated = await encodePaperSeal(vectorDescriptor, vectorSigner);
 const generatedQr = await renderPaperSealQr(generated.transport, { width: 512 });
-const trustStore = { resolve: async () => vectorKeyInfo, trustSource: "paper-v1-golden-vector" };
+const trustStore = {
+  resolve: async () => vectorKeyInfo,
+  isTrusted: (keyInfo: typeof vectorKeyInfo) => keyInfo.keyId === vectorKeyInfo.keyId && keyInfo.issuerId === vectorKeyInfo.issuerId,
+  trustSource: "paper-v1-golden-vector",
+};
 const verification = await verifyPaperSeal(generated.transport, { trustStore });
 
 assertEqual(expectedPayload, generated.payload, "payload.cbor");

@@ -43,8 +43,9 @@ reported cryptographic and artifact states are valid for signing, and
 
 ## B-T and legal scope
 
-PAdES Baseline B-T is rejected unless an RFC 3161 time-stamping authority is
-explicitly configured. A PAdES Baseline B-B result is not, by itself, a
+PAdES Baseline B-T is not implemented by the current DSS adapter. Requests that
+select B-T are rejected with an explicit RFC 3161 configuration error; they are
+not silently converted to B-B. A PAdES Baseline B-B result is not, by itself, a
 qualified electronic signature. Qualified status depends on jurisdictional
 requirements, qualified certificates and qualified trust-service evidence;
 Credaryn does not infer or advertise that status from a DSS result.

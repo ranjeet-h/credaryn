@@ -64,7 +64,7 @@ describe("Paper Seal properties", () => {
       claims: { amount: 11800 },
     };
     const seal = await encodePaperSeal(descriptor, signer);
-    const trustStore: TrustStore = { resolve: async () => keyInfo };
+    const trustStore: TrustStore = { resolve: async () => keyInfo, isTrusted: async () => true };
     const mutated = `${seal.transport.slice(0, -1)}${seal.transport.endsWith("0") ? "1" : "0"}`;
 
     const result = await verifyPaperSeal(mutated, { trustStore });

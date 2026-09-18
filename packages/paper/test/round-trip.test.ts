@@ -2,19 +2,23 @@ import { createSign, generateKeyPairSync } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import type { DocumentDescriptor, SignerKeyInfo, SignerProvider, TrustStore } from "@credaryn/core";
 import {
+  decodePaperSeal,
   decodePaperSealQr,
+  encodeBase45,
+  encodeCoseSign1Parts,
   encodePaperSeal,
   renderPaperSealQr,
   verifyPaperSeal,
 } from "../src/index.js";
 
-function createSigner(): { signer: SignerProvider; keyInfo: SignerKeyInfo } {
+function createSigner(options: { certificateFingerprint?: string } = {}): { signer: SignerProvider; keyInfo: SignerKeyInfo } {
   const { privateKey, publicKey } = generateKeyPairSync("ec", { namedCurve: "prime256v1" });
   const keyInfo: SignerKeyInfo = {
     issuerId: "acme-retail",
     keyId: "phase-2-test",
     algorithm: "ES256",
     publicKey: new Uint8Array(publicKey.export({ type: "spki", format: "der" })),
+    ...(options.certificateFingerprint === undefined ? {} : { certificateFingerprint: options.certificateFingerprint }),
   };
   return {
     keyInfo,
@@ -76,6 +80,7 @@ describe("Paper Seal Profile v1 round trips", () => {
     const decoded = decodePaperSealQr(image);
     const trustStore: TrustStore = {
       resolve: async (keyId, issuerId) => keyId === keyInfo.keyId && issuerId === keyInfo.issuerId ? keyInfo : undefined,
+      isTrusted: async () => true,
     };
     const result = await verifyPaperSeal(decoded, { trustStore });
 
@@ -120,5 +125,53 @@ describe("Paper Seal Profile v1 round trips", () => {
 
     expect(result).toMatchObject({ verdict: "INVALID" });
     expect(result.evidence).toContainEqual(expect.objectContaining({ code: "PAPER_DOCUMENT_MISMATCH" }));
+    expect(result).not.toHaveProperty("signedClaims");
+  });
+
+  it("binds a paper seal to the signing certificate fingerprint", async () => {
+    const { signer, keyInfo } = createSigner({ certificateFingerprint: "sha256:paper-cert" });
+    const encoded = await encodePaperSeal(descriptors.small!, signer);
+    const decoded = decodePaperSeal(encoded.transport);
+
+    expect(decoded.profile.certificateFingerprint).toBe("sha256:paper-cert");
+
+    const result = await verifyPaperSeal(encoded.transport, {
+      trustStore: {
+        resolve: async () => ({ ...keyInfo, certificateFingerprint: "sha256:wrong-cert" }),
+      },
+    });
+
+    expect(result).toMatchObject({ verdict: "INVALID" });
+    expect(result.evidence).toContainEqual(expect.objectContaining({ code: "PAPER_CERTIFICATE_FINGERPRINT_MISMATCH" }));
+    expect(result).not.toHaveProperty("signedClaims");
+  });
+
+  it("omits signed claims when a paper signature is invalid", async () => {
+    const { signer, keyInfo } = createSigner();
+    const encoded = await encodePaperSeal(descriptors.small!, signer);
+    const decoded = decodePaperSeal(encoded.transport);
+    const invalidSignature = decoded.coseParts.signature.slice();
+    const lastSignatureByte = invalidSignature.length - 1;
+    invalidSignature[lastSignatureByte] = invalidSignature[lastSignatureByte]! ^ 1;
+    const mutatedCose = encodeCoseSign1Parts({
+      ...decoded.coseParts,
+      signature: invalidSignature,
+    });
+    const result = await verifyPaperSeal(`CRD1:${encodeBase45(mutatedCose)}`, {
+      trustStore: { resolve: async () => keyInfo },
+    });
+
+    expect(result.cryptographicValidity).toBe("INVALID");
+    expect(result).not.toHaveProperty("signedClaims");
+  });
+
+  it("omits signed claims when a paper signature is unverifiable", async () => {
+    const { signer } = createSigner();
+    const encoded = await encodePaperSeal(descriptors.small!, signer);
+
+    const result = await verifyPaperSeal(encoded.transport);
+
+    expect(result.cryptographicValidity).toBe("UNVERIFIABLE");
+    expect(result).not.toHaveProperty("signedClaims");
   });
 });

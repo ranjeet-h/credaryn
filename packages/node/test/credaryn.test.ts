@@ -69,7 +69,7 @@ describe("Credaryn SDK skeleton", () => {
     const sdk = new Credaryn({
       pdfEngine: createPdfEngine(),
       paperSigner: signer,
-      trustStore: { resolve: async () => keyInfo, trustSource: "phase-2-test-trust" },
+      trustStore: { resolve: async () => keyInfo, isTrusted: async () => true, trustSource: "phase-2-test-trust" },
     });
 
     const seal = await sdk.createPaperSeal(descriptor);
@@ -106,7 +106,7 @@ describe("Credaryn SDK skeleton", () => {
       }),
     };
     const trustedKey = await signer.getKeyInfo();
-    const trustedStore: TrustStore = { resolve: async () => trustedKey };
+    const trustedStore: TrustStore = { resolve: async () => trustedKey, isTrusted: async () => true };
     const trustedSdk = new Credaryn({ pdfEngine: validEngine, paperSigner: signer, trustStore: trustedStore });
     const untrustedSdk = new Credaryn({ pdfEngine: validEngine, paperSigner: signer, trustStore });
 
@@ -119,6 +119,66 @@ describe("Credaryn SDK skeleton", () => {
       verdict: "VALID_UNTRUSTED",
       lifecycleStatus: "UNCHECKED",
     });
+  });
+
+  it("honors an explicit PDF trust policy rejection", async () => {
+    const validEngine: PdfSignatureEngine = {
+      sign: async (input) => input,
+      verify: async () => ({
+        cryptographicValidity: "VALID",
+        artifactIntegrity: "VALID",
+        issuerId: keyInfo.issuerId,
+        keyId: keyInfo.keyId,
+      }),
+    };
+    const sdk = new Credaryn({
+      pdfEngine: validEngine,
+      paperSigner: signer,
+      trustStore: { resolve: async () => keyInfo, isTrusted: async () => false },
+    });
+
+    await expect(sdk.verifyPdf(new Uint8Array([37]))).resolves.toMatchObject({
+      verdict: "VALID_UNTRUSTED",
+      trustDecision: "UNTRUSTED",
+    });
+  });
+
+  it("fails closed when PDF trust evaluation throws", async () => {
+    const validEngine: PdfSignatureEngine = {
+      sign: async (input) => input,
+      verify: async () => ({
+        cryptographicValidity: "VALID",
+        artifactIntegrity: "VALID",
+        issuerId: keyInfo.issuerId,
+        keyId: keyInfo.keyId,
+      }),
+    };
+    const sdk = new Credaryn({
+      pdfEngine: validEngine,
+      paperSigner: signer,
+      trustStore: {
+        resolve: async () => keyInfo,
+        isTrusted: async () => { throw new Error("trust resolver unavailable"); },
+      },
+    });
+
+    await expect(sdk.verifyPdf(new Uint8Array([37]))).resolves.toMatchObject({
+      verdict: "UNVERIFIABLE",
+      trustDecision: "MISSING",
+    });
+  });
+
+  it("forwards the expected descriptor when verifying a paper seal", async () => {
+    const sdk = new Credaryn({
+      pdfEngine: createPdfEngine(),
+      paperSigner: signer,
+      trustStore: { resolve: async () => keyInfo },
+    });
+    const seal = await sdk.createPaperSeal(descriptor);
+
+    await expect(sdk.verifyPaperSeal(seal, {
+      expectedDescriptor: { ...descriptor, documentId: "a-different-document" },
+    })).resolves.toMatchObject({ verdict: "INVALID" });
   });
 });
 

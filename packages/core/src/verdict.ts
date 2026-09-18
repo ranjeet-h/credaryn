@@ -25,7 +25,11 @@ export interface VerificationInput {
 
 export function createVerificationResult(input: VerificationInput): VerificationResult {
   const result: VerificationResult = {
-    verdict: determineVerdict(input.cryptographicValidity, input.trustDecision),
+    verdict: input.artifactIntegrity === "INVALID"
+      ? "INVALID"
+      : input.securityMode === "DIGITAL_ARTIFACT_SIGNED" && input.artifactIntegrity !== "VALID"
+        ? "UNVERIFIABLE"
+      : determineVerdict(input.cryptographicValidity, input.trustDecision),
     cryptographicValidity: input.cryptographicValidity,
     trustDecision: input.trustDecision,
     lifecycleStatus: input.lifecycleStatus,

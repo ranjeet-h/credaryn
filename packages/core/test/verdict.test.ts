@@ -28,11 +28,25 @@ describe("verification verdict policy", () => {
     })).toMatchObject({ verdict: "INVALID", lifecycleStatus: "ACTIVE" });
   });
 
+  it("classifies invalid artifact integrity as invalid despite a valid trusted signature", () => {
+    expect(createVerificationResult({
+      ...baseInput,
+      artifactIntegrity: "INVALID",
+    })).toMatchObject({ verdict: "INVALID", artifactIntegrity: "INVALID" });
+  });
+
   it("classifies unavailable cryptographic evidence as unverifiable", () => {
     expect(createVerificationResult({
       ...baseInput,
       cryptographicValidity: "UNVERIFIABLE",
       trustDecision: "TRUSTED",
+    }).verdict).toBe("UNVERIFIABLE");
+  });
+
+  it("does not trust a digital result when artifact integrity is unknown", () => {
+    expect(createVerificationResult({
+      ...baseInput,
+      artifactIntegrity: "UNKNOWN",
     }).verdict).toBe("UNVERIFIABLE");
   });
 

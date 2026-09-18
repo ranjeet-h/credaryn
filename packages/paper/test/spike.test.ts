@@ -46,6 +46,7 @@ describe("Phase 0 paper standards spike", () => {
     const secondSeal = await createSpikePaperSeal(descriptor, second.signer);
     const trustStore: TrustStore = {
       resolve: async () => first.keyInfo,
+      isTrusted: async () => true,
     };
 
     expect(firstSeal.transport.startsWith("CRD1:")).toBe(true);
@@ -63,5 +64,16 @@ describe("Phase 0 paper standards spike", () => {
 
     await expect(verifySpikePaperSeal(altered, trustStore)).resolves.toBe(false);
     await expect(verifySpikePaperSeal("CRD1:%%%", trustStore)).resolves.toBe(false);
+  });
+
+  it("does not accept a cryptographically valid seal without explicit trust", async () => {
+    const { signer, keyInfo } = createSpikeSigner();
+    const seal = await createSpikePaperSeal(descriptor, signer);
+    const trustStore: TrustStore = {
+      resolve: async () => keyInfo,
+      isTrusted: async () => false,
+    };
+
+    await expect(verifySpikePaperSeal(seal.transport, trustStore)).resolves.toBe(false);
   });
 });

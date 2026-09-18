@@ -1,0 +1,117 @@
+openapi: 3.1.0
+info:
+  title: Credaryn Verifier API
+  version: v1
+  description: Bounded, self-hostable PDF and Paper Seal verification. Cryptographic validity, issuer trust, and lifecycle are independent fields.
+servers:
+  - url: http://localhost:8080
+paths:
+  /v1/health:
+    get:
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+  /v1/version:
+    get:
+      operationId: getVersion
+      responses:
+        '200':
+          description: API and build metadata
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Version' }
+  /v1/verify:
+    post:
+      operationId: verifyInput
+      summary: Auto-detect and verify a supported bounded input
+      requestBody:
+        required: true
+        content:
+          application/pdf: { schema: { type: string, contentMediaType: application/pdf, contentEncoding: binary } }
+          image/png: { schema: { type: string, contentMediaType: image/png, contentEncoding: binary } }
+          text/plain: { schema: { type: string } }
+          text/vnd.credaryn.crd1: { schema: { type: string } }
+      responses: { '200': { $ref: '#/components/responses/Verification' }, '400': { $ref: '#/components/responses/Error' }, '408': { $ref: '#/components/responses/Error' }, '413': { $ref: '#/components/responses/Error' }, '415': { $ref: '#/components/responses/Error' }, '429': { $ref: '#/components/responses/Error' } }
+  /v1/verify/pdf:
+    post:
+      operationId: verifyPdf
+      requestBody:
+        required: true
+        content:
+          application/pdf: { schema: { type: string, contentMediaType: application/pdf, contentEncoding: binary } }
+      responses: { '200': { $ref: '#/components/responses/Verification' }, '400': { $ref: '#/components/responses/Error' }, '408': { $ref: '#/components/responses/Error' }, '413': { $ref: '#/components/responses/Error' }, '415': { $ref: '#/components/responses/Error' }, '429': { $ref: '#/components/responses/Error' } }
+  /v1/verify/paper:
+    post:
+      operationId: verifyPaper
+      requestBody:
+        required: true
+        content:
+          image/png: { schema: { type: string, contentMediaType: image/png, contentEncoding: binary } }
+          text/plain: { schema: { type: string } }
+          text/vnd.credaryn.crd1: { schema: { type: string } }
+      responses: { '200': { $ref: '#/components/responses/Verification' }, '400': { $ref: '#/components/responses/Error' }, '408': { $ref: '#/components/responses/Error' }, '413': { $ref: '#/components/responses/Error' }, '415': { $ref: '#/components/responses/Error' }, '429': { $ref: '#/components/responses/Error' } }
+components:
+  responses:
+    Verification:
+      description: Normalized verification result
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/VerificationResult' }
+    Error:
+      description: Request failed closed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+  schemas:
+    Health:
+      type: object
+      required: [status, service, apiVersion]
+      properties:
+        status: { const: ready }
+        service: { const: credaryn-verifier }
+        apiVersion: { const: v1 }
+    Version:
+      type: object
+      required: [apiVersion, build, securityMode]
+      properties:
+        apiVersion: { const: v1 }
+        build: { type: string }
+        securityMode: { const: PAPER_CLAIMS_ONLY }
+    VerificationResult:
+      type: object
+      required: [verdict, cryptographicValidity, trustDecision, lifecycleStatus, securityMode, evidence]
+      properties:
+        verdict: { enum: [VALID_TRUSTED, VALID_UNTRUSTED, INVALID, UNVERIFIABLE] }
+        cryptographicValidity: { enum: [VALID, INVALID, UNVERIFIABLE] }
+        trustDecision: { enum: [TRUSTED, UNTRUSTED, MISSING] }
+        lifecycleStatus: { enum: [ACTIVE, REVOKED, CANCELLED, SUPERSEDED, EXPIRED, UNCHECKED] }
+        issuerId: { type: string }
+        keyId: { type: string }
+        trustSource: { type: string }
+        securityMode: { enum: [DIGITAL_ARTIFACT_SIGNED, PAPER_CLAIMS_ONLY] }
+        artifactIntegrity: { enum: [VALID, INVALID, NOT_APPLICABLE, UNKNOWN] }
+        signedClaims:
+          type: object
+          additionalProperties: { oneOf: [{ type: string }, { type: boolean }, { type: integer }] }
+        evidence:
+          type: array
+          items:
+            type: object
+            required: [code, message]
+            properties:
+              code: { type: string }
+              message: { type: string }
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }

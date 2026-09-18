@@ -27,6 +27,7 @@ export interface CoseVerificationResult {
   trustDecision: TrustDecision;
   issuerId: string;
   keyId?: string;
+  certificateFingerprint?: string;
   payload: Uint8Array;
 }
 
@@ -49,8 +50,8 @@ export async function createCoseSign1(
   ]);
   const protectedBytes = encodeDeterministicCbor(protectedHeaders);
   const signatureInput = buildSignatureInput(protectedBytes, payload);
-  const derSignature = await signer.sign(signatureInput);
-  const signature = derToRaw(derSignature);
+  const signatureBytes = await signer.sign(signatureInput);
+  const signature = signatureToRaw(signatureBytes);
   return encodeCoseSign1Parts({
     protectedHeaders,
     unprotectedHeaders: new Map(),
@@ -179,12 +180,15 @@ export async function verifyCoseSign1(
   if (!valid) return invalidResult(options.issuerId, keyId, parts.payload);
 
   try {
-    const trusted = await options.trustStore.isTrusted?.(trustedKey) ?? true;
+    const trusted = options.trustStore.isTrusted === undefined
+      ? false
+      : await options.trustStore.isTrusted(trustedKey);
     return {
       cryptographicValidity: "VALID",
       trustDecision: trusted ? "TRUSTED" : "UNTRUSTED",
       issuerId: options.issuerId,
       keyId,
+      ...(trustedKey.certificateFingerprint === undefined ? {} : { certificateFingerprint: trustedKey.certificateFingerprint }),
       payload: parts.payload,
     };
   } catch {
@@ -239,6 +243,11 @@ function derToRaw(signature: Uint8Array): Uint8Array {
   const s = readDerInteger(signature, r.nextOffset);
   if (s.nextOffset !== signature.length) throw new CoseVerificationError("Invalid DER signature trailing bytes");
   return new Uint8Array([...leftPad32(r.value), ...leftPad32(s.value)]);
+}
+
+function signatureToRaw(signature: Uint8Array): Uint8Array {
+  if (signature.length === 64) return new Uint8Array(signature);
+  return derToRaw(signature);
 }
 
 function readDerInteger(signature: Uint8Array, offset: number): { value: Uint8Array; nextOffset: number } {

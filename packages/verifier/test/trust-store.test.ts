@@ -1,4 +1,5 @@
 import { mkdtemp, writeFile } from "node:fs/promises";
+import { generateKeyPairSync } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -28,5 +29,30 @@ describe("trust store loading", () => {
     )));
 
     await expect(loadTrustStore(directory)).rejects.toBeInstanceOf(TrustStoreLoadError);
+  });
+
+  it("trusts only the exact public key loaded from the bundle", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "credaryn-trust-key-"));
+    const { publicKey } = generateKeyPairSync("ec", { namedCurve: "prime256v1" });
+    const { publicKey: otherPublicKey } = generateKeyPairSync("ec", { namedCurve: "prime256v1" });
+    const publicKeyBytes = new Uint8Array(publicKey.export({ type: "spki", format: "der" }));
+    await writeFile(join(directory, "trust.json"), JSON.stringify({
+      keys: [{
+        issuerId: "issuer",
+        keyId: "key",
+        algorithm: "ES256",
+        publicKey: Buffer.from(publicKeyBytes).toString("base64"),
+      }],
+    }));
+
+    const trustStore = await loadTrustStore(directory);
+    const resolved = await trustStore.resolve("key", "issuer");
+
+    expect(resolved).toBeDefined();
+    expect(trustStore.isTrusted?.(resolved!) ?? false).toBe(true);
+    expect(trustStore.isTrusted?.({
+      ...resolved!,
+      publicKey: new Uint8Array(otherPublicKey.export({ type: "spki", format: "der" })),
+    }) ?? false).toBe(false);
   });
 });

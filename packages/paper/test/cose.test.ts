@@ -65,6 +65,31 @@ describe("COSE_Sign1 ES256", () => {
     });
   });
 
+  it("does not treat a resolve-only trust store as an explicit trust decision", async () => {
+    const { signer, keyInfo } = createSigner();
+    const cose = await createCoseSign1(new TextEncoder().encode("signed payload"), signer);
+
+    await expect(verifyCoseSign1(cose, {
+      issuerId: "acme-retail",
+      trustStore: { resolve: async () => keyInfo },
+    })).resolves.toMatchObject({
+      cryptographicValidity: "VALID",
+      trustDecision: "UNTRUSTED",
+    });
+  });
+
+  it("accepts provider-native raw ES256 signatures", async () => {
+    const { keyInfo } = createSigner();
+    const rawSignature = new Uint8Array(64);
+    rawSignature[0] = 0x30;
+    const cose = await createCoseSign1(new TextEncoder().encode("signed payload"), {
+      getKeyInfo: async () => keyInfo,
+      sign: async () => rawSignature,
+    });
+
+    expect(decodeCoseSign1(cose).signature).toEqual(rawSignature);
+  });
+
   it("fails closed for unsupported algorithms and unknown critical headers", async () => {
     const { signer, keyInfo } = createSigner();
     const cose = await createCoseSign1(new TextEncoder().encode("signed payload"), signer);

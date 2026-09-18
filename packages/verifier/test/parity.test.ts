@@ -118,6 +118,7 @@ function createFixtureVerifier(options: Partial<TrustStore> & { pdfDigest?: stri
     resolve: options.resolve ?? (async (keyId, issuerId) => (keyId === vectorKeyInfo.keyId || keyId === "dss-demo-key") && issuerId === vectorKeyInfo.issuerId
       ? vectorKeyInfo
       : undefined),
+    isTrusted: options.isTrusted ?? (async () => true),
     trustSource: options.trustSource ?? "phase-4-test-trust",
   };
   const pdfEngine: PdfSignatureEngine = {

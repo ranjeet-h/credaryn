@@ -35,7 +35,7 @@ function createSigner(): { signer: SignerProvider; trustStore: TrustStore } {
       return new Uint8Array(operation.sign(privateKey));
     },
   };
-  return { signer, trustStore: { resolve: async () => keyInfo } };
+  return { signer, trustStore: { resolve: async () => keyInfo, isTrusted: async () => true } };
 }
 
 describe("Paper Seal mutation boundaries", () => {

@@ -44,7 +44,6 @@ export async function verifyPaperSeal(
       artifactIntegrity: "NOT_APPLICABLE",
       issuerId: decoded.profile.issuerId,
       keyId: decoded.profile.keyId,
-      signedClaims: decoded.profile.claims,
       evidence: [{ code: "PAPER_KEY_ID_MISMATCH", message: "COSE key ID does not match the signed payload" }],
     });
   }
@@ -57,8 +56,24 @@ export async function verifyPaperSeal(
       artifactIntegrity: "NOT_APPLICABLE",
       issuerId: decoded.profile.issuerId,
       keyId: decoded.profile.keyId,
-      signedClaims: decoded.profile.claims,
       evidence: [{ code: "PAPER_DOCUMENT_MISMATCH", message: "Paper Seal claims do not match the expected document" }],
+    });
+  }
+  if (cose.cryptographicValidity === "VALID"
+    && decoded.profile.certificateFingerprint !== undefined
+    && cose.certificateFingerprint !== decoded.profile.certificateFingerprint) {
+    return createVerificationResult({
+      cryptographicValidity: "INVALID",
+      trustDecision: "MISSING",
+      lifecycleStatus: "UNCHECKED",
+      securityMode: "PAPER_CLAIMS_ONLY",
+      artifactIntegrity: "NOT_APPLICABLE",
+      issuerId: decoded.profile.issuerId,
+      keyId: decoded.profile.keyId,
+      evidence: [{
+        code: "PAPER_CERTIFICATE_FINGERPRINT_MISMATCH",
+        message: "Paper Seal certificate fingerprint does not match the trusted signing key",
+      }],
     });
   }
 
@@ -70,7 +85,7 @@ export async function verifyPaperSeal(
     artifactIntegrity: "NOT_APPLICABLE",
     issuerId: decoded.profile.issuerId,
     keyId: decoded.profile.keyId,
-    signedClaims: decoded.profile.claims,
+    ...(cose.cryptographicValidity === "VALID" ? { signedClaims: decoded.profile.claims } : {}),
     evidence: [{
       code: `PAPER_${cose.cryptographicValidity}`,
       message: `Paper Seal cryptographic validity is ${cose.cryptographicValidity.toLowerCase()}`,

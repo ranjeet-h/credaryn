@@ -45,6 +45,18 @@ describe("Paper Seal adversarial inputs", () => {
     await expect(encodePaperSeal(oversized, createSigner())).rejects.toThrow(/1200.*claims/i);
   });
 
+  it("reports the measured oversized COSE object length", async () => {
+    const oversized = {
+      ...descriptor,
+      claims: { ...descriptor.claims, privateNote: "x".repeat(2_000) },
+    };
+
+    const error = await encodePaperSeal(oversized, createSigner()).catch((caught: unknown) => caught);
+
+    expect(error).toBeInstanceOf(PaperSealSizeError);
+    expect((error as PaperSealSizeError).actualBytes).toBe(2_256);
+  });
+
   it("classifies malformed prefix, Base45 and CBOR as invalid", async () => {
     const trustStore = { resolve: async () => undefined };
 

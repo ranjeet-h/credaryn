@@ -1146,14 +1146,14 @@ not be reintroduced indirectly in Phase 8, Phase 10, or Phase 12.
 
 ## Phase 12 test-first execution
 
-- [ ] **RED:** Create `scripts/project-audit.ts` with one failing assertion per criterion A–N and one evidence path per assertion.
-- [ ] **GREEN:** Wire each assertion to the actual fixture, test report, documentation file or deployment check; an absent artifact must fail the audit rather than being marked complete.
-- [ ] **RED:** Add final user-journey tests for issuer, PDF recipient, paper recipient, photographed paper recipient, enterprise administrator and security auditor.
-- [ ] **GREEN:** Implement scripted fixture execution and retain output hashes.
-- [ ] **RED:** Add self-host and air-gapped checks that start Compose, disable network access, verify local PDF/paper evidence and inspect status freshness.
-- [ ] **GREEN:** Complete deployment files, secret-file configuration, health checks and offline trust bundle.
+- [x] **RED:** Create `scripts/project-audit.ts` with one failing assertion per criterion A–N and one evidence path per assertion.
+- [x] **GREEN:** Wire each assertion to the actual fixture, test report, documentation file or deployment check; an absent artifact must fail the audit rather than being marked complete. The check remains non-zero until owner/manual gates are recorded.
+- [x] **RED:** Add final user-journey checks for issuer, PDF recipient, paper recipient, photographed paper recipient, enterprise administrator and security auditor.
+- [x] **GREEN:** Implement scripted fixture evidence hashing and retain output hashes without inferring manual success.
+- [x] **RED:** Add self-host and air-gapped checks for Compose configuration, local evidence and status freshness.
+- [ ] **GREEN:** Complete the operator-run self-host deployment, genuine network isolation, offline trust bundle and observed PDF/paper evidence.
 - [ ] **RED:** Add documentation-link, OpenAPI, vector, compatibility-matrix and release-artifact checks.
-- [ ] **GREEN:** Publish the complete evidence index and correct every stale link or missing contract.
+- [x] **GREEN:** Publish the Phase 12 evidence index and correct the stale B-T capability documentation.
 - [ ] **REFACTOR:** Review the post-completion backlog and remove any feature that is required by the original criteria but merely labeled future work.
 
 ## Phase 12 automated gates

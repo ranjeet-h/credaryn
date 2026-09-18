@@ -33,6 +33,7 @@ The numeric payload field map is:
 | `7` | claims | flat CBOR map |
 | `8` | statusUrl | optional text |
 | `9` | artifactDigest | optional text |
+| `10` | certificateFingerprint | optional text |
 
 Run the reproducible vector check from the repository root:
 

@@ -13,6 +13,10 @@ export class DemoTrustStore implements TrustStore {
     const key = this.keys.find((candidate) => candidate.keyId === keyId && candidate.issuerId === issuerId);
     return key === undefined ? undefined : cloneKeyInfo(key);
   }
+
+  isTrusted(keyInfo: SignerKeyInfo): boolean {
+    return this.keys.some((candidate) => sameKey(candidate, keyInfo));
+  }
 }
 
 function cloneKeyInfo(keyInfo: SignerKeyInfo): SignerKeyInfo {
@@ -24,4 +28,13 @@ function cloneKeyInfo(keyInfo: SignerKeyInfo): SignerKeyInfo {
     clone.certificateChain = keyInfo.certificateChain.map((certificate) => new Uint8Array(certificate));
   }
   return clone;
+}
+
+function sameKey(left: SignerKeyInfo, right: SignerKeyInfo): boolean {
+  return left.issuerId === right.issuerId
+    && left.keyId === right.keyId
+    && left.algorithm === right.algorithm
+    && left.certificateFingerprint === right.certificateFingerprint
+    && left.publicKey.length === right.publicKey.length
+    && left.publicKey.every((byte, index) => byte === right.publicKey[index]);
 }

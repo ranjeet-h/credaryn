@@ -35,6 +35,7 @@ The top-level CBOR map uses compact integer keys so the QR remains predictable:
 | `7` | claims | yes | flat map of text/boolean/safe integer values |
 | `8` | statusUrl | no | HTTPS text when present |
 | `9` | artifactDigest | no | compact application-supplied text |
+| `10` | certificateFingerprint | no | signer certificate/public-key fingerprint bound to the trusted key |
 
 Claim keys are sorted using RFC 8949 deterministic map ordering: first by the
 length of the encoded key, then by encoded key bytes. Equivalent JavaScript

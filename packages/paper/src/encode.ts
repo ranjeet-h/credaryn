@@ -6,7 +6,7 @@ import {
 } from "@credaryn/core";
 import { encodeBase45 } from "./base45.js";
 import { encodeDeterministicCbor } from "./cbor.js";
-import { createCoseSign1, MAX_COSE_OBJECT_BYTES } from "./cose.js";
+import { COSE_ALGORITHM_ES256, createCoseSign1, MAX_COSE_OBJECT_BYTES } from "./cose.js";
 
 export const PAPER_PROFILE_PREFIX = "CRD1:" as const;
 
@@ -20,10 +20,12 @@ export interface PaperSealPayload {
   claims: Readonly<Record<string, string | boolean | number>>;
   statusUrl?: string;
   artifactDigest?: string;
+  certificateFingerprint?: string;
 }
 
 export interface PaperSealEncodeOptions {
   artifactDigest?: string;
+  certificateFingerprint?: string;
 }
 
 export interface PaperSealEncoding {
@@ -57,18 +59,14 @@ export async function encodePaperSeal(
   }
   if (keyInfo.keyId.trim() === "") throw new Error("Paper Seal signer keyId must not be empty");
 
-  const profile = createPaperSealPayload(descriptor, keyInfo.keyId, options);
+  const profile = createPaperSealPayload(descriptor, keyInfo.keyId, {
+    ...options,
+    ...(keyInfo.certificateFingerprint === undefined ? {} : { certificateFingerprint: keyInfo.certificateFingerprint }),
+  });
   const payload = encodeDeterministicCbor(toCborMap(profile));
-  let cose: Uint8Array;
-  try {
-    cose = await createCoseSign1(payload, signer);
-  } catch (error) {
-    if (error instanceof Error && /maximum of 1200 bytes|exceeds the maximum/i.test(error.message)) {
-      throw new PaperSealSizeError(payload.length + 120);
-    }
-    throw error;
-  }
-  if (cose.length > MAX_COSE_OBJECT_BYTES) throw new PaperSealSizeError(cose.length);
+  const measuredCoseBytes = measureCoseSign1(payload, keyInfo.keyId);
+  if (measuredCoseBytes > MAX_COSE_OBJECT_BYTES) throw new PaperSealSizeError(measuredCoseBytes);
+  const cose = await createCoseSign1(payload, signer);
 
   return {
     transport: `${PAPER_PROFILE_PREFIX}${encodeBase45(cose)}`,
@@ -95,6 +93,7 @@ export function createPaperSealPayload(
   };
   if (descriptor.statusUrl !== undefined) profile.statusUrl = descriptor.statusUrl;
   if (options.artifactDigest !== undefined) profile.artifactDigest = options.artifactDigest;
+  if (options.certificateFingerprint !== undefined) profile.certificateFingerprint = options.certificateFingerprint;
   return profile;
 }
 
@@ -110,5 +109,19 @@ function toCborMap(profile: PaperSealPayload): Map<number, unknown> {
   ]);
   if (profile.statusUrl !== undefined) map.set(8, profile.statusUrl);
   if (profile.artifactDigest !== undefined) map.set(9, profile.artifactDigest);
+  if (profile.certificateFingerprint !== undefined) map.set(10, profile.certificateFingerprint);
   return map;
+}
+
+function measureCoseSign1(payload: Uint8Array, keyId: string): number {
+  const protectedHeaders = encodeDeterministicCbor(new Map<number, unknown>([
+    [1, COSE_ALGORITHM_ES256],
+    [4, new TextEncoder().encode(keyId)],
+  ]));
+  return encodeDeterministicCbor([
+    protectedHeaders,
+    new Map(),
+    payload,
+    new Uint8Array(64),
+  ]).length;
 }

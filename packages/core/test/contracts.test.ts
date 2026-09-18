@@ -47,6 +47,7 @@ describe("locked V1 contracts", () => {
     };
     const trustStore: TrustStore = {
       resolve: async () => keyInfo,
+      isTrusted: async () => true,
     };
 
     await expect(signer.getKeyInfo()).resolves.toEqual(keyInfo);

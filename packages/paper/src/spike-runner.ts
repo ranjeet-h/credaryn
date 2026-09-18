@@ -31,7 +31,7 @@ const signer: SignerProvider = {
     return operation.sign(privateKey);
   },
 };
-const trustStore: TrustStore = { resolve: async () => keyInfo };
+const trustStore: TrustStore = { resolve: async () => keyInfo, isTrusted: async () => true };
 const seal = await createSpikePaperSeal(descriptor, signer);
 const verified = await verifySpikePaperSeal(seal.transport, trustStore);
 

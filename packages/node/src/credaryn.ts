@@ -93,7 +93,10 @@ export class Credaryn {
     payload: Uint8Array,
     options: PaperVerificationOptions = {},
   ) {
-    return verifyPaperSealPayload(payload, { trustStore: options.trustStore ?? this.trustStore });
+    return verifyPaperSealPayload(payload, {
+      ...options,
+      trustStore: options.trustStore ?? this.trustStore,
+    });
   }
 
   private async resolveTrust(
@@ -104,6 +107,16 @@ export class Credaryn {
     if (engineResult.keyId === undefined || engineResult.issuerId === undefined) return "MISSING" as const;
     if (trustStore.trustSource === "no-trust-material") return "MISSING" as const;
     const matchingKey = await trustStore.resolve(engineResult.keyId, engineResult.issuerId);
-    return decideTrust({ trustStoreAvailable: true, matchingKey: matchingKey !== undefined });
+    if (matchingKey === undefined) {
+      return decideTrust({ trustStoreAvailable: true, matchingKey: false });
+    }
+    try {
+      const trusted = trustStore.isTrusted === undefined
+        ? false
+        : await trustStore.isTrusted(matchingKey);
+      return decideTrust({ trustStoreAvailable: true, matchingKey: trusted });
+    } catch {
+      return decideTrust({ trustStoreAvailable: false, matchingKey: false });
+    }
   }
 }

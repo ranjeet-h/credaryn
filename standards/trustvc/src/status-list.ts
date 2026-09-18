@@ -4,7 +4,7 @@ import type { CredentialStatusPurpose } from "@trustvc/w3c-credential-status";
 const require = createRequire(import.meta.url);
 const { StatusList } = require("@trustvc/w3c-credential-status") as typeof import("@trustvc/w3c-credential-status");
 
-const STATUS_LIST_CONTEXT = "https://w3id.org/vc/status-list/2021/v1";
+const STATUS_LIST_CONTEXT = "https://www.w3.org/ns/credentials/status/v1";
 const STATUS_LIST_LENGTH = 131_072;
 
 export interface BitstringStatusList {

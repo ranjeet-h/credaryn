@@ -17,4 +17,4 @@ The injected client is deliberately narrower than an SDK client. It must provide
 
 Adapters normalize failures to `ProviderError` with a provider name, stable code, message, and retryability. Callers must not parse vendor exception classes. A missing key, denied operation, malformed public-key response, or unavailable provider is an explicit failure; it cannot become a trusted result.
 
-AWS KMS returns DER ECDSA signatures. `providers/aws-kms/src/der-to-cose.ts` validates the canonical DER and converts it to fixed-width `r || s` for the shared ES256 vector. The public `SignerProvider` boundary still returns DER because the Paper Seal COSE layer owns the final representation conversion.
+AWS KMS returns DER ECDSA signatures. `providers/aws-kms/src/der-to-cose.ts` validates the canonical DER and converts it to fixed-width `r || s` at the provider boundary. The Paper Seal COSE layer accepts either canonical DER or a fixed-width 64-byte ES256 `r || s` result so AWS, cloud and HSM adapters share one signing contract.

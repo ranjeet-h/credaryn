@@ -67,7 +67,7 @@ function decodeProfilePayload(input: Uint8Array): PaperSealPayload {
     throw new PaperSealDecodeError(error instanceof Error ? error.message : "Paper Seal payload is invalid CBOR");
   }
   if (!(decoded instanceof Map)) throw new PaperSealDecodeError("Paper Seal payload must be a CBOR map");
-  const allowedFields = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  const allowedFields = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   for (const key of decoded.keys()) {
     if (typeof key !== "number" || !allowedFields.has(key)) throw new PaperSealDecodeError("Paper Seal payload contains an unknown field");
   }
@@ -94,6 +94,8 @@ function decodeProfilePayload(input: Uint8Array): PaperSealPayload {
   if (statusUrl !== undefined) profile.statusUrl = readStringValue(statusUrl, "statusUrl");
   const artifactDigest = decoded.get(9);
   if (artifactDigest !== undefined) profile.artifactDigest = readStringValue(artifactDigest, "artifactDigest");
+  const certificateFingerprint = decoded.get(10);
+  if (certificateFingerprint !== undefined) profile.certificateFingerprint = readStringValue(certificateFingerprint, "certificateFingerprint");
   const descriptorResult = validateDescriptor({
     issuerId: profile.issuerId,
     documentId: profile.documentId,
