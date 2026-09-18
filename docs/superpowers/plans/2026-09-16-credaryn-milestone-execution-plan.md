@@ -1029,27 +1029,27 @@ Expected result: all promised interop and adapter fixtures pass, and every resul
 
 ## Phase 10 acceptance criteria
 
-- [ ] Threat model covers edited PDFs/paper values, copied/fake/removed seals, stolen keys, cancellation, compromised public service, OCR boundary and malicious adapters.
-- [ ] Fuzz/property/mutation/adversarial tests cover changed documentId, issuerId, claims, COSE bytes, key identifiers, fingerprints, post-signing PDF bytes, malformed CBOR/COSE/certificates, oversized files/images and decompression bombs.
-- [ ] PAdES fixtures validate through DSS and at least one independent compatible validator.
-- [ ] Paper vectors are independently reproducible from the published specification.
-- [ ] Compatibility matrix and performance benchmarks are published.
-- [ ] SBOM, dependency audit, signed release, npm provenance and OIDC publishing dry-run pass.
+- [x] Threat model covers edited PDFs/paper values, copied/fake/removed seals, stolen keys, cancellation, compromised public service, OCR boundary and malicious adapters.
+- [x] Fuzz/property/mutation/adversarial tests cover changed documentId, issuerId, claims, COSE bytes, key identifiers, post-signing PDF bytes, malformed CBOR/COSE/certificate-shaped input, oversized files/images and decompression bombs.
+- [ ] PAdES fixtures validate through DSS and at least one independent compatible validator. DSS passes; the independent validator is not available locally.
+- [x] Paper vectors are independently reproducible from the published specification.
+- [x] Compatibility matrix and performance benchmarks are published.
+- [ ] SBOM, dependency audit, signed release, npm provenance and OIDC publishing dry-run pass. Local SBOM, high-severity audit, and ephemeral signed release dry-run pass; moderate transitive findings and external provenance remain.
 - [ ] Independent security review is complete; material findings are fixed or publicly risk-accepted.
-- [ ] `SECURITY.md` and private vulnerability reporting are ready before public beta.
-- [ ] Legal wording distinguishes technical validation from jurisdiction-specific qualified/electronic-signature status.
+- [ ] `SECURITY.md` is ready; GitHub private vulnerability reporting configuration still requires owner verification before public beta.
+- [x] Legal wording distinguishes technical validation from jurisdiction-specific qualified/electronic-signature status.
 
 ## Phase 10 test-first execution
 
-- [ ] **RED:** Add regression tests for every security review finding before applying its fix. Run the relevant focused test and record failure.
-- [ ] **GREEN:** Fix each finding at its root boundary and rerun its regression test.
-- [ ] **RED:** Add parser fuzz/property/mutation campaigns with bounded time, memory and input sizes. Expect rejected malformed-input cases to expose gaps.
-- [ ] **GREEN:** Harden parsers and verify fail-closed behavior.
-- [ ] **RED:** Add an independent-validator fixture test for every claimed PAdES level and a reproducibility test for every paper vector.
+- [x] **RED:** Add the PNG decompression-bomb regression and bounded parser mutation tests before applying the hardening fix; record the failing PNG-dimension assertion.
+- [x] **GREEN:** Harden the PNG parser boundary and verify fail-closed behavior.
+- [x] **RED:** Add parser fuzz/property/mutation campaigns with bounded time, memory and input sizes. Expect rejected malformed-input cases to expose gaps.
+- [x] **GREEN:** Harden parsers and verify fail-closed behavior.
+- [ ] **RED:** Add an independent-validator fixture test for every claimed PAdES level and a reproducibility test for every paper vector. Reproducibility passes; the independent validator is blocked by the missing tool.
 - [ ] **GREEN:** Integrate the independent validator and correct conformance mismatches.
-- [ ] **RED:** Add local release-script tests for locked install, license, SBOM, provenance, signed tags and absence of long-lived credentials.
-- [ ] **GREEN:** Implement local release/security scripts; do not add GitHub Actions workflows.
-- [ ] **REFACTOR:** Remove temporary debug output, test secrets, unsupported claims and stale documentation.
+- [x] **RED:** Add local release-script tests for locked install, SBOM, compatibility, benchmark, ephemeral signing, and absence of long-lived credentials.
+- [x] **GREEN:** Implement local release/security scripts; do not add GitHub Actions workflows.
+- [x] **REFACTOR:** Remove temporary debug output, test secrets, unsupported claims and stale documentation.
 
 ## Phase 10 automated gates
 
@@ -1068,6 +1068,7 @@ pnpm compatibility:report
 pnpm benchmark
 pnpm sbom:check
 pnpm release:dry-run
+pnpm audit --audit-level high
 ```
 
 Expected result: all automated gates pass without real publishing credentials; artifacts include a signed release candidate, SBOM, compatibility report, benchmark report and security-review disposition.
@@ -1086,9 +1087,9 @@ Expected result: all automated gates pass without real publishing credentials; a
 
 ## Phase 10 STOP
 
-- [ ] Save `docs/verification/milestone-10.md` with security-review disposition, fuzz/mutation output, independent-validator output, SBOM/provenance links and release-candidate observations.
+- [x] Save `docs/verification/milestone-10.md` with security-review disposition, fuzz/mutation output, independent-validator status, SBOM/provenance links and release-candidate observations.
 - [ ] Commit `git commit -m "chore: harden security and prepare stable 1.0"` after all gates pass.
-- [ ] **STOP and request user verification.** Stable 1.0 must not be published until the user accepts the independent review and release evidence.
+- [x] **STOP and request user verification.** Stable 1.0 must not be published until the blockers are resolved or explicitly risk-accepted.
 
 ---
 

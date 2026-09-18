@@ -24,7 +24,7 @@ export async function generate(): Promise<void> {
     pdfEngine: new DssPdfSignatureEngine({ endpoint: process.env.DSS_URL ?? "http://127.0.0.1:8080" }),
     renderInvoice: async (input, paperSeal) => createPlaywrightInvoiceRenderer({
       createBrowser: async () => {
-        const browser = await chromium.launch({ executablePath: puppeteer.executablePath(), headless: true });
+        const browser = await chromium.launch({ executablePath: await puppeteer.executablePath(), headless: true });
         return browser;
       },
     })(input, paperSeal.transport),

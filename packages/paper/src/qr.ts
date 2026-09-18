@@ -57,6 +57,7 @@ export async function renderPaperSealQr(
 export function decodePaperSealQr(image: Uint8Array): string {
   if (!(image instanceof Uint8Array)) throw new PaperQrError("QR image must be PNG bytes");
   if (image.byteLength > MAX_QR_IMAGE_BYTES) throw new PaperQrError("QR image exceeds the maximum size of 4 MiB");
+  assertPngDimensions(image);
 
   let png: PNG;
   try {
@@ -99,4 +100,23 @@ export function decodePaperSealQr(image: Uint8Array): string {
     if (error instanceof PaperQrError) throw error;
     throw new PaperQrError(error instanceof Error ? error.message : "QR decoding failed");
   }
+}
+
+function assertPngDimensions(image: Uint8Array): void {
+  if (image.byteLength < 24 || !startsWith(image, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) {
+    throw new PaperQrError("QR image is not a valid PNG");
+  }
+  const view = new DataView(image.buffer, image.byteOffset, image.byteLength);
+  if (view.getUint32(8) !== 13 || !startsWith(image.subarray(12, 16), [0x49, 0x48, 0x44, 0x52])) {
+    throw new PaperQrError("QR image is missing a valid PNG header");
+  }
+  const width = view.getUint32(16);
+  const height = view.getUint32(20);
+  if (width === 0 || height === 0 || width > MAX_QR_DIMENSION || height > MAX_QR_DIMENSION) {
+    throw new PaperQrError("QR image dimensions exceed the configured limit");
+  }
+}
+
+function startsWith(input: Uint8Array, prefix: readonly number[]): boolean {
+  return input.length >= prefix.length && prefix.every((byte, index) => input[index] === byte);
 }
