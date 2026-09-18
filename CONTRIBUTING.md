@@ -55,7 +55,7 @@ Useful scripts: `pnpm test:property`, `pnpm test:fuzz -- --time-limit=120`,
    pnpm typecheck && pnpm lint && pnpm test && pnpm exec vitest run --coverage && pnpm docs:check
    ```
 4. Open a pull request using the template and describe the behaviour and the evidence.
-5. CI must pass. A maintainer will review.
+5. All gates above must pass locally. A maintainer will review; the project does not run CI (only the Pages deployment workflow exists).
 
 Sign off your commits with the [Developer Certificate of Origin](https://developercertificate.org/)
 (`git commit -s`). By contributing you agree your contribution is licensed under the project's

@@ -1,6 +1,6 @@
 # ADR 0004: No GitHub Actions CI; local and owner-run gates
 
-- Status: superseded by ADR 0009 for the public OSS repository (the local-first gates remain)
+- Status: accepted; the only GitHub Actions workflow is the Pages deployment (ADR 0009)
 - Date: 2026-09-18
 - Supersedes: the CI requirement in spec §18 (GitHub Actions on Node 24), §19 (SoftHSM2 "in CI") and §21 ("in CI" provenance/fuzz/release gates)
 
